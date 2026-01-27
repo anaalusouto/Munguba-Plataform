@@ -100,17 +100,14 @@ def conectar_google():
         return []
 
 
-@app.route("/")
-def index():
+# --- FUNÇÃO AUXILIAR PARA PROCESSAR DADOS ---
+def processar_dados_munguba():
     raw_data = conectar_google()
     plantas_limpas = []
 
-    # --- CORREÇÃO DO ERRO AQUI ---
-    # Inicializa o contador para todas as categorias + Outros
     stats_categorias = {cat: 0 for cat in CATEGORIAS_MAP.keys()}
     stats_categorias["Outros"] = 0
 
-    # Chaves de Busca
     chaves_potencial = ["potencial", "uso", "aplicacao", "bioeconomia"]
     chaves_parte = ["parte", "usada", "estrutura"]
     chaves_coords = ["coordenadas", "gps", "lat", "gbif"]
@@ -122,23 +119,16 @@ def index():
     chaves_importancia = ["importancia", "resumo"]
 
     for row in raw_data:
-        # 1. Pega valores brutos
         potencial_txt = buscar_valor_inteligente(row, chaves_potencial)
         parte_txt = buscar_valor_inteligente(row, chaves_parte)
-
-        # 2. Classifica usando os mapas
         tags_categoria = classificar_tags(potencial_txt, CATEGORIAS_MAP)
-        if not tags_categoria:
-            tags_categoria = ["Outros"]
-
+        if not tags_categoria: tags_categoria = ["Outros"]
         tags_partes = classificar_tags(parte_txt, PARTES_MAP)
 
-        # 3. Estatísticas (Incrementa o contador)
         for t in tags_categoria:
             if t in stats_categorias:
                 stats_categorias[t] += 1
             else:
-                # Segurança caso venha algo estranho, joga no Outros
                 stats_categorias["Outros"] += 1
 
         planta = {
@@ -167,16 +157,29 @@ def index():
         "partes": list(PARTES_MAP.keys())
     }
 
-    return render_template("home.html", plantas=plantas_limpas, stats=stats, filtros=filtros)
+    return plantas_limpas, stats, filtros
 
 
-@app.route("/catalogo")
-def r1(): return redirect(url_for("index"))
+# --- ROTAS ---
+
+@app.route("/")
+def index():
+    plantas, stats, filtros = processar_dados_munguba()
+    return render_template("home.html", plantas=plantas, stats=stats, filtros=filtros)
 
 
 @app.route("/mapa")
-def r2(): return redirect(url_for("index") + "#mapa-area")
+def mapa_dashboard():
+    # Carrega os mesmos dados, mas renderiza o template de tela cheia
+    plantas, stats, _ = processar_dados_munguba()
+    return render_template("mapa.html", plantas=plantas, stats=stats)
+
+
+@app.route("/catalogo")
+def catalogo_redirect():
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Roda liberado na rede (0.0.0.0)
+    app.run(host='0.0.0.0', port=5000, debug=True)
