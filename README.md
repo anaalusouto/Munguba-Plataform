@@ -1,11 +1,10 @@
 # 🌿 Plataforma Munguba
 
 > **Mapeamento da biodiversidade e potencial bioeconômico na Ilha do Combu.**
-> Projeto de Iniciação Científica (PIBICTI) - Museu Paraense Emílio Goeldi (MPEG).
 
 A **Plataforma Munguba** é uma aplicação web interativa desenvolvida para catalogar, georreferenciar e visualizar espécies vegetais com potencial econômico na região insular de Belém/PA. O sistema utiliza dados reais coletados em campo e armazenados em nuvem para gerar dashboards e mapas dinâmicos.
 
-![Status do Projeto](https://img.shields.io/badge/Status-Concluído-brightgreen)
+![Status do Projeto](https://img.shields.io/badge/Status-Em_Andamento-yellow)
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![Flask](https://img.shields.io/badge/Flask-Framework-lightgrey)
 
