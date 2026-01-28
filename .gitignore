@@ -10,4 +10,6 @@ __pycache__/
 
 # SEGURANÇA (Não subir senhas!)
 backend/credentials.json
-credentials.json
+__pycache__/
+.venv/
+.env

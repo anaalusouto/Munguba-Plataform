@@ -3,11 +3,12 @@ import gspread
 from google.oauth2.service_account import Credentials
 import os
 import unicodedata
+import json  # <--- Importante para o Deploy
 
 app = Flask(__name__)
 
 # --- CONFIGURAÇÕES ---
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Caminho absoluto para evitar erros no Linux
 BACKEND_DIR = os.path.join(BASE_DIR, "backend")
 
 # --- MEMÓRIA RAM ---
@@ -17,7 +18,7 @@ CACHE_DADOS = {
     "carregado": False
 }
 
-# --- SEU GABARITO OFICIAL (Copiado do seu dados_mapa) ---
+# --- SEU GABARITO OFICIAL ---
 GPS_FIXO = {
     'Adenocalymma magnificum': [-1.503333, -48.446667],
     'Adiantum tomentosum': [-1.497500, -48.429167],
@@ -27,8 +28,8 @@ GPS_FIXO = {
     'Anthurium pentaphyllum': [-1.503333, -48.446944],
     'Astrocaryum murumuru': [-0.641389, -47.531667],
     'Attalea phalerata': [-1.416667, -48.416667],
-    'Byttneria coriácea': [-1.499232, -48.453742],  # Com acento (como você mandou)
-    'Byttneria coriacea': [-1.499232, -48.453742],  # Sem acento (por garantia)
+    'Byttneria coriácea': [-1.499232, -48.453742],
+    'Byttneria coriacea': [-1.499232, -48.453742],
     'Caladium bicolor': [-1.501389, -48.446944],
     'Casimirella ampla': [-1.500000, -48.450000],
     'Cecropia palmata': [-1.416667, -48.416667],
@@ -65,11 +66,10 @@ PARTES_MAP = {
 }
 
 
-# --- FUNÇÕES ---
+# --- FUNÇÕES AUXILIARES ---
 
 def normalizar_texto(texto):
     if not isinstance(texto, str): return str(texto)
-    # Remove acentos, espaços nas pontas e joga tudo para minúsculo
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
 
 
@@ -91,43 +91,56 @@ def classificar_tags(texto, mapa):
 
 
 def encontrar_no_gabarito(nome_na_planilha):
-    """
-    Compara o nome da planilha com o gabarito.
-    Ex: Planilha "Inga nobilis Willd." bate com Gabarito "Inga nobilis"
-    """
     if not nome_na_planilha: return None
-
-    # Normaliza o nome que veio da planilha (ex: "inga nobilis willd.")
     busca = normalizar_texto(nome_na_planilha)
-
-    # Varre as chaves do seu gabarito
     for nome_chave, coords in GPS_FIXO.items():
         chave_norm = normalizar_texto(nome_chave)
-
-        # VERIFICAÇÃO DUPLA:
-        # 1. Se a chave do gabarito está DENTRO do nome da planilha (ex: "inga nobilis" in "inga nobilis willd.")
-        # 2. OU se o nome da planilha está DENTRO da chave (ex: "inga nobilis" in "inga nobilis (mart.)")
         if chave_norm in busca or busca in chave_norm:
             return [{'lat': coords[0], 'lng': coords[1]}]
-
     return None
+
+
+# --- NOVA FUNÇÃO DE CONEXÃO SEGURA (LOCAL E RENDER) ---
+def conectar_google():
+    """Conecta ao Google Sheets usando Env Var (Render) ou Arquivo (Local)"""
+    SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+
+    try:
+        # 1. Tenta pegar do "Cofre" do Render (Variável de Ambiente)
+        if os.environ.get("GOOGLE_CREDENTIALS_JSON"):
+            print("☁️ Conectando via Variável de Ambiente (Render)...")
+            creds_dict = json.loads(os.environ.get("GOOGLE_CREDENTIALS_JSON"))
+            creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+
+        # 2. Se não achar, tenta pegar o arquivo local (Seu PC)
+        else:
+            caminho_local = os.path.join(BACKEND_DIR, "credentials.json")
+            if os.path.exists(caminho_local):
+                print("💻 Conectando via Arquivo Local...")
+                creds = Credentials.from_service_account_file(caminho_local, scopes=SCOPES)
+            else:
+                print("❌ ERRO: Nenhuma credencial encontrada!")
+                return None
+
+        client = gspread.authorize(creds)
+        return client.open("TESTEBASE").sheet1.get_all_records()
+
+    except Exception as e:
+        print(f"❌ Erro na Conexão: {e}")
+        return None
 
 
 # --- CARREGAMENTO ---
 
 def carregar_dados_aovivo():
     print("\n" + "=" * 50)
-    print("📡 SINCRONIZANDO: BUSCA POR NOME DA ESPÉCIE")
+    print("📡 SINCRONIZANDO DADOS...")
     print("=" * 50)
-    try:
-        caminho_creds = os.path.join(BACKEND_DIR, "credentials.json")
-        creds = Credentials.from_service_account_file(caminho_creds,
-                                                      scopes=["https://www.googleapis.com/auth/spreadsheets",
-                                                              "https://www.googleapis.com/auth/drive"])
-        client = gspread.authorize(creds)
-        raw_data = client.open("TESTEBASE").sheet1.get_all_records()
-    except Exception as e:
-        print(f"❌ Erro Conexão: {e}")
+
+    # Usa a nova função de conexão
+    raw_data = conectar_google()
+
+    if not raw_data:
         return False
 
     plantas_processadas = []
@@ -138,22 +151,15 @@ def carregar_dados_aovivo():
     print(f"📋 Processando {len(raw_data)} plantas...")
 
     for row in raw_data:
-        # 1. PEGA O NOME NA PLANILHA
-        # Prioriza "ESPECIE", depois "Nome Cientifico"
         nome_c = buscar_valor_inteligente(row, ["especie", "nome cientifico", "nome"])
-
-        # 2. TENTA ENCONTRAR NO GABARITO (PELO NOME DA ESPÉCIE)
         pontos_gps = encontrar_no_gabarito(nome_c)
 
         if pontos_gps:
             total_geo += 1
-            # print(f"   ✅ Achei: {nome_c}")
         else:
-            # Mostra o que falhou para você corrigir
             if nome_c and len(nome_c) > 3:
                 print(f"   ⚠️ NOME NÃO BATENDO: Planilha diz '{nome_c}' -> Não achei no Gabarito.")
 
-        # Resto dos dados...
         url_foto = buscar_valor_inteligente(row, ["foto", "imagem"])
         if not url_foto or "http" not in str(url_foto):
             url_foto = "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80"
