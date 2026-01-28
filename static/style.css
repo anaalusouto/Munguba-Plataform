@@ -34,3 +34,15 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
+@font-face {
+    font-family: 'ValorePro';
+    src: url('fonts/fonte.ttf') format('truetype'); /* Sem pasta, direto no nome */
+    font-weight: normal;
+    font-style: normal;
+}
+
+.font-brand {
+    font-family: 'ValorePro', serif !important; /* Forcei serifa como fallback */
+    font-weight: normal;
+    letter-spacing: 0px;
+}

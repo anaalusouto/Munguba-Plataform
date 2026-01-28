@@ -7,9 +7,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
+        /* --- CONFIGURAÇÃO DA FONTE NOVA (Munguba) --- */
+        @font-face {
+            font-family: 'ValorePro';
+            /* Aponta para o arquivo que você confirmou que baixou */
+            src: url('/static/munguba.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Classe para usar no Título Principal */
+        .font-brand {
+            font-family: 'ValorePro', serif !important;
+            font-weight: normal !important;
+            letter-spacing: 0px;
+        }
+        /* -------------------------------------------- */
+
         body { font-family: 'Inter', sans-serif; }
         .font-pacifico { font-family: 'Pacifico', cursive; }
+
         /* Animação suave para os modais */
         dialog[open] {
             animation: fadeIn 0.3s ease-out;
@@ -19,26 +38,29 @@
             to { opacity: 1; transform: scale(1); }
         }
     </style>
+
      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-    <header class="absolute top-0 w-full z-50 py-4">
-        <div class="container mx-auto px-6 flex justify-between items-center">
+<header class="absolute top-0 w-full z-50 py-4">
+    <div class="container mx-auto px-6 flex justify-between items-center">
 
-            <div class="flex items-center gap-3 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-sm">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Munguba" class="h-10 w-auto">
-                <div>
-                    <h1 class="text-lg font-bold text-emerald-900 font-pacifico leading-none">Munguba</h1>
-                </div>
+        <div class="group flex items-center gap-0 hover:gap-2 bg-white/90 backdrop-blur-md p-2 hover:px-4 rounded-full shadow-sm transition-all duration-500 ease-in-out cursor-pointer border border-transparent hover:border-emerald-100">
+
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Munguba" class="h-10 w-auto">
+
+            <div class="max-w-0 opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 overflow-hidden transition-all duration-700 ease-out whitespace-nowrap">
+                <h1 class="text-lg text-emerald-900 font-brand leading-none pl-1">Munguba</h1>
             </div>
-
-            <a href="#" class="bg-white/90 backdrop-blur-md hover:bg-emerald-600 hover:text-white text-emerald-800 px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm">
-                Acesso PIBICTI
-            </a>
         </div>
-    </header>
+
+        <a href="#" class="bg-white/90 backdrop-blur-md hover:bg-emerald-600 hover:text-white text-emerald-800 px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm">
+            Acesso PIBICTI
+        </a>
+    </div>
+</header>
 
     <main>
         {% block content %}

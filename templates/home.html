@@ -2,71 +2,111 @@
 
 {% block content %}
 
-<section id="inicio" class="relative min-h-[60vh] flex items-center justify-center bg-cover bg-center"
-         style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070');">
-    <div class="container mx-auto px-6 text-center text-white relative z-10">
-        <span class="inline-block px-4 py-2 bg-emerald-600/30 backdrop-blur-md border border-emerald-400/30 rounded-full text-emerald-200 text-xs font-bold uppercase tracking-widest mb-4">
-            🔬 Projeto PIBICTI • MPEG
+<section class="relative bg-white pt-32 pb-20 overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-full z-0 opacity-10 pointer-events-none">
+        <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1600&q=20" class="w-full h-full object-cover grayscale">
+    </div>
+
+    <div class="container mx-auto px-6 relative z-10 text-center">
+        <span class="inline-block py-1 px-3 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-bold tracking-widest uppercase mb-6">
+            Banco de Dados Oficial • PIBICTI
         </span>
-        <h1 class="text-4xl md:text-6xl font-bold mb-4 drop-shadow-xl font-sans">
-            Plataforma Munguba
+
+        <h1 class="text-6xl md:text-7xl text-emerald-950 font-brand mb-6 leading-tight">
+            Biodiversidade<br>da Ilha do Combu
         </h1>
-        <p class="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto mb-8 font-light">
-            Mapeamento da biodiversidade e potencial bioeconômico na Ilha do Combu.
+
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto mb-10 font-light">
+            Acesse dados abertos sobre o potencial bioeconômico, espécies nativas e mapeamento georreferenciado da região.
         </p>
-        <a href="#catalogo-area" onclick="document.getElementById('modal-catalogo').showModal()"
-           class="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold shadow-lg transition-all inline-flex items-center gap-2 transform hover:-translate-y-1">
-            <i class="ri-search-line"></i> Explorar Catálogo
-        </a>
+
+        <div class="max-w-3xl mx-auto relative group">
+            <div class="absolute inset-0 bg-emerald-200 rounded-full blur opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
+            <div class="relative bg-white border border-gray-200 rounded-full shadow-xl flex items-center p-2 hover:border-emerald-300 transition-colors">
+                <div class="pl-6 text-gray-400">
+                    <i class="ri-search-2-line text-xl"></i>
+                </div>
+                <input type="text" id="hero-busca" onkeypress="verificarEnter(event)" placeholder="Busque por nome científico, popular ou uso (ex: Andiroba)..." class="w-full bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400 px-4 py-3 text-lg outline-none">
+
+                <button onclick="transferirBusca()" class="bg-emerald-900 text-white px-8 py-3 rounded-full font-bold hover:bg-emerald-800 transition-all shadow-md">
+                    Pesquisar
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">Tente buscar por <span class="text-emerald-600 cursor-pointer underline" onclick="buscarTagRapida('Medicinal')">Medicinal</span>, <span class="text-emerald-600 cursor-pointer underline" onclick="buscarTagRapida('Frutífera')">Frutífera</span> ou <span class="text-emerald-600 cursor-pointer underline" onclick="buscarTagRapida('Madeira')">Madeira</span>.</p>
+        </div>
     </div>
 </section>
 
-<section id="mapa-area" class="py-8 bg-gray-50 min-h-screen flex flex-col">
-    <div class="container mx-auto px-6 flex-1 flex flex-col">
-
-        <div class="flex justify-between items-end mb-6">
+<section class="border-y border-gray-100 bg-gray-50/50 py-12">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-gray-200/50">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <i class="ri-map-pin-2-fill text-emerald-600"></i> Mapa Interativo
-                </h2>
-                <p class="text-sm text-gray-500">Georreferenciamento das espécies coletadas.</p>
+                <span class="block text-4xl font-bold text-emerald-900 mb-1">{{ stats.total_especies }}</span>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Espécies Registradas</span>
             </div>
-            <div class="flex gap-4 text-right">
-                <div>
-                    <span class="block text-2xl font-bold text-emerald-700">{{ stats.total_especies }}</span>
-                    <span class="text-xs text-gray-400 font-bold uppercase">Espécies</span>
-                </div>
+            <div>
+                <span class="block text-4xl font-bold text-blue-900 mb-1">{{ stats.total_geo }}</span>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Georreferenciadas</span>
+            </div>
+            <div>
+                <span class="block text-4xl font-bold text-purple-900 mb-1">{{ filtros.categorias|length }}</span>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Categorias de Uso</span>
+            </div>
+            <div>
+                <span class="block text-4xl font-bold text-gray-900 mb-1">100%</span>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acesso Aberto</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="mapa-area" class="py-20 bg-white">
+    <div class="container mx-auto px-6">
+
+        <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+            <div>
+                <h2 class="text-3xl font-brand text-emerald-950 mb-2">Explorador Territorial</h2>
+                <p class="text-gray-500">Visualize a distribuição das espécies e filtre por potencial bioeconômico.</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('modal-visao-geral').showModal()" class="px-5 py-2.5 rounded-lg border border-gray-200 text-gray-600 font-bold text-sm hover:bg-gray-50 hover:text-emerald-700 transition-colors flex items-center gap-2">
+                    <i class="ri-bar-chart-fill"></i> Relatório
+                </button>
+                <button onclick="document.getElementById('modal-catalogo').showModal()" class="px-5 py-2.5 rounded-lg bg-emerald-900 text-white font-bold text-sm hover:bg-emerald-800 transition-all shadow-lg shadow-emerald-900/20 flex items-center gap-2">
+                    <i class="ri-list-check"></i> Ver Lista Completa
+                </button>
             </div>
         </div>
 
-        <div class="grid lg:grid-cols-4 gap-6 flex-1 min-h-[600px]">
-
-            <div class="lg:col-span-1 bg-white rounded-xl border border-gray-200 p-5 flex flex-col shadow-sm h-full">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Camadas do Mapa</h3>
-                <div class="space-y-3">
-                    <button onclick="document.getElementById('modal-visao-geral').showModal()"
-                            class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 flex items-center gap-3 text-gray-700 transition-all">
-                        <i class="ri-pie-chart-2-line text-lg text-blue-500"></i> <span class="font-medium">Visão Geral</span>
-                    </button>
-                    <button class="w-full text-left px-4 py-3 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center gap-3 text-emerald-800 transition-all">
-                        <i class="ri-plant-line text-lg"></i> <span class="font-bold">Biodiversidade</span>
-                    </button>
-                    <button onclick="document.getElementById('modal-catalogo').showModal()"
-                            class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 flex items-center gap-3 text-gray-700 transition-all">
-                        <i class="ri-list-check text-lg text-purple-500"></i> <span class="font-medium">Lista de Espécies</span>
-                    </button>
-                </div>
-
-                <div class="mt-auto pt-6 border-t border-gray-100">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-3">Legenda Ativa</p>
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-2 text-xs text-gray-600"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Espécies Mapeadas</div>
+        <div class="grid lg:grid-cols-12 gap-8 h-[700px]">
+            <div class="lg:col-span-3 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Categorias de Uso</h3>
+                {% for categoria in filtros.categorias %}
+                {% if stats.por_categoria[categoria] > 0 %}
+                <div onclick="filtrarMapaPelaCategoria('{{ categoria }}')" class="cursor-pointer group bg-white border border-gray-100 hover:border-emerald-500 p-4 rounded-xl shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+                    <div class="absolute right-0 top-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="ri-plant-fill text-4xl text-emerald-900"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <span class="block text-2xl font-bold text-emerald-900 group-hover:text-emerald-600 transition-colors">{{ stats.por_categoria[categoria] }}</span>
+                        <span class="text-sm font-medium text-gray-600">{{ categoria }}</span>
                     </div>
                 </div>
+                {% endif %}
+                {% endfor %}
             </div>
 
-            <div class="lg:col-span-3 bg-white rounded-xl overflow-hidden border border-gray-200 shadow-inner relative h-[600px]">
+            <div class="lg:col-span-9 bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 shadow-inner relative">
                 <div id="mapid" class="w-full h-full z-0"></div>
+                <div class="absolute bottom-6 left-6 bg-white/90 backdrop-blur px-4 py-3 rounded-lg shadow-lg border border-gray-200 z-[400] text-xs">
+                    <p class="font-bold text-gray-900 mb-2 uppercase">Legenda</p>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Medicinal</div>
+                        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Alimentação</div>
+                        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Outros</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -75,29 +115,18 @@
 <dialog id="modal-visao-geral" class="w-11/12 max-w-5xl rounded-2xl shadow-2xl backdrop:bg-black/60 p-0 m-auto">
     <div class="bg-gray-50 relative flex flex-col max-h-[90vh]">
         <div class="p-6 border-b border-gray-200 flex justify-between items-center shrink-0 bg-white">
-            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2"><i class="ri-global-line text-emerald-500"></i> Visão Geral</h2>
+            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2"><i class="ri-pie-chart-2-fill text-emerald-600"></i> Analytics</h2>
             <button onclick="document.getElementById('modal-visao-geral').close()" class="text-gray-400 hover:text-red-500"><i class="ri-close-line text-2xl"></i></button>
         </div>
         <div class="flex-1 overflow-auto p-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-                    <p class="text-3xl font-bold text-emerald-600">{{ stats.total_especies }}</p>
-                    <p class="text-xs text-gray-500 uppercase mt-1">Espécies</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-                    <p class="text-3xl font-bold text-blue-600">{{ stats.total_geo }}</p>
-                    <p class="text-xs text-gray-500 uppercase mt-1">Mapeadas</p>
-                </div>
-            </div>
-
             <div class="bg-white p-8 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="text-sm font-bold text-gray-800 mb-6 border-b pb-2 uppercase tracking-wide">Distribuição por Categoria</h3>
-                <div class="space-y-4">
+                <h3 class="text-sm font-bold text-gray-800 mb-6 border-b pb-2 uppercase tracking-wide">Distribuição do Acervo</h3>
+                <div class="space-y-6">
                     {% for categoria, qtd in stats.por_categoria.items() %}
                     {% if qtd > 0 %}
                     <div>
-                        <div class="flex justify-between text-sm mb-1"><span class="text-gray-600">{{ categoria }}</span><span class="font-bold text-gray-900">{{ qtd }}</span></div>
-                        <div class="w-full bg-gray-100 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" style="width: {{ (qtd / stats.total_especies * 100) }}%"></div></div>
+                        <div class="flex justify-between text-sm mb-2"><span class="text-gray-600 font-medium">{{ categoria }}</span><span class="font-bold text-emerald-900">{{ qtd }}</span></div>
+                        <div class="w-full bg-gray-100 rounded-full h-2.5"><div class="bg-emerald-600 h-2.5 rounded-full" style="width: {{ (qtd / stats.total_especies * 100) }}%"></div></div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -109,16 +138,15 @@
 
 <dialog id="modal-catalogo" class="w-11/12 max-w-[95rem] h-[90vh] bg-gray-50 rounded-2xl shadow-2xl backdrop:bg-black/60 p-0 m-auto fixed inset-0 z-50 overflow-hidden">
     <div class="h-full flex flex-col md:flex-row">
-
         <div class="w-full md:w-72 bg-white border-r border-gray-200 flex flex-col h-full shrink-0 z-10">
             <div class="p-6 border-b border-gray-100">
                 <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2"><i class="ri-filter-3-line text-emerald-600"></i> Filtros</h2>
             </div>
             <div class="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
-                <button onclick="setarFiltroTag('todos', this)" class="btn-filtro active w-full text-left px-4 py-2.5 rounded-lg bg-emerald-50 text-emerald-800 font-bold border border-emerald-100 text-sm flex justify-between">Todas <span class="text-emerald-600">({{ stats.total_especies }})</span></button>
+                <button onclick="setarFiltroTag('todos', this)" class="btn-filtro active w-full text-left px-4 py-3 rounded-lg bg-emerald-50 text-emerald-900 font-bold border border-emerald-100 text-sm flex justify-between">Todas <span class="text-emerald-600">({{ stats.total_especies }})</span></button>
                 {% for categoria in filtros.categorias %}
                 {% if stats.por_categoria[categoria] > 0 %}
-                <button onclick="setarFiltroTag('{{ categoria }}', this)" class="btn-filtro w-full text-left px-4 py-2.5 rounded-lg text-gray-600 font-medium hover:bg-gray-50 hover:text-gray-900 transition-all text-sm flex justify-between group border border-transparent">
+                <button onclick="setarFiltroTag('{{ categoria }}', this)" class="btn-filtro w-full text-left px-4 py-3 rounded-lg text-gray-600 font-medium hover:bg-gray-50 hover:text-gray-900 transition-all text-sm flex justify-between group border border-transparent">
                     <span class="truncate pr-2">{{ categoria }}</span><span class="text-gray-400 text-xs group-hover:text-gray-600">({{ stats.por_categoria[categoria] }})</span>
                 </button>
                 {% endif %}
@@ -127,12 +155,12 @@
         </div>
 
         <div class="flex-1 flex flex-col h-full bg-gray-50/50">
-            <div class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center shadow-sm z-10">
-                <div class="relative w-96">
-                    <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="input-busca" onkeyup="filtrarTudo()" placeholder="Buscar espécie..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 transition-all">
+            <div class="bg-white border-b border-gray-200 px-8 py-5 flex justify-between items-center shadow-sm z-10">
+                <div class="relative w-full max-w-xl">
+                    <i class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="input-busca" onkeyup="filtrarTudo()" placeholder="Digite o nome da espécie..." class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner">
                 </div>
-                <button onclick="document.getElementById('modal-catalogo').close()" class="text-gray-400 hover:text-red-500"><i class="ri-close-circle-line text-2xl"></i></button>
+                <button onclick="document.getElementById('modal-catalogo').close()" class="ml-4 text-gray-400 hover:text-red-500 p-2"><i class="ri-close-circle-line text-3xl"></i></button>
             </div>
 
             <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
@@ -141,33 +169,30 @@
                     <div onclick="abrirDetalhe('{{ loop.index }}')"
                          data-tags="{{ ','.join(planta['tags'] + planta['partes_tags']) }}"
                          data-search="{{ planta['nome_popular']|lower }} {{ planta['nome_cientifico']|lower }} {{ planta['familia']|lower }}"
-                         class="card-planta bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all group flex flex-col h-full overflow-hidden">
-                        <div class="h-40 bg-gray-200 relative overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&q=60" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                        </div>
-                        <div class="p-5 flex-1 flex flex-col">
-                            <h4 class="font-bold text-gray-900 text-lg mb-1">{{ planta['nome_popular'] }}</h4>
-                            <p class="text-xs text-gray-500 italic mb-4">{{ planta['nome_cientifico'] }}</p>
+                         class="card-planta bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-lg hover:-translate-y-1 transition-all group flex flex-col h-full overflow-hidden">
 
-                            <div class="flex flex-wrap gap-2 mb-3">
+                        <div class="h-48 bg-gray-100 relative overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&q=60" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/70 to-transparent"></div>
+                            <div class="absolute bottom-3 left-4 right-4">
+                                <h4 class="font-bold text-white text-lg leading-tight mb-1">{{ planta['nome_popular'] }}</h4>
+                                <p class="text-emerald-300 text-xs font-serif italic">{{ planta['nome_cientifico'] }}</p>
+                            </div>
+                        </div>
+
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">Família</span>
+                                <span class="text-xs text-gray-800 font-medium">{{ planta['familia'] }}</span>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2 mb-3 mt-auto">
                                 {% for tag in planta['tags'][:2] %}
-                                    <span class="px-2 py-1 rounded text-[10px] font-bold border
-                                    {% if 'Alimentação' in tag %} bg-blue-100 text-blue-700 border-blue-200
-                                    {% elif 'Medicinal' in tag %} bg-emerald-100 text-emerald-700 border-emerald-200
-                                    {% elif 'Cosméticos' in tag %} bg-pink-100 text-pink-700 border-pink-200
-                                    {% elif 'Madeira' in tag %} bg-amber-100 text-amber-800 border-amber-200
-                                    {% elif 'Ornamental' in tag %} bg-purple-100 text-purple-700 border-purple-200
-                                    {% elif 'Artesanato' in tag %} bg-orange-100 text-orange-700 border-orange-200
-                                    {% elif 'Serviços' in tag %} bg-teal-100 text-teal-700 border-teal-200
-                                    {% elif 'Indústria' in tag %} bg-slate-100 text-slate-700 border-slate-200
-                                    {% elif 'Animal' in tag %} bg-lime-100 text-lime-800 border-lime-200
-                                    {% else %} bg-gray-100 text-gray-700 border-gray-200 {% endif %}">
+                                    <span class="px-2 py-1 rounded text-[10px] font-bold border bg-emerald-50 text-emerald-700 border-emerald-100">
                                     {{ tag }}
                                     </span>
                                 {% endfor %}
                             </div>
-
-                            <div class="mt-auto pt-3 flex items-center gap-1 text-gray-400 text-xs"><i class="ri-map-pin-line"></i> {{ planta['origem']|truncate(20) }}</div>
                         </div>
                     </div>
                     {% endfor %}
@@ -179,72 +204,106 @@
 
 {% for planta in plantas %}
 <dialog id="modal-detalhe-{{ loop.index }}" class="bg-transparent p-0 backdrop:bg-black/50 shadow-none m-auto z-50">
-    <div class="bg-white w-[95vw] md:w-[750px] max-h-[90vh] rounded-2xl shadow-xl overflow-hidden relative flex flex-col animate-fade-in-up">
+    <div class="bg-white w-[95vw] md:w-[800px] max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden relative flex flex-col animate-fade-in-up">
 
-        <button onclick="fecharDetalhe('{{ loop.index }}')" class="absolute top-6 right-6 z-50 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"><i class="ri-close-line text-2xl"></i></button>
+        <button onclick="fecharDetalhe('{{ loop.index }}')" class="absolute top-4 right-4 z-50 w-10 h-10 bg-white/20 backdrop-blur hover:bg-white rounded-full flex items-center justify-center text-white hover:text-red-500 shadow-sm transition-all"><i class="ri-close-line text-xl"></i></button>
 
-        <div class="p-8 overflow-y-auto custom-scrollbar">
-            <div class="mb-6">
-                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2"><i class="ri-information-fill text-blue-600"></i> Descrição</h3>
-                <p class="text-gray-600 text-sm">Espécie nativa da região amazônica.</p>
-            </div>
+        <div class="p-0 overflow-y-auto custom-scrollbar">
+            <div class="h-64 bg-emerald-900 relative shrink-0">
+                <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=60" class="w-full h-full object-cover opacity-50">
+                <div class="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-emerald-950/90 via-emerald-900/40 to-transparent"></div>
 
-            <div class="bg-gray-50/80 rounded-xl p-6 mb-6 border border-gray-100">
-                <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4"><i class="ri-file-list-3-fill text-purple-600"></i> Especificações</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-                    <div><p class="text-xs font-bold text-gray-800 mb-1">Família:</p><p class="text-sm text-gray-600">{{ planta['familia'] }}</p></div>
-                    <div><p class="text-xs font-bold text-gray-800 mb-1">Nome Popular:</p><p class="text-sm text-gray-600">{{ planta['nome_popular'] }}</p></div>
-                    <div><p class="text-xs font-bold text-gray-800 mb-1">Espécie:</p><p class="text-sm text-gray-600 italic">{{ planta['nome_cientifico'] }}</p></div>
-                    <div><p class="text-xs font-bold text-gray-800 mb-1">Origem:</p><p class="text-sm text-gray-600">{{ planta['origem'] }}</p></div>
+                <div class="absolute bottom-8 left-8 right-8 text-white">
+                    <span class="inline-block px-3 py-1 rounded-full border border-white/30 bg-white/10 backdrop-blur text-xs font-bold uppercase tracking-widest mb-3 shadow-sm">{{ planta['familia'] }}</span>
+                    <h2 class="text-4xl md:text-5xl font-brand mb-2 leading-tight">{{ planta['nome_popular'] }}</h2>
+                    <p class="text-emerald-200 text-lg italic font-serif opacity-90">{{ planta['nome_cientifico'] }}</p>
                 </div>
             </div>
 
-            {% if planta['coordenadas'] %}
-            <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-6 mb-6">
-                <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4"><i class="ri-map-pin-user-fill text-blue-600"></i> Coordenadas</h4>
-                <div class="flex flex-col md:flex-row gap-8 items-start">
-                    <div><p class="text-xs text-gray-500 mb-1 font-bold uppercase">GPS</p><p class="text-sm font-mono font-bold text-gray-800">{{ planta['coordenadas'] }}</p></div>
+            <div class="p-8 space-y-8 bg-white">
+
+                <div class="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
+                    <div class="bg-gray-100/50 px-6 py-3 border-b border-gray-200/60">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                            <i class="ri-file-list-3-line"></i> Especificações
+                        </h4>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">Nome Popular</p>
+                            <p class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-1">{{ planta['nome_popular'] }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">Nome Científico</p>
+                            <p class="text-gray-900 font-medium italic text-lg border-b border-gray-100 pb-1">{{ planta['nome_cientifico'] }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">Família Botânica</p>
+                            <p class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-1">{{ planta['familia'] }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase mb-1">Origem</p>
+                            <p class="text-gray-900 font-medium text-lg border-b border-gray-100 pb-1">{{ planta['origem'] }}</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            {% endif %}
 
-            <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-6 mb-6">
-                <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4"><i class="ri-plant-fill text-emerald-600"></i> Partes Utilizadas</h4>
-                <div class="flex flex-wrap gap-3">
-                    {% if planta['partes_tags'] %}
-                        {% for parte in planta['partes_tags'] %}
-                        <span class="inline-flex items-center gap-2 bg-white border border-emerald-200 text-emerald-700 px-4 py-2 rounded-lg text-xs font-bold shadow-sm"><i class="ri-leaf-line text-emerald-500"></i> {{ parte }}</span>
-                        {% endfor %}
-                    {% else %}
-                        <span class="text-xs text-gray-500 italic px-2">{{ planta['parte_planta_texto'] }}</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="bg-slate-50 border border-slate-100 rounded-xl p-6 mb-6">
-                <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3"><i class="ri-bar-chart-box-fill text-indigo-600"></i> Importância</h4>
-                <p class="text-sm text-gray-600 leading-relaxed text-justify">{{ planta['importancia'] }}</p>
-            </div>
-
-            <div class="bg-gray-50/50 rounded-xl p-6 border border-gray-100">
-                <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4"><i class="ri-price-tag-3-fill text-purple-600"></i> Potenciais</h4>
-                <div class="flex flex-wrap gap-2">
-                    {% for tag in planta['tags'] %}
-                        <span class="px-4 py-2 rounded-lg text-xs font-bold border
-                        {% if 'Alimentação' in tag %} bg-blue-100 text-blue-700 border-blue-200
-                        {% elif 'Medicinal' in tag %} bg-emerald-100 text-emerald-700 border-emerald-200
-                        {% elif 'Cosméticos' in tag %} bg-pink-100 text-pink-700 border-pink-200
-                        {% elif 'Madeira' in tag %} bg-amber-100 text-amber-800 border-amber-200
-                        {% elif 'Ornamental' in tag %} bg-purple-100 text-purple-700 border-purple-200
-                        {% elif 'Artesanato' in tag %} bg-orange-100 text-orange-700 border-orange-200
-                        {% elif 'Serviços' in tag %} bg-teal-100 text-teal-700 border-teal-200
-                        {% elif 'Indústria' in tag %} bg-slate-100 text-slate-700 border-slate-200
-                        {% elif 'Animal' in tag %} bg-lime-100 text-lime-800 border-lime-200
-                        {% else %} bg-gray-100 text-gray-700 border-gray-200 {% endif %}">
-                        {{ tag }}
+                {% if planta['coordenadas'] %}
+                <div class="flex items-start gap-4 p-4 bg-blue-50/40 rounded-xl border border-blue-100">
+                    <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                        <i class="ri-map-pin-2-fill text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-blue-900 uppercase mb-1">Geolocalização</h4>
+                        <p class="text-xs text-blue-600/80 mb-2">Ponto de coleta registrado na Ilha do Combu.</p>
+                        <span class="font-mono text-blue-800 font-bold bg-white px-3 py-1.5 rounded border border-blue-200 text-sm select-all">
+                            {{ planta['coordenadas'] }}
                         </span>
-                    {% endfor %}
+                    </div>
                 </div>
+                {% endif %}
+
+                <div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="ri-book-open-line text-emerald-600"></i> Sobre a Espécie
+                    </h4>
+                    <div class="bg-white p-0 text-gray-600 leading-relaxed text-justify text-base">
+                        {{ planta['importancia'] }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                            <i class="ri-plant-line text-emerald-600"></i> Partes Utilizadas
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% if planta['partes_tags'] %}
+                                {% for parte in planta['partes_tags'] %}
+                                <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-lg text-sm font-bold border border-emerald-100">
+                                    <i class="ri-leaf-fill opacity-50"></i> {{ parte }}
+                                </span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-gray-500 italic px-2">{{ planta['parte_planta_texto'] }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                            <i class="ri-price-tag-3-line text-blue-600"></i> Categorias de Uso
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% for tag in planta['tags'] %}
+                            <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200">
+                                {{ tag }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -252,38 +311,125 @@
 {% endfor %}
 
 <script>
+    // --- LÓGICA DE BUSCA DA HOME (Novo!) ---
+    function verificarEnter(e) {
+        if(e.key === 'Enter') transferirBusca();
+    }
+
+    function transferirBusca() {
+        const termoHero = document.getElementById('hero-busca').value;
+        const modal = document.getElementById('modal-catalogo');
+        const inputModal = document.getElementById('input-busca');
+
+        // 1. Abre o modal
+        modal.showModal();
+
+        // 2. Joga o texto lá dentro
+        inputModal.value = termoHero;
+
+        // 3. Dispara o filtro
+        filtrarTudo();
+    }
+
+    function buscarTagRapida(tag) {
+        const modal = document.getElementById('modal-catalogo');
+        modal.showModal();
+        // Usa a função de filtro por tag que já existe
+        // Precisamos achar o botão dessa tag na lista do modal, mas vamos simplificar:
+        // Vamos setar globalmente e rodar
+        filtroAtivo = tag;
+
+        // Atualiza visual dos botões (opcional, mas bom pra UX)
+        document.querySelectorAll('.btn-filtro').forEach(b => {
+             if(b.textContent.includes(tag)) {
+                 b.click(); // Clica "virtualmente" no botão do modal
+             }
+        });
+    }
+
+    // --- MAPA ---
     document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('mapid')) {
             var map = L.map('mapid').setView([-1.455, -48.502], 13);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO', maxZoom: 20 }).addTo(map);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 20
+            }).addTo(map);
+
+            window.markers = [];
+
             {% for planta in plantas %}
                 {% if planta['coordenadas'] and ',' in planta['coordenadas']|string %}
                     try {
-                        L.circleMarker([{{ planta['coordenadas'] }}], { radius: 6, fillColor: "#10B981", color: "#065F46", weight: 2, opacity: 1, fillOpacity: 0.8 })
-                        .addTo(map).bindPopup("<b>{{ planta['nome_popular'] }}</b><br><button onclick='abrirDetalhe(\"{{ loop.index }}\")' class='text-blue-600 text-xs mt-1 underline'>Ver Ficha</button>");
+                        var corPino = "#9CA3AF";
+                        var tags = "{{ ','.join(planta['tags']) }}";
+
+                        if (tags.includes('Medicinal')) { corPino = "#10B981"; }
+                        else if (tags.includes('Alimentação')) { corPino = "#3B82F6"; }
+                        else if (tags.includes('Madeira') || tags.includes('Artesanato')) { corPino = "#F59E0B"; }
+
+                        var marker = L.circleMarker([{{ planta['coordenadas'] }}], {
+                            radius: 6,
+                            fillColor: corPino,
+                            color: "white",
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 1
+                        }).addTo(map);
+
+                        marker.categoryTags = tags;
+
+                        marker.bindPopup(`
+                            <div class="text-center p-2">
+                                <b class="text-gray-900 font-brand text-lg block mb-1">{{ planta['nome_popular'] }}</b>
+                                <span class="text-xs text-gray-500 italic font-serif">{{ planta['nome_cientifico'] }}</span><br>
+                                <button onclick='abrirDetalhe("{{ loop.index }}")' class='mt-3 text-xs bg-emerald-900 text-white px-4 py-1.5 rounded-full hover:bg-emerald-700 transition-colors w-full'>
+                                    Ver Ficha
+                                </button>
+                            </div>
+                        `);
+                        window.markers.push(marker);
                     } catch(e) {}
                 {% endif %}
             {% endfor %}
         }
     });
 
+    function filtrarMapaPelaCategoria(categoria) {
+        if(!window.markers) return;
+        window.markers.forEach(marker => {
+            if (marker.categoryTags.includes(categoria)) {
+                marker.setStyle({ opacity: 1, fillOpacity: 1 });
+            } else {
+                marker.setStyle({ opacity: 0.1, fillOpacity: 0.1 });
+            }
+        });
+    }
+
+    // --- FILTROS DO MODAL ---
     let filtroAtivo = 'todos';
     let textoBusca = '';
+
     function setarFiltroTag(tag, btn) {
         filtroAtivo = tag;
         document.querySelectorAll('.btn-filtro').forEach(b => {
-            b.classList.remove('bg-emerald-50', 'text-emerald-800', 'border-emerald-100', 'active');
+            b.classList.remove('bg-emerald-50', 'text-emerald-900', 'border-emerald-100', 'active');
             b.classList.add('text-gray-600', 'hover:bg-gray-50', 'border-transparent');
         });
-        btn.classList.remove('text-gray-600', 'hover:bg-gray-50', 'border-transparent');
-        btn.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-100', 'active');
+        if(btn) {
+            btn.classList.remove('text-gray-600', 'hover:bg-gray-50', 'border-transparent');
+            btn.classList.add('bg-emerald-50', 'text-emerald-900', 'border-emerald-100', 'active');
+        }
         aplicarFiltros();
     }
+
     function filtrarTudo() {
         const input = document.getElementById('input-busca').value;
         textoBusca = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         aplicarFiltros();
     }
+
     function aplicarFiltros() {
         const cards = document.querySelectorAll('.card-planta');
         cards.forEach(card => {
@@ -294,7 +440,9 @@
             card.style.display = (matchTag && matchTexto) ? 'flex' : 'none';
         });
     }
+
     function abrirDetalhe(id) { document.getElementById('modal-detalhe-' + id).showModal(); }
     function fecharDetalhe(id) { document.getElementById('modal-detalhe-' + id).close(); }
 </script>
+
 {% endblock %}
