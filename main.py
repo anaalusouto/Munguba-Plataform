@@ -1,243 +1,172 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for
 import gspread
 from google.oauth2.service_account import Credentials
 import os
+import json
 import unicodedata
-from pygbif import occurrences  # <--- NOVA IMPORTAÇÃO
+import re
+from pygbif import occurrences
 
 app = Flask(__name__)
 
-# --- CACHE SIMPLES EM MEMÓRIA (Para não travar o site) ---
-# O site vai "lembrar" das buscas do GBIF enquanto estiver rodando
-GBIF_CACHE = {}
+# --- CONFIGURAÇÕES ---
+BASE_DIR = os.path.dirname(__file__)
+BACKEND_DIR = os.path.join(BASE_DIR, "backend")
+DATA_FILE = os.path.join(BACKEND_DIR, "dados_processados.json")
 
-# --- 1. MAPA DE CATEGORIAS (POTENCIAL) ---
+# --- MAPAS ---
 CATEGORIAS_MAP = {
-    "Medicinal e Farmacológico": [
-        "medicinal", "medicina", "farmaco", "terapeutico", "fitoterapico", "antiveneno",
-        "xarope", "chá", "infusão", "bioativo", "extrato"
-    ],
-    "Alimentação e Nutrição": [
-        "alimento", "alimentação", "nutrição", "comestível", "panc", "condimento",
-        "tempero", "sabor", "geleia", "doce", "vinho", "bebida"
-    ],
-    "Cosméticos e Higiene": [
-        "cosmético", "higiene", "beleza", "perfume", "aroma", "sabonete", "shampoo",
-        "hidratante", "tintura", "essência", "banho"
-    ],
-    "Madeira e Construção": [
-        "madeira", "construção", "móveis", "marcenaria", "carpintaria", "naval",
-        "barco", "cerca", "estaca", "tábua", "viga"
-    ],
-    "Serviços Ambientais": [
-        "restauração", "recuperação", "reflorestamento", "sombra", "solo", "erosão",
-        "nascente", "biodiversidade", "carbono", "adubo", "paisagismo"
-    ],
-    "Ornamental e Paisagismo": [
-        "ornamental", "paisagismo", "jardim", "flor", "decorativa", "arborização", "vaso"
-    ],
-    "Artesanato e Cultura": [
-        "artesanato", "artefato", "biojoia", "cesta", "cestaria", "fibra", "palha",
-        "utensílio", "cultura", "indígena", "ritual"
-    ],
-    "Indústria e Energia": [
-        "indústria", "energia", "biocombustível", "carvão", "lenha", "biomassa",
-        "papel", "têxtil", "látex", "borracha", "resina", "tanino"
-    ],
-    "Nutrição Animal": [
-        "animal", "gado", "peixe", "piscicultura", "ração", "forragem", "pasto",
-        "apicultura", "mel"
-    ]
+    "Medicinal e Farmacológico": ["medicinal", "farmaco", "terapeutico", "fitoterapico"],
+    "Alimentação e Nutrição": ["alimento", "nutrição", "comestível", "panc", "fruto", "azeite", "mel"],
+    "Cosméticos e Higiene": ["cosmético", "higiene", "beleza", "perfume", "sabonete", "oleo"],
+    "Madeira e Construção": ["madeira", "construção", "móveis", "estaca", "viga"],
+    "Serviços Ambientais": ["sombra", "solo", "reflorestamento", "nascente", "serviço", "ambiental"],
+    "Ornamental e Paisagismo": ["ornamental", "jardim", "flor"],
+    "Artesanato e Cultura": ["artesanato", "artefato", "biojoia", "fibra", "palha"],
+    "Indústria e Energia": ["indústria", "energia", "biocombustível", "resina"],
+    "Nutrição Animal": ["animal", "gado", "ração", "pasto"]
 }
 
-# --- 2. MAPA DE PARTES DA PLANTA ---
 PARTES_MAP = {
-    "Fruto e Polpa": ["fruto", "fruta", "polpa", "mesocarpo", "epicarpo", "baga", "cacho"],
-    "Folha": ["folha", "folhagem", "brotos"],
-    "Semente e Castanha": ["semente", "amêndoa", "castanha", "caroço", "noze"],
-    "Caule e Madeira": ["caule", "tronco", "madeira", "lenho", "estipe", "cipó", "talo"],
-    "Raiz e Rizoma": ["raiz", "rizoma", "tubérculo", "batata"],
-    "Flor": ["flor", "inflorescência", "botão"],
-    "Exsudato (Látex/Resina)": ["látex", "resina", "seiva", "goma", "oleoresina", "óleo-resina", "leite"],
-    "Casca": ["casca", "entrecasca"],
+    "Planta": ["planta", "toda a planta"],
+    "Fruto e Polpa": ["fruto", "polpa"],
+    "Folha": ["folha", "folhagem"],
+    "Semente e Castanha": ["semente", "amêndoa"],
+    "Caule e Madeira": ["tronco", "madeira"],
+    "Raiz e Rizoma": ["raiz", "rizoma"],
+    "Flor": ["flor", "inflorescência"],
+    "Exsudato (Látex/Resina)": ["látex", "resina"],
+    "Casca": ["casca"],
     "Palmito": ["palmito"]
 }
 
 
-# --- FUNÇÕES UTILITÁRIAS ---
-
+# --- FUNÇÕES ---
 def normalizar_texto(texto):
     if not isinstance(texto, str): return str(texto)
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower()
 
 
 def buscar_valor_inteligente(linha, chaves_possiveis):
-    chaves_linha_normalizadas = {normalizar_texto(k): k for k in linha.keys()}
+    chaves_linha_norm = {normalizar_texto(k): k for k in linha.keys()}
     for chave in chaves_possiveis:
         chave_norm = normalizar_texto(chave)
-        for k_norm, k_original in chaves_linha_normalizadas.items():
-            if chave_norm in k_norm:
-                return linha[k_original]
+        for k_norm, k_original in chaves_linha_norm.items():
+            if chave_norm in k_norm: return linha[k_original]
     return ""
 
 
-def classificar_tags(texto, mapa_referencia):
+def classificar_tags(texto, mapa):
     tags = set()
     texto_lower = str(texto).lower()
-    for cat_oficial, termos in mapa_referencia.items():
-        for termo in termos:
-            if termo in texto_lower:
-                tags.add(cat_oficial)
-                break
+    for cat, termos in mapa.items():
+        if any(termo in texto_lower for termo in termos): tags.add(cat)
     return list(tags)
 
 
-def conectar_google():
-    try:
-        # Ajuste o caminho conforme sua estrutura de pastas
-        caminho = os.path.join(os.path.dirname(__file__), "backend", "credentials.json")
-        # Se o arquivo estiver na raiz, use apenas: "credentials.json"
-
-        creds = Credentials.from_service_account_file(caminho, scopes=[
-            "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive"
-        ])
-        client = gspread.authorize(creds)
-        sheet = client.open("TESTEBASE").sheet1
-        return sheet.get_all_records()
-    except Exception as e:
-        print(f"❌ ERRO CRÍTICO NO GOOGLE: {e}")
-        return []
-
-
-# --- NOVA FUNÇÃO: BUSCA NO GBIF ---
-def buscar_coordenadas_gbif(nome_cientifico):
-    # 1. Limpeza básica
-    if not nome_cientifico or len(nome_cientifico) < 3:
-        return None
-
-    # 2. Verifica se já buscamos isso antes (Cache)
-    if nome_cientifico in GBIF_CACHE:
-        return GBIF_CACHE[nome_cientifico]
-
-    print(f"🌍 Buscando GBIF para: {nome_cientifico}...")
-    try:
-        # 3. Busca na API do GBIF
-        # hasCoordinate=True -> Só quero se tiver GPS
-        # limit=1 -> Só preciso do primeiro registro confiável
-        res = occurrences.search(scientificName=nome_cientifico, hasCoordinate=True, limit=1)
-
-        if res['results']:
-            rec = res['results'][0]
-            lat = rec['decimalLatitude']
-            lon = rec['decimalLongitude']
-            coord_formatada = f"{lat}, {lon}"
-
-            # Salva no cache e retorna
-            GBIF_CACHE[nome_cientifico] = coord_formatada
-            return coord_formatada
-    except Exception as e:
-        print(f"⚠️ Erro ao conectar GBIF: {e}")
-
-    # Se der erro ou não achar, salva None no cache para não tentar de novo à toa
-    GBIF_CACHE[nome_cientifico] = None
+def limpar_gps(valor_raw):
+    """Limpa e formata qualquer coordenada para lat,long com ponto."""
+    if not valor_raw or len(str(valor_raw)) < 5: return None
+    # Regex pega numeros como -1.45 ou -1,45
+    numeros = re.findall(r'-?\d+[.,]\d+', str(valor_raw))
+    if len(numeros) >= 2:
+        return f"{numeros[0].replace(',', '.')},{numeros[1].replace(',', '.')}"
     return None
 
 
-# --- PROCESSAMENTO PRINCIPAL ---
-def processar_dados_munguba():
-    raw_data = conectar_google()
-    plantas_limpas = []
+def buscar_referencias_ia(nome_cientifico):
+    return [{"titulo": f"Pesquisa: {nome_cientifico}", "url": "#"}]
 
+
+# --- SINCRONIZAÇÃO ---
+def sincronizar_dados():
+    print("📡 Sincronizando...")
+    try:
+        caminho_creds = os.path.join(BACKEND_DIR, "credentials.json")
+        creds = Credentials.from_service_account_file(caminho_creds,
+                                                      scopes=["https://www.googleapis.com/auth/spreadsheets",
+                                                              "https://www.googleapis.com/auth/drive"])
+        client = gspread.authorize(creds)
+        raw_data = client.open("TESTEBASE").sheet1.get_all_records()
+    except Exception as e:
+        print(f"❌ Erro: {e}")
+        return False
+
+    plantas_processadas = []
+    total_geo = 0
     stats_categorias = {cat: 0 for cat in CATEGORIAS_MAP.keys()}
     stats_categorias["Outros"] = 0
 
-    # Chaves de busca na planilha
-    chaves_potencial = ["potencial", "uso", "aplicacao", "bioeconomia"]
-    chaves_parte = ["parte", "usada", "estrutura"]
-    chaves_coords = ["coordenadas", "gps", "lat", "gbif"]
-    chaves_registro = ["registro", "id"]
-    chaves_familia = ["familia", "family"]
-    chaves_popular = ["nome popular", "popular"]
-    chaves_cientifico = ["nome cientifico", "especie"]
-    chaves_origem = ["origem", "habitat"]
-    chaves_importancia = ["importancia", "resumo"]
-
     for row in raw_data:
-        # Extração básica
-        potencial_txt = buscar_valor_inteligente(row, chaves_potencial)
-        parte_txt = buscar_valor_inteligente(row, chaves_parte)
-        nome_cientifico = buscar_valor_inteligente(row, chaves_cientifico)
+        nome_c = buscar_valor_inteligente(row, ["nome cientifico", "especie"])
 
-        # Classificação de Tags
-        tags_categoria = classificar_tags(potencial_txt, CATEGORIAS_MAP)
-        if not tags_categoria: tags_categoria = ["Outros"]
-        tags_partes = classificar_tags(parte_txt, PARTES_MAP)
+        # 1. LEITURA ROBUSTA (Mais nomes de colunas)
+        gps_raw = buscar_valor_inteligente(row, ["coordenadas", "gps", "lat", "latitude", "location", "geo"])
+        gps_final = limpar_gps(gps_raw)
 
-        # Estatísticas
-        for t in tags_categoria:
+        # 2. VALIDAÇÃO GBIF (Sem bloquear!)
+        # Se a planilha tem coordenada, a gente ACEITA. O GBIF só valida o nome.
+        if gps_final:
+            total_geo += 1
+            try:
+                # Busca rápida só para ver se o nome está correto na base científica
+                res = occurrences.search(scientificName=nome_c, limit=1)
+                if res['results']:
+                    nome_c = res['results'][0].get('scientificName', nome_c)
+            except:
+                pass
+
+        # Foto
+        url_foto = buscar_valor_inteligente(row, ["foto", "imagem", "link", "url"])
+        if not url_foto or "http" not in str(url_foto):
+            url_foto = "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80"
+
+        # Tags
+        tags = classificar_tags(buscar_valor_inteligente(row, ["potencial", "uso"]), CATEGORIAS_MAP) or ["Outros"]
+        for t in tags:
             if t in stats_categorias:
                 stats_categorias[t] += 1
             else:
                 stats_categorias["Outros"] += 1
 
-        # --- LÓGICA DE COORDENADAS (GBIF) ---
-        coordenadas = buscar_valor_inteligente(row, chaves_coords)
+        link_biblio = buscar_valor_inteligente(row, ["bibliografia de potencial bioeconomico", "artigo"])
+        artigos = [{"titulo": "Artigo de Referência", "url": str(link_biblio)}] if "http" in str(
+            link_biblio) else buscar_referencias_ia(nome_c)
 
-        # Se a planilha estiver vazia, tenta o GBIF
-        if not coordenadas or len(str(coordenadas).strip()) < 5:
-            gbif_result = buscar_coordenadas_gbif(nome_cientifico)
-            if gbif_result:
-                coordenadas = gbif_result
-
-        # Montagem do Objeto Planta
         planta = {
-            "registro": buscar_valor_inteligente(row, chaves_registro) or "s/n",
-            "familia": buscar_valor_inteligente(row, chaves_familia) or "-",
-            "nome_popular": buscar_valor_inteligente(row, chaves_popular) or "Sem Nome",
-            "nome_cientifico": nome_cientifico or "Sp. desconhecida",
-            "potencial_texto": potencial_txt,
-            "tags": tags_categoria,
-            "partes_tags": tags_partes,
-            "origem": buscar_valor_inteligente(row, chaves_origem) or "-",
-            "parte_planta_texto": parte_txt,
-            "importancia": buscar_valor_inteligente(row, chaves_importancia) or "Sem descrição.",
-            "coordenadas": coordenadas
+            "nome_popular": buscar_valor_inteligente(row, ["nome popular"]) or "Sem Nome",
+            "nome_cientifico": nome_c or "Sp.",
+            "familia": buscar_valor_inteligente(row, ["familia"]) or "-",
+            "foto": url_foto,
+            "tags": tags,
+            "partes_tags": classificar_tags(buscar_valor_inteligente(row, ["parte"]), PARTES_MAP),
+            "origem": buscar_valor_inteligente(row, ["origem"]) or "-",
+            "importancia": buscar_valor_inteligente(row, ["importancia"]) or "Sem descrição.",
+            "coordenadas": gps_final,
+            "artigos": artigos
         }
-        plantas_limpas.append(planta)
+        plantas_processadas.append(planta)
 
-    # Stats Finais
-    stats = {
-        "total_especies": len(plantas_limpas),
-        "total_geo": sum(1 for p in plantas_limpas if p['coordenadas'] and ',' in str(p['coordenadas'])),
-        "por_categoria": stats_categorias
-    }
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump({"plantas": plantas_processadas,
+                   "stats": {"total_especies": len(plantas_processadas), "total_geo": total_geo,
+                             "por_categoria": stats_categorias}}, f, ensure_ascii=False, indent=4)
 
-    filtros = {
-        "categorias": list(CATEGORIAS_MAP.keys()) + ["Outros"],
-        "partes": list(PARTES_MAP.keys())
-    }
+    return True
 
-    return plantas_limpas, stats, filtros
-
-
-# --- ROTAS ---
 
 @app.route("/")
 def index():
-    plantas, stats, filtros = processar_dados_munguba()
-    return render_template("home.html", plantas=plantas, stats=stats, filtros=filtros)
+    if not os.path.exists(DATA_FILE): sincronizar_dados()
+    with open(DATA_FILE, 'r', encoding='utf-8') as f: dados = json.load(f)
+    return render_template("home.html", plantas=dados['plantas'], stats=dados['stats'],
+                           filtros={"categorias": list(CATEGORIAS_MAP.keys()), "partes": list(PARTES_MAP.keys())})
 
 
-@app.route("/mapa")
-def mapa_dashboard():
-    plantas, stats, _ = processar_dados_munguba()
-    return render_template("mapa.html", plantas=plantas, stats=stats)
-
-
-@app.route("/catalogo")
-def catalogo_redirect():
-    return redirect(url_for("index"))
+@app.route("/sync")
+def forcar_sync():
+    sincronizar_dados()
+    return redirect(url_for('index'))
 
 
 if __name__ == "__main__":
