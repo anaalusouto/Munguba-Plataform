@@ -2,17 +2,48 @@ from flask import Flask, render_template, request, redirect, url_for
 import gspread
 from google.oauth2.service_account import Credentials
 import os
-import json
 import unicodedata
-import re
-from pygbif import occurrences
 
 app = Flask(__name__)
 
 # --- CONFIGURAÇÕES ---
 BASE_DIR = os.path.dirname(__file__)
 BACKEND_DIR = os.path.join(BASE_DIR, "backend")
-DATA_FILE = os.path.join(BACKEND_DIR, "dados_processados.json")
+
+# --- MEMÓRIA RAM ---
+CACHE_DADOS = {
+    "plantas": [],
+    "stats": {},
+    "carregado": False
+}
+
+# --- SEU GABARITO OFICIAL (Copiado do seu dados_mapa) ---
+GPS_FIXO = {
+    'Adenocalymma magnificum': [-1.503333, -48.446667],
+    'Adiantum tomentosum': [-1.497500, -48.429167],
+    'Aechmea mertensii': [-1.416667, -48.416667],
+    'Alternanthera ficoidea': [-1.488889, -48.429167],
+    'Ampelocera edentula': [-1.416667, -48.416667],
+    'Anthurium pentaphyllum': [-1.503333, -48.446944],
+    'Astrocaryum murumuru': [-0.641389, -47.531667],
+    'Attalea phalerata': [-1.416667, -48.416667],
+    'Byttneria coriácea': [-1.499232, -48.453742],  # Com acento (como você mandou)
+    'Byttneria coriacea': [-1.499232, -48.453742],  # Sem acento (por garantia)
+    'Caladium bicolor': [-1.501389, -48.446944],
+    'Casimirella ampla': [-1.500000, -48.450000],
+    'Cecropia palmata': [-1.416667, -48.416667],
+    'Cedrela odorata': [-1.416667, -48.416667],
+    'Ceiba pentandra': [-1.416667, -48.416667],
+    'Dianthera comata': [-1.490000, -48.463056],
+    'Dichaea panamensis': [-1.498511, -48.460903],
+    'Heliconia acuminata': [-1.503333, -48.446944],
+    'Heliconia bihai': [-1.504080, -48.447998],
+    'Hernandia guianensis': [-1.503056, -48.446944],
+    'Inga nobilis': [-1.500106, -48.461310],
+    'Justicia pseudoamazonica': [-1.498511, -48.460903],
+    'Sapium marmieri': [-1.490352, -48.452798],
+    'Toulicia guianensis': [-1.506944, -48.462222]
+}
 
 # --- MAPAS ---
 CATEGORIAS_MAP = {
@@ -28,23 +59,18 @@ CATEGORIAS_MAP = {
 }
 
 PARTES_MAP = {
-    "Planta": ["planta", "toda a planta"],
-    "Fruto e Polpa": ["fruto", "polpa"],
-    "Folha": ["folha", "folhagem"],
-    "Semente e Castanha": ["semente", "amêndoa"],
-    "Caule e Madeira": ["tronco", "madeira"],
-    "Raiz e Rizoma": ["raiz", "rizoma"],
-    "Flor": ["flor", "inflorescência"],
-    "Exsudato (Látex/Resina)": ["látex", "resina"],
-    "Casca": ["casca"],
-    "Palmito": ["palmito"]
+    "Planta": ["planta"], "Fruto e Polpa": ["fruto", "polpa"], "Folha": ["folha"],
+    "Semente": ["semente"], "Caule": ["tronco", "madeira"], "Raiz": ["raiz"],
+    "Flor": ["flor"], "Exsudato": ["latex", "resina"], "Casca": ["casca"], "Palmito": ["palmito"]
 }
 
 
 # --- FUNÇÕES ---
+
 def normalizar_texto(texto):
     if not isinstance(texto, str): return str(texto)
-    return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower()
+    # Remove acentos, espaços nas pontas e joga tudo para minúsculo
+    return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
 
 
 def buscar_valor_inteligente(linha, chaves_possiveis):
@@ -58,29 +84,41 @@ def buscar_valor_inteligente(linha, chaves_possiveis):
 
 def classificar_tags(texto, mapa):
     tags = set()
-    texto_lower = str(texto).lower()
+    t_lower = str(texto).lower()
     for cat, termos in mapa.items():
-        if any(termo in texto_lower for termo in termos): tags.add(cat)
+        if any(termo in t_lower for termo in termos): tags.add(cat)
     return list(tags)
 
 
-def limpar_gps(valor_raw):
-    """Limpa e formata qualquer coordenada para lat,long com ponto."""
-    if not valor_raw or len(str(valor_raw)) < 5: return None
-    # Regex pega numeros como -1.45 ou -1,45
-    numeros = re.findall(r'-?\d+[.,]\d+', str(valor_raw))
-    if len(numeros) >= 2:
-        return f"{numeros[0].replace(',', '.')},{numeros[1].replace(',', '.')}"
+def encontrar_no_gabarito(nome_na_planilha):
+    """
+    Compara o nome da planilha com o gabarito.
+    Ex: Planilha "Inga nobilis Willd." bate com Gabarito "Inga nobilis"
+    """
+    if not nome_na_planilha: return None
+
+    # Normaliza o nome que veio da planilha (ex: "inga nobilis willd.")
+    busca = normalizar_texto(nome_na_planilha)
+
+    # Varre as chaves do seu gabarito
+    for nome_chave, coords in GPS_FIXO.items():
+        chave_norm = normalizar_texto(nome_chave)
+
+        # VERIFICAÇÃO DUPLA:
+        # 1. Se a chave do gabarito está DENTRO do nome da planilha (ex: "inga nobilis" in "inga nobilis willd.")
+        # 2. OU se o nome da planilha está DENTRO da chave (ex: "inga nobilis" in "inga nobilis (mart.)")
+        if chave_norm in busca or busca in chave_norm:
+            return [{'lat': coords[0], 'lng': coords[1]}]
+
     return None
 
 
-def buscar_referencias_ia(nome_cientifico):
-    return [{"titulo": f"Pesquisa: {nome_cientifico}", "url": "#"}]
+# --- CARREGAMENTO ---
 
-
-# --- SINCRONIZAÇÃO ---
-def sincronizar_dados():
-    print("📡 Sincronizando...")
+def carregar_dados_aovivo():
+    print("\n" + "=" * 50)
+    print("📡 SINCRONIZANDO: BUSCA POR NOME DA ESPÉCIE")
+    print("=" * 50)
     try:
         caminho_creds = os.path.join(BACKEND_DIR, "credentials.json")
         creds = Credentials.from_service_account_file(caminho_creds,
@@ -89,7 +127,7 @@ def sincronizar_dados():
         client = gspread.authorize(creds)
         raw_data = client.open("TESTEBASE").sheet1.get_all_records()
     except Exception as e:
-        print(f"❌ Erro: {e}")
+        print(f"❌ Erro Conexão: {e}")
         return False
 
     plantas_processadas = []
@@ -97,41 +135,39 @@ def sincronizar_dados():
     stats_categorias = {cat: 0 for cat in CATEGORIAS_MAP.keys()}
     stats_categorias["Outros"] = 0
 
+    print(f"📋 Processando {len(raw_data)} plantas...")
+
     for row in raw_data:
-        nome_c = buscar_valor_inteligente(row, ["nome cientifico", "especie"])
+        # 1. PEGA O NOME NA PLANILHA
+        # Prioriza "ESPECIE", depois "Nome Cientifico"
+        nome_c = buscar_valor_inteligente(row, ["especie", "nome cientifico", "nome"])
 
-        # 1. LEITURA ROBUSTA (Mais nomes de colunas)
-        gps_raw = buscar_valor_inteligente(row, ["coordenadas", "gps", "lat", "latitude", "location", "geo"])
-        gps_final = limpar_gps(gps_raw)
+        # 2. TENTA ENCONTRAR NO GABARITO (PELO NOME DA ESPÉCIE)
+        pontos_gps = encontrar_no_gabarito(nome_c)
 
-        # 2. VALIDAÇÃO GBIF (Sem bloquear!)
-        # Se a planilha tem coordenada, a gente ACEITA. O GBIF só valida o nome.
-        if gps_final:
+        if pontos_gps:
             total_geo += 1
-            try:
-                # Busca rápida só para ver se o nome está correto na base científica
-                res = occurrences.search(scientificName=nome_c, limit=1)
-                if res['results']:
-                    nome_c = res['results'][0].get('scientificName', nome_c)
-            except:
-                pass
+            # print(f"   ✅ Achei: {nome_c}")
+        else:
+            # Mostra o que falhou para você corrigir
+            if nome_c and len(nome_c) > 3:
+                print(f"   ⚠️ NOME NÃO BATENDO: Planilha diz '{nome_c}' -> Não achei no Gabarito.")
 
-        # Foto
-        url_foto = buscar_valor_inteligente(row, ["foto", "imagem", "link", "url"])
+        # Resto dos dados...
+        url_foto = buscar_valor_inteligente(row, ["foto", "imagem"])
         if not url_foto or "http" not in str(url_foto):
             url_foto = "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80"
 
-        # Tags
-        tags = classificar_tags(buscar_valor_inteligente(row, ["potencial", "uso"]), CATEGORIAS_MAP) or ["Outros"]
+        tags = classificar_tags(buscar_valor_inteligente(row, ["potencial bioeconomico", "potencial", "uso"]),
+                                CATEGORIAS_MAP) or ["Outros"]
         for t in tags:
             if t in stats_categorias:
                 stats_categorias[t] += 1
             else:
                 stats_categorias["Outros"] += 1
 
-        link_biblio = buscar_valor_inteligente(row, ["bibliografia de potencial bioeconomico", "artigo"])
-        artigos = [{"titulo": "Artigo de Referência", "url": str(link_biblio)}] if "http" in str(
-            link_biblio) else buscar_referencias_ia(nome_c)
+        tags_partes = classificar_tags(buscar_valor_inteligente(row, ["parte da planta", "parte"]), PARTES_MAP)
+        link_biblio = buscar_valor_inteligente(row, ["bibliografia de potencial", "bibliografia"])
 
         planta = {
             "nome_popular": buscar_valor_inteligente(row, ["nome popular"]) or "Sem Nome",
@@ -139,33 +175,35 @@ def sincronizar_dados():
             "familia": buscar_valor_inteligente(row, ["familia"]) or "-",
             "foto": url_foto,
             "tags": tags,
-            "partes_tags": classificar_tags(buscar_valor_inteligente(row, ["parte"]), PARTES_MAP),
-            "origem": buscar_valor_inteligente(row, ["origem"]) or "-",
-            "importancia": buscar_valor_inteligente(row, ["importancia"]) or "Sem descrição.",
-            "coordenadas": gps_final,
-            "artigos": artigos
+            "partes_tags": tags_partes,
+            "origem": buscar_valor_inteligente(row, ["origem", "habitat"]) or "-",
+            "importancia": buscar_valor_inteligente(row, ["importancia", "aproveitamento"]) or "Sem descrição.",
+            "pontos_gps": pontos_gps or [],
+            "artigos": [{"titulo": "Referência", "url": str(link_biblio)}] if "http" in str(link_biblio) else []
         }
         plantas_processadas.append(planta)
 
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump({"plantas": plantas_processadas,
-                   "stats": {"total_especies": len(plantas_processadas), "total_geo": total_geo,
-                             "por_categoria": stats_categorias}}, f, ensure_ascii=False, indent=4)
+    CACHE_DADOS["plantas"] = plantas_processadas
+    CACHE_DADOS["stats"] = {"total_especies": len(plantas_processadas), "total_geo": total_geo,
+                            "por_categoria": stats_categorias}
+    CACHE_DADOS["carregado"] = True
 
+    print("-" * 50)
+    print(f"🏁 MAPA ATUALIZADO: {total_geo} plantas com coordenadas confirmadas.")
     return True
 
 
 @app.route("/")
 def index():
-    if not os.path.exists(DATA_FILE): sincronizar_dados()
-    with open(DATA_FILE, 'r', encoding='utf-8') as f: dados = json.load(f)
-    return render_template("home.html", plantas=dados['plantas'], stats=dados['stats'],
+    if not CACHE_DADOS["carregado"]:
+        carregar_dados_aovivo()
+    return render_template("home.html", plantas=CACHE_DADOS['plantas'], stats=CACHE_DADOS['stats'],
                            filtros={"categorias": list(CATEGORIAS_MAP.keys()), "partes": list(PARTES_MAP.keys())})
 
 
 @app.route("/sync")
 def forcar_sync():
-    sincronizar_dados()
+    carregar_dados_aovivo()
     return redirect(url_for('index'))
 
 

@@ -9,7 +9,7 @@
 
     <div class="container mx-auto px-6 relative z-10 text-center">
         <span class="inline-block py-1 px-3 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-bold tracking-widest uppercase mb-6">
-            Plataforma Global de Biodiversidade • Dados GBIF
+            Munguba • Plataforma de Biodiversidade
         </span>
 
         <h1 class="text-6xl md:text-7xl text-emerald-950 font-brand mb-4 leading-tight">
@@ -214,70 +214,85 @@
 {% endfor %}
 
 <script>
-    var map, markers = [];
+    var map;
+    var markers = [];
     let filtroAtivo = 'todos', textoBusca = '';
 
     function normalizar(str) { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
 
     document.addEventListener('DOMContentLoaded', function() {
-        var mapContainer = document.getElementById('mapid');
-        if (mapContainer) {
-            map = L.map('mapid').setView([-1.485, -48.475], 13);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+        if (document.getElementById('mapid')) {
+            // Inicializa mapa
+            map = L.map('mapid').setView([-1.45, -48.48], 10);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© GBIF & CARTO', maxZoom: 20
+            }).addTo(map);
 
+            var bounds = [];
+
+            // --- LOOP PRINCIPAL (PLANTAS) ---
             {% for p in plantas %}
-                {% if p['coordenadas'] %}
+
+                // [CORREÇÃO] Salvamos o ID da planta antes de entrar no loop dos pontos
+                {% set id_planta = loop.index %}
+
+                // --- LOOP SECUNDÁRIO (COORDENADAS DA MESMA PLANTA) ---
+                {% for ponto in p['pontos_gps'] %}
                     try {
-                        // O Python já mandou limpo (-1.45, -48.30), é só separar na vírgula
-                        var parts = "{{ p['coordenadas'] }}".split(',');
-                        var lat = parseFloat(parts[0]);
-                        var lng = parseFloat(parts[1]);
+                        var lat = {{ ponto.lat }};
+                        var lng = {{ ponto.lng }};
 
-                        if (!isNaN(lat) && !isNaN(lng)) {
+                        if (lat && lng) {
                             var coords = [lat, lng];
+                            bounds.push(coords);
+
                             var tags = "{{ ','.join(p['tags']) }}";
+                            var corPino = '#9CA3AF';
+                            if (tags.includes('Medicinal')) corPino = '#10B981';
+                            else if (tags.includes('Alimentação')) corPino = '#3B82F6';
+                            else if (tags.includes('Madeira')) corPino = '#F59E0B';
+                            else if (tags.includes('Cosméticos')) corPino = '#EC4899';
 
-                            // Cores dos Pins
-                            var cor = '#94a3b8';
-                            if (tags.includes('Medicinal')) cor = '#10b981';
-                            else if (tags.includes('Alimentação')) cor = '#3b82f6';
-                            else if (tags.includes('Cosméticos')) cor = '#ec4899';
-                            else if (tags.includes('Serviços')) cor = '#8b5cf6';
-
-                            // Pin
                             var marker = L.circleMarker(coords, {
-                                radius: 8, fillColor: cor, color: 'white', weight: 2, fillOpacity: 1
+                                radius: 6, fillColor: corPino, color: 'white', weight: 1.5, fillOpacity: 0.9
                             });
 
                             marker.categoryTags = tags;
 
                             // Popup
-                            marker.bindPopup(`
+                            var popupHtml = `
                                 <div class="p-3 text-center min-w-[160px]">
                                     <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">{{ p['familia'] }}</p>
-                                    <h4 class="font-brand text-base font-bold text-emerald-950 leading-tight mb-1">{{ p['nome_popular'] }}</h4>
-                                    <p class="text-[10px] italic text-emerald-600 font-serif mb-3">{{ p['nome_cientifico'] }}</p>
-                                    <button onclick="abrirDetalhe('{{ loop.index }}')" class="w-full bg-emerald-900 text-white text-[10px] font-bold py-2 rounded-lg hover:bg-emerald-800 transition-all uppercase shadow-sm">
-                                        Ver Ficha
-                                    </button>
+                                    <h4 class="font-brand text-base text-emerald-950 font-bold mb-1">{{ p['nome_popular'] }}</h4>
+                                    <p class="text-[10px] italic text-gray-500 font-serif mb-3">{{ p['nome_cientifico'] }}</p>
+
+                                    <button onclick="abrirDetalhe('{{ id_planta }}')" class="w-full mt-2 bg-emerald-50 text-emerald-700 text-[10px] font-bold py-2 rounded-lg hover:bg-emerald-100 transition-all uppercase">Ver Ficha</button>
                                 </div>
-                            `);
+                            `;
+
+                            marker.bindPopup(popupHtml);
                             marker.addTo(map);
                             markers.push(marker);
                         }
-                    } catch(e) { console.error("Erro pin: ", e); }
-                {% endif %}
+                    } catch(e) { console.error("Erro pin:", e); }
+                {% endfor %}
+                // --- FIM LOOP SECUNDÁRIO ---
+
             {% endfor %}
 
-            // Garante que o mapa apareça (cura a tela branca)
-            setTimeout(function(){ map.invalidateSize(); }, 500);
+            // Zoom automático para mostrar todos os seus pontos
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, {padding: [50, 50]});
+            } else {
+                map.invalidateSize();
+            }
         }
     });
 
     // Funções de Filtro
     function filtrarMapaPelaCategoria(cat) {
         markers.forEach(m => {
-            if (cat === 'todos' || m.categoryTags.includes(cat)) { if(!map.hasLayer(m)) m.addTo(map); }
+            if (cat === 'todos' || m.categoryTags.includes(cat)) { if(!map.hasLayer(m)) map.addLayer(m); }
             else { map.removeLayer(m); }
         });
     }
