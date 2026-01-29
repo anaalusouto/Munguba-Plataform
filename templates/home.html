@@ -282,14 +282,26 @@
 
                             marker.categoryTags = tags;
 
+                            // --- AQUI ESTÁ A ATUALIZAÇÃO DO POPUP ---
+                            // ... (dentro do loop no final do home.html) ...
+
+                            // --- POPUP AJUSTADO (Mais largo e com melhor leitura) ---
                             var popupHtml = `
-                                <div class="p-3 text-center min-w-[160px]">
-                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">{{ p['familia'] }}</p>
-                                    <h4 class="font-brand text-base text-emerald-950 font-bold mb-1">{{ p['nome_popular'] }}</h4>
-                                    <p class="text-[10px] italic text-gray-500 font-serif mb-3">{{ p['nome_cientifico'] }}</p>
-                                    <button onclick="abrirDetalhe('{{ id_planta }}')" class="w-full mt-2 bg-emerald-50 text-emerald-700 text-[10px] font-bold py-2 rounded-lg hover:bg-emerald-100 transition-all uppercase">Ver Ficha</button>
+                                <div class="p-2 text-center min-w-[160px]">
+                                    <p class="text-xs font-bold text-gray-450 uppercase tracking-widest mb-2">{{ p['familia'] }}</p>
+
+                                    <h4 class="font-serif text-xl text-emerald-950 font-bold mb-1 leading-tight">
+                                        {{ p['nome_popular'] }}
+                                    </h4>
+
+                                    <p class="text-sm italic text-gray-500 font-serif mb-4 mt-2">{{ p['nome_cientifico'] }}</p>
+
+                                    <button onclick="abrirDetalhe('{{ id_planta }}')" class="w-48 mx-auto block bg-emerald-50 text-emerald-700 text-xs font-bold py-3 rounded-lg hover:bg-emerald-100 transition-all uppercase tracking-wide">
+                                        Ver Ficha Completa
+                                    </button>
                                 </div>
                             `;
+                            // --------------------------------------------------------
 
                             marker.bindPopup(popupHtml);
                             marker.addTo(map);
@@ -298,6 +310,8 @@
                     } catch(e) { console.error("Erro pin:", e); }
                 {% endfor %}
             {% endfor %}
+
+            // ... (resto do script igual) ...
 
             if (bounds.length > 0) {
                 map.fitBounds(bounds, {padding: [50, 50]});
