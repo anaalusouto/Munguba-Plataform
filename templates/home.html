@@ -321,15 +321,11 @@
         limparTodosFiltros();
     }
 
-    // Toggle: Clica para abrir, clica de novo para fechar e voltar a "Geral"
     function abrirCategoria(cat, index, btn) {
         const drop = document.getElementById('drop-parts-' + index);
         const seta = document.getElementById('seta-' + index);
-
-        // Verifica se JÁ está aberto antes de resetar tudo
         const jaEstavaAberto = !drop.classList.contains('hidden');
 
-        // 1. Reseta visual de TODOS
         document.querySelectorAll('.btn-categoria').forEach(b => {
             b.classList.remove('bg-emerald-50', 'text-emerald-800');
             b.classList.add('text-gray-600');
@@ -338,28 +334,21 @@
         document.querySelectorAll('[id^="seta-"]').forEach(s => s.classList.remove('rotate-180'));
 
         if (jaEstavaAberto) {
-            // Se estava aberto, o usuário quer FECHAR -> Volta para GERAL
             document.getElementById('btn-geral').classList.add('bg-emerald-50', 'text-emerald-900', 'border-emerald-100');
             document.getElementById('btn-geral').classList.remove('text-gray-600', 'border-transparent');
-
             filtrosAtivos.categoria = 'todos';
             filtrosAtivos.partes = [];
         } else {
-            // Se estava fechado, o usuário quer ABRIR -> Ativa Categoria
             document.getElementById('btn-geral').classList.remove('bg-emerald-50', 'text-emerald-900', 'border-emerald-100');
             document.getElementById('btn-geral').classList.add('text-gray-600', 'border-transparent');
-
             btn.classList.remove('text-gray-600');
             btn.classList.add('bg-emerald-50', 'text-emerald-800');
-
             drop.classList.remove('hidden');
             seta.classList.add('rotate-180');
-
             filtrosAtivos.categoria = cat;
             filtrosAtivos.partes = [];
         }
 
-        // Reseta checks visuais e aplica
         document.querySelectorAll('.checkbox-parte').forEach(cb => cb.checked = false);
         atualizarBadge();
         aplicarFiltros();
@@ -404,7 +393,7 @@
         }
     }
 
-    // --- FILTRAGEM ---
+    // --- FILTRAGEM COM LÓGICA 'AND' (Restritiva) ---
     function filtrarMapaUnico(cat) {
         markers.forEach(m => {
             if (cat === 'todos' || m.categoryTags.includes(cat)) { if(!map.hasLayer(m)) map.addLayer(m); }
@@ -429,10 +418,11 @@
         document.querySelectorAll('.card-planta').forEach(card => {
             const matchCategoria = (filtrosAtivos.categoria === 'todos') || card.getAttribute('data-tags').includes(filtrosAtivos.categoria);
 
+            // LÓGICA 'E' (AND): A planta TEM QUE TER TODAS as partes selecionadas
             let matchPartes = true;
             if (filtrosAtivos.partes.length > 0) {
                 const partesPlanta = card.getAttribute('data-partes');
-                matchPartes = filtrosAtivos.partes.some(p => partesPlanta.includes(p));
+                matchPartes = filtrosAtivos.partes.every(p => partesPlanta.includes(p));
             }
 
             const matchBusca = (textoBusca === '') || normalizar(card.getAttribute('data-search')).includes(textoBusca);
