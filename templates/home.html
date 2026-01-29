@@ -87,46 +87,59 @@
 <dialog id="modal-catalogo" class="w-11/12 max-w-[95rem] h-[90vh] bg-gray-50 rounded-2xl shadow-2xl backdrop:bg-black/60 p-0 m-auto fixed inset-0 z-50 overflow-hidden">
     <div class="h-full flex flex-col md:flex-row">
 
-        <div class="w-full md:w-72 bg-white border-r border-gray-200 flex flex-col h-full shrink-0">
+        <div class="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col h-full shrink-0">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                 <h2 class="text-lg font-bold text-gray-800 tracking-tight">Filtros</h2>
-                <button onclick="limparTodosFiltros()" class="text-[10px] text-red-500 font-bold hover:underline uppercase">Limpar</button>
+                <button onclick="limparTodosFiltros()" class="text-[10px] text-red-500 font-bold hover:underline uppercase">Limpar Tudo</button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar text-sm">
+            <div class="flex-1 overflow-y-auto p-4 custom-scrollbar text-sm space-y-2">
 
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-2 px-2 tracking-widest flex items-center gap-2">
-                        <i class="ri-price-tag-3-line"></i> Categorias
-                    </p>
-                    <div class="space-y-1">
-                        <button onclick="setarFiltroTag('todos', 'categoria', this)" class="btn-filtro-categoria active w-full text-left px-4 py-2 rounded-lg bg-emerald-50 text-emerald-900 font-bold text-xs uppercase">Geral</button>
-                        {% for cat in filtros.categorias %}
-                        <button onclick="setarFiltroTag('{{ cat }}', 'categoria', this)" class="btn-filtro-categoria w-full text-left px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">{{ cat }}</button>
-                        {% endfor %}
-                    </div>
-                </div>
+                <button onclick="ativarGeral(this)" id="btn-geral" class="w-full text-left px-5 py-3 rounded-xl bg-emerald-50 text-emerald-900 font-bold text-sm shadow-sm border border-emerald-100 transition-all">
+                    <i class="ri-apps-line mr-2"></i> Todas as Categorias
+                </button>
 
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-2 px-2 tracking-widest flex items-center gap-2">
-                        <i class="ri-plant-line"></i> Partes da Planta
-                    </p>
-                    <div class="space-y-1">
-                        <button onclick="setarFiltroTag('todos', 'parte', this)" class="btn-filtro-parte active w-full text-left px-4 py-2 rounded-lg bg-emerald-50 text-emerald-900 font-bold text-xs uppercase">Geral</button>
+                <div class="pt-2 pb-2"><hr class="border-gray-100"></div>
+
+                {% for cat in filtros.categorias %}
+                <div class="group-categoria">
+                    <button onclick="abrirCategoria('{{ cat }}', '{{ loop.index }}', this)"
+                            class="btn-categoria w-full text-left px-5 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-emerald-800 font-medium transition-all flex justify-between items-center group">
+                        <span>{{ cat }}</span>
+                        <i class="ri-arrow-down-s-line text-gray-300 group-hover:text-emerald-500 transition-transform duration-300" id="seta-{{ loop.index }}"></i>
+                    </button>
+
+                    <div id="drop-parts-{{ loop.index }}" class="hidden bg-gray-50/50 rounded-b-xl border-x border-b border-gray-50 mx-2 mb-2 p-3 space-y-1">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-2 pl-1 tracking-widest">Filtrar por Parte:</p>
+
                         {% for parte in filtros.partes %}
-                        <button onclick="setarFiltroTag('{{ parte }}', 'parte', this)" class="btn-filtro-parte w-full text-left px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">{{ parte }}</button>
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white cursor-pointer transition-colors">
+                            <input type="checkbox" value="{{ parte }}" onchange="toggleParte(this)" class="checkbox-parte w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-xs text-gray-600 font-medium">{{ parte }}</span>
+                        </label>
                         {% endfor %}
                     </div>
                 </div>
+                {% endfor %}
 
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col h-full">
-            <div class="bg-white border-b border-gray-200 px-8 py-5 flex justify-between items-center shadow-sm">
+        <div class="flex-1 flex flex-col h-full bg-gray-50/30">
+            <div class="bg-white border-b border-gray-200 px-8 py-5 flex items-center shadow-sm">
+
                 <input type="text" id="input-busca" onkeyup="filtrarTudo()" placeholder="Pesquise por nome, família ou uso..." class="w-full max-w-xl px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 transition-all">
-                <button onclick="document.getElementById('modal-catalogo').close()" class="ml-4 text-gray-400 hover:text-red-500 p-2 transition-colors"><i class="ri-close-circle-line text-3xl"></i></button>
+
+                <div id="badge-filtro-ativo" class="hidden ml-4 transition-all">
+                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200 flex items-center gap-2">
+                        <span id="texto-filtro-ativo">Categoria</span>
+                        <i onclick="limparTodosFiltros()" class="ri-close-line cursor-pointer hover:text-red-500" title="Limpar Filtro"></i>
+                    </span>
+                </div>
+
+                <button onclick="document.getElementById('modal-catalogo').close()" class="ml-auto text-gray-400 hover:text-red-500 p-2 transition-colors"><i class="ri-close-circle-line text-3xl"></i></button>
             </div>
+
             <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="grid-plantas">
                     {% for p in plantas %}
@@ -140,7 +153,7 @@
                         </div>
                         <div class="p-5 flex-1">
                             <p class="text-[9px] text-gray-400 uppercase font-bold mb-1 tracking-widest">{{ p['familia'] }}</p>
-                            <h4 class="font-bold text-gray-900 leading-tight mb-1 text-lg">{{ p['nome_popular'] }}</h4>
+                            <h4 class="font-serif text-xl text-gray-900 font-bold mb-1 leading-tight">{{ p['nome_popular'] }}</h4>
                             <p class="text-xs text-emerald-700 italic font-serif">{{ p['nome_cientifico'] }}</p>
                         </div>
                     </div>
@@ -239,12 +252,7 @@
 <script>
     var map;
     var markers = [];
-
-    // NOVO ESTADO DOS FILTROS
-    let filtrosAtivos = {
-        categoria: 'todos',
-        parte: 'todos'
-    };
+    let filtrosAtivos = { categoria: 'todos', partes: [] };
     let textoBusca = '';
 
     function normalizar(str) { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
@@ -282,26 +290,14 @@
 
                             marker.categoryTags = tags;
 
-                            // --- AQUI ESTÁ A ATUALIZAÇÃO DO POPUP ---
-                            // ... (dentro do loop no final do home.html) ...
-
-                            // --- POPUP AJUSTADO (Mais largo e com melhor leitura) ---
                             var popupHtml = `
-                                <div class="p-2 text-center min-w-[160px]">
+                                <div class="p-2 text-center min-w-[260px]">
                                     <p class="text-xs font-bold text-gray-450 uppercase tracking-widest mb-2">{{ p['familia'] }}</p>
-
-                                    <h4 class="font-serif text-xl text-emerald-950 font-bold mb-1 leading-tight">
-                                        {{ p['nome_popular'] }}
-                                    </h4>
-
+                                    <h4 class="font-serif text-xl text-emerald-950 font-bold mb-1 leading-tight">{{ p['nome_popular'] }}</h4>
                                     <p class="text-sm italic text-gray-500 font-serif mb-4 mt-2">{{ p['nome_cientifico'] }}</p>
-
-                                    <button onclick="abrirDetalhe('{{ id_planta }}')" class="w-48 mx-auto block bg-emerald-50 text-emerald-700 text-xs font-bold py-3 rounded-lg hover:bg-emerald-100 transition-all uppercase tracking-wide">
-                                        Ver Ficha Completa
-                                    </button>
+                                    <button onclick="abrirDetalhe('{{ id_planta }}')" class="w-48 mx-auto block bg-emerald-50 text-emerald-700 text-xs font-bold py-3 rounded-lg hover:bg-emerald-100 transition-all uppercase tracking-wide">Ver Ficha Completa</button>
                                 </div>
                             `;
-                            // --------------------------------------------------------
 
                             marker.bindPopup(popupHtml);
                             marker.addTo(map);
@@ -311,8 +307,6 @@
                 {% endfor %}
             {% endfor %}
 
-            // ... (resto do script igual) ...
-
             if (bounds.length > 0) {
                 map.fitBounds(bounds, {padding: [50, 50]});
             } else {
@@ -321,9 +315,96 @@
         }
     });
 
-    // --- FUNÇÕES DE FILTRO ATUALIZADAS (A MÁGICA ACONTECE AQUI) ---
+    // --- LÓGICA DO ACORDEÃO (Sidebar) ---
 
-    // 1. Filtro lateral do MAPA (simples, visualização rápida)
+    function ativarGeral(btn) {
+        limparTodosFiltros();
+    }
+
+    // Toggle: Clica para abrir, clica de novo para fechar e voltar a "Geral"
+    function abrirCategoria(cat, index, btn) {
+        const drop = document.getElementById('drop-parts-' + index);
+        const seta = document.getElementById('seta-' + index);
+
+        // Verifica se JÁ está aberto antes de resetar tudo
+        const jaEstavaAberto = !drop.classList.contains('hidden');
+
+        // 1. Reseta visual de TODOS
+        document.querySelectorAll('.btn-categoria').forEach(b => {
+            b.classList.remove('bg-emerald-50', 'text-emerald-800');
+            b.classList.add('text-gray-600');
+        });
+        document.querySelectorAll('[id^="drop-parts-"]').forEach(d => d.classList.add('hidden'));
+        document.querySelectorAll('[id^="seta-"]').forEach(s => s.classList.remove('rotate-180'));
+
+        if (jaEstavaAberto) {
+            // Se estava aberto, o usuário quer FECHAR -> Volta para GERAL
+            document.getElementById('btn-geral').classList.add('bg-emerald-50', 'text-emerald-900', 'border-emerald-100');
+            document.getElementById('btn-geral').classList.remove('text-gray-600', 'border-transparent');
+
+            filtrosAtivos.categoria = 'todos';
+            filtrosAtivos.partes = [];
+        } else {
+            // Se estava fechado, o usuário quer ABRIR -> Ativa Categoria
+            document.getElementById('btn-geral').classList.remove('bg-emerald-50', 'text-emerald-900', 'border-emerald-100');
+            document.getElementById('btn-geral').classList.add('text-gray-600', 'border-transparent');
+
+            btn.classList.remove('text-gray-600');
+            btn.classList.add('bg-emerald-50', 'text-emerald-800');
+
+            drop.classList.remove('hidden');
+            seta.classList.add('rotate-180');
+
+            filtrosAtivos.categoria = cat;
+            filtrosAtivos.partes = [];
+        }
+
+        // Reseta checks visuais e aplica
+        document.querySelectorAll('.checkbox-parte').forEach(cb => cb.checked = false);
+        atualizarBadge();
+        aplicarFiltros();
+    }
+
+    function toggleParte(checkbox) {
+        const parte = checkbox.value;
+        if (checkbox.checked) { filtrosAtivos.partes.push(parte); }
+        else { filtrosAtivos.partes = filtrosAtivos.partes.filter(p => p !== parte); }
+        aplicarFiltros();
+    }
+
+    function limparTodosFiltros() {
+        filtrosAtivos = { categoria: 'todos', partes: [] };
+        textoBusca = '';
+        document.getElementById('input-busca').value = '';
+
+        document.getElementById('btn-geral').classList.add('bg-emerald-50', 'text-emerald-900', 'border-emerald-100');
+        document.querySelectorAll('.btn-categoria').forEach(b => {
+            b.classList.remove('bg-emerald-50', 'text-emerald-800');
+            b.classList.add('text-gray-600');
+        });
+
+        document.querySelectorAll('[id^="drop-parts-"]').forEach(d => d.classList.add('hidden'));
+        document.querySelectorAll('[id^="seta-"]').forEach(s => s.classList.remove('rotate-180'));
+
+        document.querySelectorAll('.checkbox-parte').forEach(cb => cb.checked = false);
+
+        atualizarBadge();
+        aplicarFiltros();
+    }
+
+    function atualizarBadge() {
+        const badge = document.getElementById('badge-filtro-ativo');
+        const texto = document.getElementById('texto-filtro-ativo');
+
+        if (filtrosAtivos.categoria !== 'todos') {
+            badge.classList.remove('hidden');
+            texto.innerText = filtrosAtivos.categoria;
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+
+    // --- FILTRAGEM ---
     function filtrarMapaUnico(cat) {
         markers.forEach(m => {
             if (cat === 'todos' || m.categoryTags.includes(cat)) { if(!map.hasLayer(m)) map.addLayer(m); }
@@ -331,41 +412,6 @@
         });
     }
     function resetarMapa() { filtrarMapaUnico('todos'); }
-
-    // 2. Filtros do CATÁLOGO (Conjunto Categoria E Parte)
-    function setarFiltroTag(tag, tipo, btn) {
-        // Atualiza o estado
-        filtrosAtivos[tipo] = tag;
-
-        // Atualiza visual dos botões
-        const classeBotao = tipo === 'categoria' ? '.btn-filtro-categoria' : '.btn-filtro-parte';
-        document.querySelectorAll(classeBotao).forEach(b => {
-            b.classList.remove('bg-emerald-50', 'text-emerald-900', 'font-bold', 'active');
-            b.classList.add('text-gray-600');
-        });
-
-        // Ativa o botão clicado
-        if(btn) {
-            btn.classList.remove('text-gray-600');
-            btn.classList.add('bg-emerald-50', 'text-emerald-900', 'font-bold', 'active');
-        }
-
-        aplicarFiltros();
-    }
-
-    function limparTodosFiltros() {
-        filtrosAtivos = { categoria: 'todos', parte: 'todos' };
-        textoBusca = '';
-        document.getElementById('input-busca').value = '';
-
-        // Reseta visual dos botões
-        document.querySelectorAll('.btn-filtro-categoria, .btn-filtro-parte').forEach(b => b.classList.remove('bg-emerald-50', 'text-emerald-900', 'font-bold', 'active'));
-        // Reativa os botões "Todos" (primeiros de cada lista)
-        document.querySelectorAll('.btn-filtro-categoria')[0].classList.add('bg-emerald-50', 'text-emerald-900', 'font-bold', 'active');
-        document.querySelectorAll('.btn-filtro-parte')[0].classList.add('bg-emerald-50', 'text-emerald-900', 'font-bold', 'active');
-
-        aplicarFiltros();
-    }
 
     function transferirBusca() {
         const t = document.getElementById('hero-busca').value;
@@ -381,21 +427,18 @@
 
     function aplicarFiltros() {
         document.querySelectorAll('.card-planta').forEach(card => {
-            // 1. Checa Categoria
             const matchCategoria = (filtrosAtivos.categoria === 'todos') || card.getAttribute('data-tags').includes(filtrosAtivos.categoria);
 
-            // 2. Checa Parte
-            const matchParte = (filtrosAtivos.parte === 'todos') || card.getAttribute('data-partes').includes(filtrosAtivos.parte);
+            let matchPartes = true;
+            if (filtrosAtivos.partes.length > 0) {
+                const partesPlanta = card.getAttribute('data-partes');
+                matchPartes = filtrosAtivos.partes.some(p => partesPlanta.includes(p));
+            }
 
-            // 3. Checa Busca Texto
             const matchBusca = (textoBusca === '') || normalizar(card.getAttribute('data-search')).includes(textoBusca);
 
-            // LÓGICA 'E' (AND): Tem que bater TUDO
-            if (matchCategoria && matchParte && matchBusca) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
+            if (matchCategoria && matchPartes && matchBusca) { card.style.display = 'flex'; }
+            else { card.style.display = 'none'; }
         });
     }
 
