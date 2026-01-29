@@ -174,9 +174,13 @@ def carregar_dados_aovivo():
 
         tags_partes = classificar_tags(buscar_valor_inteligente(row, ["parte da planta", "parte"]), PARTES_MAP)
         link_biblio = buscar_valor_inteligente(row, ["bibliografia de potencial", "bibliografia"])
+        nome_pop_original = buscar_valor_inteligente(row, ["nome popular"])
+
+        # Se tiver nome popular, usa ele. Se não tiver, usa o nome científico (nome_c)
+        nome_exibicao = nome_pop_original if nome_pop_original else nome_c
 
         planta = {
-            "nome_popular": buscar_valor_inteligente(row, ["nome popular"]) or "Sem Nome",
+            "nome_popular": nome_exibicao,  # Agora nunca será "Sem Nome"
             "nome_cientifico": nome_c or "Sp.",
             "familia": buscar_valor_inteligente(row, ["familia"]) or "-",
             "foto": url_foto,
