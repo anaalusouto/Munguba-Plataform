@@ -527,14 +527,69 @@
     function resetarMapa() { filtrarMapaUnico('todos'); }
     function filtrarTudo() { textoBusca = normalizar(document.getElementById('input-busca').value); aplicarFiltros(); }
     function aplicarFiltros() {
-        document.querySelectorAll('.card-planta').forEach(card => {
+        const grid = document.getElementById('grid-plantas');
+        const cards = Array.from(grid.getElementsByClassName('card-planta'));
+
+        // 1. CALCULA PONTOS E PEGA O NOME
+        const dadosCalculados = cards.map(card => {
+            // Filtros (Mantém igual)
             const matchCategoria = (filtrosAtivos.categoria === 'todos') || card.getAttribute('data-tags').includes(filtrosAtivos.categoria);
+
             let matchPartes = true;
-            if (filtrosAtivos.partes.length > 0) { const partesPlanta = card.getAttribute('data-partes'); matchPartes = filtrosAtivos.partes.every(p => partesPlanta.includes(p)); }
-            const matchBusca = (textoBusca === '') || normalizar(card.getAttribute('data-search')).includes(textoBusca);
-            if (matchCategoria && matchPartes && matchBusca) { card.style.display = 'flex'; } else { card.style.display = 'none'; }
+            if (filtrosAtivos.partes.length > 0) {
+                const partesPlanta = card.getAttribute('data-partes');
+                matchPartes = filtrosAtivos.partes.every(p => partesPlanta.includes(p));
+            }
+
+            // Pega o nome para ordenar alfabeticamente depois
+            const nomeTexto = card.querySelector('h4').innerText.trim();
+
+            // Lógica de Busca (Ranking)
+            let score = 0;
+            let matchBusca = true;
+
+            if (textoBusca !== '') {
+                const nomePop = normalizar(nomeTexto);
+                const nomeCie = normalizar(card.querySelector('p.italic').innerText);
+                const dadosGerais = normalizar(card.getAttribute('data-search'));
+
+                if (nomePop.startsWith(textoBusca)) score = 100;      // Começa com nome popular
+                else if (nomeCie.startsWith(textoBusca)) score = 80; // Começa com nome científico
+                else if (nomePop.includes(textoBusca)) score = 60;   // Contém no nome
+                else if (nomeCie.includes(textoBusca)) score = 50;   // Contém no científico
+                else if (dadosGerais.includes(textoBusca)) score = 20; // Contém na descrição
+                else score = 0;
+
+                matchBusca = score > 0;
+            } else {
+                score = 1; // Sem busca, todos têm o mesmo peso
+            }
+
+            const isVisible = matchCategoria && matchPartes && matchBusca;
+
+            return { card, score, isVisible, nomeTexto };
+        });
+
+        // 2. ORDENAÇÃO INTELIGENTE
+        dadosCalculados.sort((a, b) => {
+            // Critério 1: Quem tem mais pontos (Relevância da Busca)
+            if (b.score !== a.score) return b.score - a.score;
+
+            // Critério 2: Desempate por Ordem Alfabética (A-Z)
+            return a.nomeTexto.localeCompare(b.nomeTexto);
+        });
+
+        // 3. ATUALIZA A TELA
+        dadosCalculados.forEach(item => {
+            if (item.isVisible) {
+                item.card.style.display = 'flex';
+                grid.appendChild(item.card); // Reordena visualmente
+            } else {
+                item.card.style.display = 'none';
+            }
         });
     }
+
 </script>
 
 {% endblock %}
