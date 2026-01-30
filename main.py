@@ -149,20 +149,21 @@ def carregar_dados_aovivo():
 
         tags_partes = classificar_tags(buscar_valor_inteligente(row, ["parte da planta", "parte"]), PARTES_MAP)
 
-        # --- PROCESSAMENTO BIBLIOGRAFIA (CORREÇÃO DE TEXTO vs LINK) ---
+        # --- PROCESSAMENTO BIBLIOGRAFIA (CORREÇÃO DE QUEBRA DE AUTORES) ---
         raw_biblio = str(buscar_valor_inteligente(row, ["bibliografia de potencial", "bibliografia"]))
         lista_bibliografia = []
 
         if raw_biblio and raw_biblio.lower() != 'nan' and raw_biblio.strip() != "":
-            # Limpa quebras de linha e remove aspas extras que vêm da planilha
+            # Limpa quebras de linha duplicadas
             texto_limpo = raw_biblio.replace('\r\n', '\n').replace('\r', '\n')
 
-            # Divide blocos de texto
-            linhas = re.split(r'[\n;]+', texto_limpo)
+            # MUDANÇA AQUI: Divide APENAS por Enter (\n), ignorando o ponto e vírgula (;)
+            linhas = texto_limpo.split('\n')
 
             for linha in linhas:
-                linha = linha.strip().replace('"', '').replace("'", "")  # Remove aspas
-                if not linha: continue
+                # Limpa aspas e espaços
+                linha = linha.strip().replace('"', '').replace("'", "")
+                if len(linha) < 5: continue  # Ignora linhas muito curtas (lixo)
 
                 titulo = ""
                 url = ""
@@ -173,20 +174,25 @@ def carregar_dados_aovivo():
                     titulo = partes[0].strip()
                     url_cand = partes[1].strip()
 
-                    if not url_cand.startswith('http'):
-                        url = "https://" + url_cand
+                    if 'http' in url_cand or 'www' in url_cand:
+                        if not url_cand.startswith('http'):
+                            url = "https://" + url_cand
+                        else:
+                            url = url_cand
                     else:
-                        url = url_cand
+                        titulo = linha
+                        url = ""
 
-                # --- CASO 2: TENTA ACHAR LINK AUTOMATICAMENTE ---
+                # --- CASO 2: BUSCA AUTOMÁTICA (Regex) ---
                 else:
                     match_link = re.search(r'(https?://[^\s]+)|(www\.[^\s]+)', linha)
 
                     if match_link:
-                        # É LINK!
+                        # É UM LINK!
                         url_encontrada = match_link.group(0)
                         texto_sem_link = linha.replace(url_encontrada, "").strip()
 
+                        # Se tiver texto antes do link, usa como título
                         if len(texto_sem_link) > 3:
                             titulo = texto_sem_link.rstrip(' .:,;-')
                         else:
@@ -197,7 +203,7 @@ def carregar_dados_aovivo():
                         else:
                             url = url_encontrada
                     else:
-                        # É APENAS TEXTO (CITAÇÃO) - Url fica VAZIA
+                        # É APENAS TEXTO (CITAÇÃO)
                         titulo = linha
                         url = ""
 
