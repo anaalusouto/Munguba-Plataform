@@ -238,20 +238,47 @@
             </div>
              <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4">
-                    <i class="ri-article-line text-orange-500"></i> Referências Técnico-Científicas
+                    <i class="ri-article-line text-orange-500"></i> Referências Bibliográficas
                 </h3>
+
                 <div class="space-y-3">
-                    {% if p['artigos'] %}
-                        {% for artigo in p['artigos'] %}
-                        <a href="{{ artigo.url }}" target="_blank" class="flex items-center gap-3 p-3 rounded-xl border border-gray-50 hover:bg-orange-50 transition-all">
-                            <i class="ri-external-link-line text-orange-500"></i>
-                            <p class="text-xs font-medium text-gray-700">{{ artigo.titulo }}</p>
-                        </a>
+                    {% if p['bibliografia'] %}
+                        {% for ref in p['bibliografia'] %}
+
+                            {% if ref.url and 'http' in ref.url %}
+                                <a href="{{ ref.url }}" target="_blank" class="flex items-start gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 transition-all group">
+                                    <div class="mt-0.5 text-blue-500 shrink-0">
+                                        <i class="ri-links-line"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs font-bold text-blue-900 group-hover:underline">
+                                            {{ ref.titulo }}
+                                        </p>
+                                        <p class="text-[9px] text-blue-400 break-all">
+                                            {{ ref.url }}
+                                        </p>
+                                    </div>
+                                    <i class="ri-external-link-line text-blue-300"></i>
+                                </a>
+
+                            {% else %}
+                                <div class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
+                                    <div class="mt-0.5 text-gray-400 shrink-0">
+                                        <i class="ri-quote-text"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-600 italic leading-relaxed">
+                                            {{ ref.titulo }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+
                         {% endfor %}
                     {% else %}
                         <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                            <i class="ri-ai-generate text-gray-400"></i>
-                            <p class="text-[11px] text-gray-500">Buscando artigos no GBIF e Google Scholar para {{ p['nome_popular'] }}...</p>
+                            <i class="ri-search-eye-line text-gray-400"></i>
+                            <p class="text-[11px] text-gray-500 italic">Referências em catalogação.</p>
                         </div>
                     {% endif %}
                 </div>

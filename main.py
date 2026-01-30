@@ -3,12 +3,13 @@ import gspread
 from google.oauth2.service_account import Credentials
 import os
 import unicodedata
-import json  # <--- Importante para o Deploy
+import json
+import re
 
 app = Flask(__name__)
 
 # --- CONFIGURAÇÕES ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Caminho absoluto para evitar erros no Linux
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.join(BASE_DIR, "backend")
 
 # --- MEMÓRIA RAM ---
@@ -18,7 +19,7 @@ CACHE_DADOS = {
     "carregado": False
 }
 
-# --- SEU GABARITO OFICIAL ---
+# --- GABARITO DE GPS ---
 GPS_FIXO = {
     'Adenocalymma magnificum': [-1.503333, -48.446667],
     'Adiantum tomentosum': [-1.497500, -48.429167],
@@ -60,7 +61,6 @@ PARTES_MAP = {
 
 
 # --- FUNÇÕES AUXILIARES ---
-
 def normalizar_texto(texto):
     if not isinstance(texto, str): return str(texto)
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
@@ -93,19 +93,13 @@ def encontrar_no_gabarito(nome_na_planilha):
     return None
 
 
-# --- NOVA FUNÇÃO DE CONEXÃO SEGURA (LOCAL E RENDER) ---
 def conectar_google():
-    """Conecta ao Google Sheets usando Env Var (Render) ou Arquivo (Local)"""
     SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-
     try:
-        # 1. Tenta pegar do "Cofre" do Render (Variável de Ambiente)
         if os.environ.get("GOOGLE_CREDENTIALS_JSON"):
             print("☁️ Conectando via Variável de Ambiente (Render)...")
             creds_dict = json.loads(os.environ.get("GOOGLE_CREDENTIALS_JSON"))
             creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
-
-        # 2. Se não achar, tenta pegar o arquivo local (Seu PC)
         else:
             caminho_local = os.path.join(BACKEND_DIR, "credentials.json")
             if os.path.exists(caminho_local):
@@ -114,44 +108,32 @@ def conectar_google():
             else:
                 print("❌ ERRO: Nenhuma credencial encontrada!")
                 return None
-
         client = gspread.authorize(creds)
         return client.open("TESTEBASE").sheet1.get_all_records()
-
     except Exception as e:
         print(f"❌ Erro na Conexão: {e}")
         return None
 
 
 # --- CARREGAMENTO ---
-
 def carregar_dados_aovivo():
     print("\n" + "=" * 50)
-    print("📡 SINCRONIZANDO DADOS...")
-    print("=" * 50)
+    print("📡 SINCRONIZANDO DADOS DA PLANILHA...")
 
-    # Usa a nova função de conexão
     raw_data = conectar_google()
-
-    if not raw_data:
-        return False
+    if not raw_data: return False
 
     plantas_processadas = []
     total_geo = 0
     stats_categorias = {cat: 0 for cat in CATEGORIAS_MAP.keys()}
     stats_categorias["Outros"] = 0
 
-    print(f"📋 Processando {len(raw_data)} plantas...")
+    print(f"📋 Processando {len(raw_data)} linhas...")
 
     for row in raw_data:
         nome_c = buscar_valor_inteligente(row, ["especie", "nome cientifico", "nome"])
         pontos_gps = encontrar_no_gabarito(nome_c)
-
-        if pontos_gps:
-            total_geo += 1
-        else:
-            if nome_c and len(nome_c) > 3:
-                print(f"   ⚠️ NOME NÃO BATENDO: Planilha diz '{nome_c}' -> Não achei no Gabarito.")
+        if pontos_gps: total_geo += 1
 
         url_foto = buscar_valor_inteligente(row, ["foto", "imagem"])
         if not url_foto or "http" not in str(url_foto):
@@ -166,14 +148,67 @@ def carregar_dados_aovivo():
                 stats_categorias["Outros"] += 1
 
         tags_partes = classificar_tags(buscar_valor_inteligente(row, ["parte da planta", "parte"]), PARTES_MAP)
-        link_biblio = buscar_valor_inteligente(row, ["bibliografia de potencial", "bibliografia"])
-        nome_pop_original = buscar_valor_inteligente(row, ["nome popular"])
 
-        # Se tiver nome popular, usa ele. Se não tiver, usa o nome científico (nome_c)
+        # --- PROCESSAMENTO BIBLIOGRAFIA (CORREÇÃO DE TEXTO vs LINK) ---
+        raw_biblio = str(buscar_valor_inteligente(row, ["bibliografia de potencial", "bibliografia"]))
+        lista_bibliografia = []
+
+        if raw_biblio and raw_biblio.lower() != 'nan' and raw_biblio.strip() != "":
+            # Limpa quebras de linha e remove aspas extras que vêm da planilha
+            texto_limpo = raw_biblio.replace('\r\n', '\n').replace('\r', '\n')
+
+            # Divide blocos de texto
+            linhas = re.split(r'[\n;]+', texto_limpo)
+
+            for linha in linhas:
+                linha = linha.strip().replace('"', '').replace("'", "")  # Remove aspas
+                if not linha: continue
+
+                titulo = ""
+                url = ""
+
+                # --- CASO 1: BARRA VERTICAL (Manual) ---
+                if '|' in linha:
+                    partes = linha.split('|', 1)
+                    titulo = partes[0].strip()
+                    url_cand = partes[1].strip()
+
+                    if not url_cand.startswith('http'):
+                        url = "https://" + url_cand
+                    else:
+                        url = url_cand
+
+                # --- CASO 2: TENTA ACHAR LINK AUTOMATICAMENTE ---
+                else:
+                    match_link = re.search(r'(https?://[^\s]+)|(www\.[^\s]+)', linha)
+
+                    if match_link:
+                        # É LINK!
+                        url_encontrada = match_link.group(0)
+                        texto_sem_link = linha.replace(url_encontrada, "").strip()
+
+                        if len(texto_sem_link) > 3:
+                            titulo = texto_sem_link.rstrip(' .:,;-')
+                        else:
+                            titulo = "Acessar Fonte / Artigo"
+
+                        if not url_encontrada.startswith('http'):
+                            url = "https://" + url_encontrada
+                        else:
+                            url = url_encontrada
+                    else:
+                        # É APENAS TEXTO (CITAÇÃO) - Url fica VAZIA
+                        titulo = linha
+                        url = ""
+
+                lista_bibliografia.append({'titulo': titulo, 'url': url})
+        # --------------------------------------------------------
+
+        nome_pop_original = buscar_valor_inteligente(row, ["nome popular"])
         nome_exibicao = nome_pop_original if nome_pop_original else nome_c
 
         planta = {
-            "nome_popular": nome_exibicao,  # Agora nunca será "Sem Nome"
+            "nome_popular": nome_exibicao,
             "nome_cientifico": nome_c or "Sp.",
             "familia": buscar_valor_inteligente(row, ["familia"]) or "-",
             "foto": url_foto,
@@ -182,7 +217,7 @@ def carregar_dados_aovivo():
             "origem": buscar_valor_inteligente(row, ["origem", "habitat"]) or "-",
             "importancia": buscar_valor_inteligente(row, ["importancia", "aproveitamento"]) or "Sem descrição.",
             "pontos_gps": pontos_gps or [],
-            "artigos": [{"titulo": "Referência", "url": str(link_biblio)}] if "http" in str(link_biblio) else []
+            "bibliografia": lista_bibliografia
         }
         plantas_processadas.append(planta)
 
@@ -192,7 +227,7 @@ def carregar_dados_aovivo():
     CACHE_DADOS["carregado"] = True
 
     print("-" * 50)
-    print(f"🏁 MAPA ATUALIZADO: {total_geo} plantas com coordenadas confirmadas.")
+    print(f"🏁 SUCESSO: {len(plantas_processadas)} plantas carregadas.")
     return True
 
 
