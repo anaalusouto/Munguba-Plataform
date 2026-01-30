@@ -223,13 +223,11 @@
 
 {% for p in plantas %}
 <dialog id="modal-detalhe-{{ loop.index }}"
-        class="group-modal m-auto w-full h-full md:w-[750px] md:h-auto md:max-h-[90vh] bg-transparent p-0 backdrop:bg-black/60 fixed inset-0 z-[100]">
+        class="m-auto w-full h-full md:w-[750px] md:h-auto md:max-h-[90vh] bg-transparent p-0 backdrop:bg-black/60 fixed inset-0 z-[100]">
 
-    <div class="modal-content bg-gray-50 w-full h-full md:rounded-2xl shadow-2xl relative flex flex-col overflow-hidden">
+    <div class="bg-gray-50 w-full h-full md:rounded-2xl shadow-2xl relative flex flex-col overflow-hidden">
 
-        <button onclick="fecharDetalhe('{{ loop.index }}')"
-                class="absolute top-4 right-4 z-[70] w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-md transition-all cursor-pointer active:scale-90"
-                title="Fechar">
+        <button onclick="fecharDetalhe('{{ loop.index }}')" class="absolute top-4 right-4 z-[60] w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-md transition-all cursor-pointer hover:scale-110">
             <i class="ri-close-line text-2xl"></i>
         </button>
 
@@ -254,23 +252,41 @@
                     <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
                         <i class="ri-book-2-line text-purple-500"></i> Ficha Técnica
                     </h3>
+
                     <div class="grid grid-cols-2 gap-4 text-sm">
+
                         <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
                             <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Família</p>
                             <p class="text-gray-800 font-medium">{{ p['familia'] }}</p>
                         </div>
+
                         <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
                             <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Nome Popular</p>
                             <p class="text-gray-800 font-medium">{{ p['nome_popular'] }}</p>
                         </div>
+
                         <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
                             <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Espécie (Científico)</p>
                             <p class="text-emerald-700 italic font-medium">{{ p['nome_cientifico'] }}</p>
                         </div>
+
                         <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
                             <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Origem</p>
                             <p class="text-gray-800 font-medium">{{ p['origem'] }}</p>
                         </div>
+
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50 col-span-2">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Categorias de Uso</p>
+                            <div class="flex flex-wrap gap-2">
+                                {% for tag in p['tags'] %}
+                                    <span class="inline-flex items-center gap-1 bg-white border border-gray-200 text-gray-600 text-[11px] font-bold px-2 py-1 rounded-md shadow-sm">
+                                        <i class="ri-price-tag-3-line text-emerald-500 text-[10px]"></i>
+                                        {{ tag }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
