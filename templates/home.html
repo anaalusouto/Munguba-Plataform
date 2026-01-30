@@ -2,64 +2,94 @@
 
 {% block content %}
 
-<section class="relative bg-white pt-32 pb-20 overflow-hidden">
+<style>
+    body.no-scroll {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    /* PERSONALIZAÇÃO DA BARRA DE ROLAGEM */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1; /* Cor cinza suave */
+        border-radius: 20px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8;
+    }
+</style>
+
+<section class="relative bg-white pt-24 md:pt-32 pb-16 md:pb-20 overflow-hidden">
     <div class="absolute top-0 left-0 w-full h-full z-0 opacity-25 pointer-events-none">
         <img src="https://img1.oastatic.com/img2/56367807/max/variant.jpg?revbust=ef2db0c8" class="w-full h-full object-cover">
     </div>
 
-    <div class="container mx-auto px-6 relative z-10 text-center">
-        <span class="inline-block py-1 px-3 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-bold tracking-widest uppercase mb-6">
+    <div class="container mx-auto px-4 md:px-6 relative z-10 text-center">
+        <span class="inline-block py-1 px-3 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] md:text-xs font-bold tracking-widest uppercase mb-4 md:mb-6">
             Munguba • Plataforma de Bioeconomia
         </span>
 
-        <h1 class="text-6xl md:text-7xl text-emerald-950 font-brand mb-4 leading-tight">
+        <h1 class="text-4xl sm:text-5xl md:text-7xl text-emerald-950 font-brand mb-4 leading-tight">
             Bioeconomia<br>da Ilha do Combu
         </h1>
-        <p class="text-lg text-black-500 max-w-2xl mx-auto mb-10 font-light italic">
+        <p class="text-base md:text-lg text-black-500 max-w-2xl mx-auto mb-8 md:mb-10 font-light italic px-4">
             Catálogo do Potencial Bioeconômico da Ilha do Combu.
         </p>
 
-        <div class="max-w-3xl mx-auto relative group">
-            <div class="absolute inset-0 bg-emerald-200 rounded-full blur opacity-25 group-hover:opacity-30 transition-opacity duration-500"></div>
-            <div class="relative bg-white border border-gray-200 rounded-full shadow-xl flex items-center p-2 hover:border-emerald-300 transition-colors">
-                <div class="pl-6 text-gray-400"><i class="ri-search-2-line text-xl"></i></div>
-                <input type="text" id="hero-busca" onkeypress="if(event.key==='Enter') transferirBusca()" placeholder="Busque por qualquer termo (açai, família, uso, categoria)..." class="w-full bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400 px-4 py-3 text-lg outline-none">
-                <button onclick="transferirBusca()" class="bg-emerald-900 text-white px-8 py-3 rounded-full font-bold hover:bg-emerald-800 transition-all shadow-md">Pesquisar</button>
+        <div class="max-w-3xl mx-auto px-2 relative group">
+            <div class="absolute inset-0 bg-emerald-200 rounded-2xl md:rounded-full blur opacity-25 group-hover:opacity-30 transition-opacity duration-500"></div>
+
+            <div class="relative bg-white border border-gray-200 rounded-2xl md:rounded-full shadow-xl flex flex-col md:flex-row items-center p-2 hover:border-emerald-300 transition-colors gap-2 md:gap-0">
+
+                <div class="w-full flex items-center">
+                    <div class="pl-4 md:pl-6 text-gray-400"><i class="ri-search-2-line text-xl"></i></div>
+                    <input type="text" id="hero-busca" onkeypress="if(event.key==='Enter') transferirBusca()" placeholder="Busque por termo..." class="w-full bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400 px-3 py-3 text-base md:text-lg outline-none">
+                </div>
+
+                <button onclick="transferirBusca()" class="w-full md:w-auto bg-emerald-900 text-white px-8 py-3 rounded-xl md:rounded-full font-bold hover:bg-emerald-800 transition-all shadow-md active:scale-95">
+                    Pesquisar
+                </button>
             </div>
         </div>
     </div>
 </section>
 
-<section class="border-y border-gray-100 bg-gray-50/50 py-12">
+<section class="border-y border-gray-100 bg-gray-50/50 py-8 md:py-12">
     <div class="container mx-auto px-6 text-center">
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-8 divide-x divide-gray-200/50 items-center justify-center">
-
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 divide-x divide-gray-200/50 items-center justify-center">
             <div>
-                <span class="block text-4xl font-bold text-emerald-900 mb-1">{{ stats.total_especies }}</span>
-                <span class="text-xs font-bold text-gray-400 uppercase">Catálogo</span>
+                <span class="block text-3xl md:text-4xl font-bold text-emerald-900 mb-1">{{ stats.total_especies }}</span>
+                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Catálogo</span>
             </div>
-
             <div>
-                <span class="block text-4xl font-bold text-blue-900 mb-1">{{ stats.total_geo }}</span>
-                <span class="text-xs font-bold text-gray-400 uppercase">Mapeadas</span>
+                <span class="block text-3xl md:text-4xl font-bold text-blue-900 mb-1">{{ stats.total_geo }}</span>
+                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Mapeadas</span>
             </div>
-
-            <div class="col-span-2 md:col-span-1">
-                <span class="block text-4xl font-bold text-purple-900 mb-1">{{ filtros.categorias|length }}</span>
-                <span class="text-xs font-bold text-gray-400 uppercase">Categorias</span>
+            <div class="col-span-2 md:col-span-1 border-t md:border-t-0 border-gray-100 pt-4 md:pt-0 mt-2 md:mt-0">
+                <span class="block text-3xl md:text-4xl font-bold text-purple-900 mb-1">{{ filtros.categorias|length }}</span>
+                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Categorias</span>
             </div>
-
         </div>
     </div>
 </section>
 
-<section id="mapa-area" class="py-20 bg-white">
-    <div class="container mx-auto px-6">
-        <div class="grid lg:grid-cols-12 gap-8 h-[700px]">
-            <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Destaques no Mapa</h3>
+<section id="mapa-area" class="py-10 md:py-20 bg-white">
+    <div class="container mx-auto px-4 md:px-6">
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 md:gap-8 h-auto lg:h-[700px]">
 
-                <div onclick="resetarMapa()" class="cursor-pointer bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center text-xs font-bold text-emerald-900 uppercase hover:bg-emerald-100 transition-colors">
+            <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar h-64 lg:h-full order-1">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 sticky top-0 bg-white py-2 z-10">
+                    Destaques no Mapa
+                </h3>
+
+                <div onclick="resetarMapa()" class="cursor-pointer bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center text-xs font-bold text-emerald-900 uppercase hover:bg-emerald-100 transition-colors shrink-0">
                     Mostrar Tudo
                 </div>
 
@@ -75,12 +105,12 @@
                     {% elif 'Artesanato' in cat %}{% set icon = "ri-paint-brush-line" %}
                     {% endif %}
 
-                    <div onclick="filtrarMapaUnico('{{ cat }}')" class="cursor-pointer group bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:border-emerald-500 transition-all flex justify-between items-center">
+                    <div onclick="filtrarMapaUnico('{{ cat }}')" class="cursor-pointer group bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:border-emerald-500 transition-all flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-3">
                             <i class="{{ icon }} text-xl text-gray-400 group-hover:text-emerald-600 transition-colors"></i>
                             <div>
-                                <span class="block text-xl font-bold text-gray-800">{{ stats.por_categoria[cat] }}</span>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase group-hover:text-gray-600">{{ cat }}</span>
+                                <span class="block text-lg md:text-xl font-bold text-gray-800">{{ stats.por_categoria[cat] }}</span>
+                                <span class="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase group-hover:text-gray-600">{{ cat }}</span>
                             </div>
                         </div>
                         <i class="ri-arrow-right-s-line text-gray-300 group-hover:text-emerald-500"></i>
@@ -89,26 +119,35 @@
                 {% endfor %}
             </div>
 
-            <div class="lg:col-span-9 bg-gray-50 rounded-2xl overflow-hidden border border-gray-200 relative">
+            <div class="lg:col-span-9 bg-gray-50 rounded-2xl overflow-hidden border border-gray-200 relative h-[400px] lg:h-full order-2">
                 <div id="mapid" class="w-full h-full z-0"></div>
             </div>
         </div>
     </div>
 </section>
 
-<dialog id="modal-catalogo" class="w-11/12 max-w-[95rem] h-[90vh] bg-gray-50 rounded-2xl shadow-2xl backdrop:bg-black/60 p-0 m-auto fixed inset-0 z-50 overflow-hidden">
+<dialog id="modal-catalogo" class="w-full md:w-11/12 max-w-[95rem] h-full md:h-[90vh] bg-gray-50 md:rounded-2xl shadow-2xl backdrop:bg-black/60 p-0 m-0 md:m-auto fixed inset-0 z-50 overflow-hidden">
     <div class="h-full flex flex-col md:flex-row">
 
-        <div class="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col h-full shrink-0">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-gray-800 tracking-tight">Filtros</h2>
-                <button onclick="limparTodosFiltros()" class="text-[10px] text-black-500 font-bold hover:underline uppercase">Limpar Filtros</button>
+        <div class="w-full md:w-80 bg-white border-b md:border-b-0 md:border-r border-gray-200 flex flex-col shrink-0 h-auto max-h-[35vh] md:max-h-full md:h-full">
+
+            <div class="h-16 md:h-20 px-4 md:px-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10 w-full shrink-0">
+                <h2 class="text-base md:text-lg font-bold text-gray-800 tracking-tight">Filtros</h2>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="limparTodosFiltros()" class="text-[10px] md:text-xs text-emerald-600 font-bold hover:underline uppercase tracking-wide flex items-center gap-1 group py-2 px-2 rounded-lg hover:bg-emerald-50 transition-all">
+                        <i class="ri-delete-bin-line text-emerald-400 group-hover:text-emerald-600"></i> Limpar
+                    </button>
+
+                    <button onclick="fecharCatalogo()" class="md:hidden text-gray-400 hover:text-red-500 p-1 bg-gray-50 rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="ri-close-line text-xl"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="flex-1 overflow-y-auto p-4 custom-scrollbar text-sm space-y-2">
-
                 <button onclick="ativarGeral(this)" id="btn-geral" class="w-full text-left px-5 py-3 rounded-xl bg-emerald-50 text-emerald-900 font-bold text-sm shadow-sm border border-emerald-100 transition-all">
-                    <i class="ri-apps-line mr-2"></i> Todas as Categorias
+                    <i class="ri-apps-line mr-2"></i> Todas
                 </button>
 
                 <div class="pt-2 pb-2"><hr class="border-gray-100"></div>
@@ -116,14 +155,13 @@
                 {% for cat in filtros.categorias %}
                 <div class="group-categoria">
                     <button onclick="abrirCategoria('{{ cat }}', '{{ loop.index }}', this)"
-                            class="btn-categoria w-full text-left px-5 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-emerald-800 font-medium transition-all flex justify-between items-center group">
+                            class="btn-categoria w-full text-left px-4 md:px-5 py-2 md:py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-emerald-800 font-medium transition-all flex justify-between items-center group text-xs md:text-sm">
                         <span>{{ cat }}</span>
                         <i class="ri-arrow-down-s-line text-gray-300 group-hover:text-emerald-500 transition-transform duration-300" id="seta-{{ loop.index }}"></i>
                     </button>
 
                     <div id="drop-parts-{{ loop.index }}" class="hidden bg-gray-50/50 rounded-b-xl border-x border-b border-gray-50 mx-2 mb-2 p-3 space-y-1">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-2 pl-1 tracking-widest">Filtrar por Parte:</p>
-
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-2 pl-1 tracking-widest">Por Parte:</p>
                         {% for parte in filtros.partes %}
                         <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white cursor-pointer transition-colors">
                             <input type="checkbox" value="{{ parte }}" onchange="toggleParte(this)" class="checkbox-parte w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
@@ -133,39 +171,44 @@
                     </div>
                 </div>
                 {% endfor %}
-
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col h-full bg-gray-50/30">
-            <div class="bg-white border-b border-gray-200 px-8 py-5 flex items-center shadow-sm">
+        <div class="flex-1 flex flex-col h-full bg-gray-50/30 overflow-hidden">
 
-                <input type="text" id="input-busca" onkeyup="filtrarTudo()" placeholder="Pesquise por nome, família ou uso..." class="w-full max-w-xl px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 transition-all">
+            <div class="h-16 md:h-20 bg-white border-b border-gray-200 px-4 md:px-8 flex items-center gap-4 shadow-sm shrink-0 sticky top-0 z-20">
 
-                <div id="badge-filtro-ativo" class="hidden ml-4 transition-all">
-                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200 flex items-center gap-2">
+                <div class="relative w-full max-w-xl flex-1 md:flex-none">
+                    <i class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="input-busca" onkeyup="filtrarTudo()" placeholder="Pesquise por nome, família, uso..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner">
+                </div>
+
+                <div id="badge-filtro-ativo" class="hidden w-auto transition-all shrink-0">
+                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200 flex items-center gap-2 whitespace-nowrap shadow-sm">
                         <span id="texto-filtro-ativo">Categoria</span>
                         <i onclick="limparTodosFiltros()" class="ri-close-line cursor-pointer hover:text-red-500" title="Limpar Filtro"></i>
                     </span>
                 </div>
 
-                <button onclick="document.getElementById('modal-catalogo').close()" class="ml-auto text-gray-400 hover:text-red-500 p-2 transition-colors"><i class="ri-close-circle-line text-3xl"></i></button>
+                <button onclick="fecharCatalogo()" class="hidden md:flex ml-auto text-gray-400 hover:text-red-500 p-2 transition-colors items-center justify-center rounded-full hover:bg-gray-100 active:scale-95" title="Fechar Janela">
+                    <i class="ri-close-circle-line text-3xl"></i>
+                </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="grid-plantas">
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar relative">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 pb-20" id="grid-plantas">
                     {% for p in plantas %}
                     <div onclick="abrirDetalhe('{{ loop.index }}')"
                          data-tags="{{ ','.join(p['tags']) }}"
                          data-partes="{{ ','.join(p['partes_tags']) }}"
                          data-search="{{ p['nome_popular'] }} {{ p['nome_cientifico'] }} {{ p['familia'] }} {{ p['origem'] }} {{ p['importancia'] }} {{ ','.join(p['tags']) }} {{ ','.join(p['partes_tags']) }}"
                          class="card-planta bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-all flex flex-col h-full overflow-hidden group">
-                        <div class="h-40 bg-gray-100 relative overflow-hidden group-hover:bg-emerald-50 transition-colors">
-                            <img src="{{ p.foto }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="h-32 md:h-40 bg-gray-100 relative overflow-hidden group-hover:bg-emerald-50 transition-colors">
+                            <img src="{{ p.foto }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         </div>
-                        <div class="p-5 flex-1">
+                        <div class="p-4 md:p-5 flex-1">
                             <p class="text-[9px] text-gray-400 uppercase font-bold mb-1 tracking-widest">{{ p['familia'] }}</p>
-                            <h4 class="font-serif text-xl text-gray-900 font-bold mb-1 leading-tight">{{ p['nome_popular'] }}</h4>
+                            <h4 class="font-serif text-lg md:text-xl text-gray-900 font-bold mb-1 leading-tight">{{ p['nome_popular'] }}</h4>
                             <p class="text-xs text-emerald-700 italic font-serif">{{ p['nome_cientifico'] }}</p>
                         </div>
                     </div>
@@ -177,52 +220,48 @@
 </dialog>
 
 {% for p in plantas %}
-<dialog id="modal-detalhe-{{ loop.index }}" class="bg-transparent p-0 backdrop:bg-black/50 m-auto z-[100]">
-    <div class="bg-gray-50 w-[95vw] md:w-[750px] max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden relative flex flex-col">
+<dialog id="modal-detalhe-{{ loop.index }}" class="bg-transparent p-0 backdrop:bg-black/50 m-auto z-[100] w-full h-full md:w-auto md:h-auto">
+    <div class="bg-gray-50 w-full h-full md:w-[750px] md:max-h-[90vh] md:rounded-2xl shadow-2xl overflow-hidden relative flex flex-col">
+
         <button onclick="fecharDetalhe('{{ loop.index }}')" class="absolute top-4 right-4 z-50 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm transition-all"><i class="ri-close-line text-lg"></i></button>
 
-        <div class="h-64 w-full shrink-0 bg-gray-100">
+        <div class="h-56 md:h-64 w-full shrink-0 bg-gray-100">
             <img src="{{ p.foto }}" class="w-full h-full object-cover">
         </div>
 
-        <div class="p-10 overflow-y-auto custom-scrollbar space-y-3">
+        <div class="p-6 md:p-10 overflow-y-auto custom-scrollbar space-y-3 pb-20 md:pb-10">
 
-            <div class="space-y-2">
-                <h3 class="text-emerald-900 font-bold flex items-center gap-2">
-                </h3>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-6"><i class="ri-book-2-line text-purple-500"></i> Especificações da Planta</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 text-sm">
+            <div class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4 md:mb-6"><i class="ri-book-2-line text-purple-500"></i> Especificações</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 md:gap-y-6 text-sm">
                     <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Família:</p><p class="text-gray-600 font-medium">{{ p['familia'] }}</p></div>
                     <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Nome Popular:</p><p class="text-gray-600 font-medium">{{ p['nome_popular'] }}</p></div>
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Espécie (Científico):</p><p class="text-gray-600 italic font-medium">{{ p['nome_cientifico'] }}</p></div>
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Origem e Habitat:</p><p class="text-gray-600 font-medium">{{ p['origem'] }}</p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Espécie:</p><p class="text-gray-600 italic font-medium">{{ p['nome_cientifico'] }}</p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Origem:</p><p class="text-gray-600 font-medium">{{ p['origem'] }}</p></div>
                 </div>
             </div>
 
-            <div class="bg-[#f8fafc] p-6 rounded-2xl border border-gray-200 shadow-sm">
-                <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4"><i class="ri-bar-chart-box-line text-blue-500"></i> Importância Bioeconomica</h3>
+            <div class="bg-[#f8fafc] p-4 md:p-6 rounded-2xl border border-gray-200 shadow-sm">
+                <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4"><i class="ri-bar-chart-box-line text-blue-500"></i> Importância Bioeconômica</h3>
                 <p class="text-gray-600 text-sm leading-relaxed text-justify whitespace-pre-line">{{ p['importancia'] }}</p>
             </div>
 
             {% if p['coordenadas'] %}
-            <div class="bg-[#f0f9ff] p-6 rounded-2xl border border-[#bae6fd] shadow-sm">
-                <h3 class="text-[#0369a1] font-bold flex items-center gap-2 mb-4"><i class="ri-map-pin-line"></i> Coordenadas Geográficas</h3>
-                <div class="bg-white rounded-xl p-4 flex flex-wrap gap-8 items-center text-sm">
+            <div class="bg-[#f0f9ff] p-4 md:p-6 rounded-2xl border border-[#bae6fd] shadow-sm">
+                <h3 class="text-[#0369a1] font-bold flex items-center gap-2 mb-4"><i class="ri-map-pin-line"></i> Coordenadas</h3>
+                <div class="bg-white rounded-xl p-4 flex flex-col md:flex-row flex-wrap gap-4 md:gap-8 items-start md:items-center text-sm">
                     <div><p class="text-[10px] text-gray-400 font-bold uppercase">Latitude</p><p class="text-gray-900 font-mono font-bold">{{ p['coordenadas'].split(',')[0] }}</p></div>
                     <div><p class="text-[10px] text-gray-400 font-bold uppercase">Longitude</p><p class="text-gray-900 font-mono font-bold">{{ p['coordenadas'].split(',')[1] }}</p></div>
-                    <a href="https://www.google.com/maps?q={{ p['coordenadas'] }}" target="_blank" class="ml-auto text-blue-600 text-xs font-bold hover:underline flex items-center gap-1"><i class="ri-external-link-line"></i> Ver no Maps</a>
+                    <a href="https://www.google.com/maps?q={{ p['coordenadas'] }}" target="_blank" class="md:ml-auto text-blue-600 text-xs font-bold hover:underline flex items-center gap-1"><i class="ri-external-link-line"></i> Ver no Maps</a>
                 </div>
             </div>
             {% endif %}
 
-            <div class="bg-[#f0fdf4] p-6 rounded-2xl border border-[#dcfce7] shadow-sm">
-                <h3 class="text-[#15803d] font-bold flex items-center gap-2 mb-4"><i class="ri-leaf-line"></i> Partes com Potencial Bioeconômico</h3>
-                <div class="flex flex-wrap gap-3">
+            <div class="bg-[#f0fdf4] p-4 md:p-6 rounded-2xl border border-[#dcfce7] shadow-sm">
+                <h3 class="text-[#15803d] font-bold flex items-center gap-2 mb-4"><i class="ri-leaf-line"></i> Partes com Potencial</h3>
+                <div class="flex flex-wrap gap-2 md:gap-3">
                     {% for parte in p['partes_tags'] %}
-                    <span class="bg-white border border-[#dcfce7] px-4 py-2 rounded-xl text-xs font-bold text-[#166534] flex items-center gap-2 shadow-sm">
+                    <span class="bg-white border border-[#dcfce7] px-3 py-2 rounded-xl text-xs font-bold text-[#166534] flex items-center gap-2 shadow-sm">
                         <i class="{% if 'Planta' in parte %}ri-seedling-fill{% elif 'Fruto' in parte %}ri-apple-fill{% else %}ri-leaf-fill{% endif %} text-emerald-500"></i>
                         {{ parte }}
                     </span>
@@ -230,7 +269,7 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <div class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4">
                     <i class="ri-article-line text-orange-500"></i> Referências Bibliográficas
                 </h3>
@@ -238,45 +277,43 @@
                 <div class="space-y-3">
                     {% if p['bibliografia'] %}
                         {% for ref in p['bibliografia'] %}
-
                             {% if ref.url and 'http' in ref.url %}
-                                <a href="{{ ref.url }}" target="_blank" class="flex items-start gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 transition-all group">
-                                    <div class="mt-0.5 text-blue-500 shrink-0">
-                                        <i class="ri-links-line"></i>
+                                <a href="{{ ref.url }}" target="_blank" class="flex items-start gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 active:scale-[0.98] transition-all group">
+                                    <div class="mt-0.5 bg-white text-blue-500 rounded-full p-1 shrink-0 shadow-sm">
+                                        <i class="ri-links-line text-xs"></i>
                                     </div>
-                                    <div class="flex-1">
-                                        <p class="text-xs font-bold text-blue-900 group-hover:underline">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-bold text-blue-900 group-hover:underline leading-snug break-words">
                                             {{ ref.titulo }}
                                         </p>
-                                        <p class="text-[9px] text-blue-400 break-all">
+                                        <p class="text-[10px] text-blue-400 break-all mt-0.5 font-mono opacity-80">
                                             {{ ref.url }}
                                         </p>
                                     </div>
-                                    <i class="ri-external-link-line text-blue-300"></i>
+                                    <i class="ri-external-link-line text-blue-300 shrink-0"></i>
                                 </a>
-
                             {% else %}
-                                <div class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
+                                <div class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/80">
                                     <div class="mt-0.5 text-gray-400 shrink-0">
                                         <i class="ri-quote-text"></i>
                                     </div>
-                                    <div>
-                                        <p class="text-xs text-gray-600 italic leading-relaxed">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs text-gray-600 italic leading-relaxed break-words text-justify">
                                             {{ ref.titulo }}
                                         </p>
                                     </div>
                                 </div>
                             {% endif %}
-
                         {% endfor %}
                     {% else %}
-                        <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                            <i class="ri-search-eye-line text-gray-400"></i>
-                            <p class="text-[11px] text-gray-500 italic">Referências em catalogação.</p>
+                        <div class="flex flex-col items-center justify-center gap-2 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">
+                            <i class="ri-book-open-line text-gray-300 text-2xl"></i>
+                            <p class="text-xs text-gray-500">Referências em processo de catalogação.</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
+
         </div>
     </div>
 </dialog>
@@ -287,6 +324,7 @@
     var markers = [];
     let filtrosAtivos = { categoria: 'todos', partes: [] };
     let textoBusca = '';
+    let scrollPosition = 0;
 
     function normalizar(str) {
         return str.normalize("NFD")
@@ -294,6 +332,7 @@
                   .replace(/[^a-zA-Z0-9]/g, "")
                   .toLowerCase();
     }
+
     document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('mapid')) {
             map = L.map('mapid').setView([-1.45, -48.48], 10);
@@ -313,7 +352,6 @@
                         if (lat && lng) {
                             var coords = [lat, lng];
                             bounds.push(coords);
-
                             var tags = "{{ ','.join(p['tags']) }}";
                             var corPino = '#9CA3AF';
                             if (tags.includes('Medicinal')) corPino = '#10B981';
@@ -324,18 +362,16 @@
                             var marker = L.circleMarker(coords, {
                                 radius: 6, fillColor: corPino, color: 'white', weight: 1.5, fillOpacity: 0.9
                             });
-
                             marker.categoryTags = tags;
 
                             var popupHtml = `
-                                <div class="p-2 text-center min-w-[260px]">
-                                    <p class="text-xs font-bold text-gray-450 uppercase tracking-widest mb-2">{{ p['familia'] }}</p>
-                                    <h4 class="font-serif text-xl text-emerald-950 font-bold mb-1 leading-tight">{{ p['nome_popular'] }}</h4>
-                                    <p class="text-sm italic text-gray-500 font-serif mb-4 mt-2">{{ p['nome_cientifico'] }}</p>
-                                    <button onclick="abrirDetalhe('{{ id_planta }}')" class="w-48 mx-auto block bg-emerald-50 text-emerald-700 text-xs font-bold py-3 rounded-lg hover:bg-emerald-100 transition-all uppercase tracking-wide">Ver Ficha Completa</button>
+                                <div class="p-2 text-center min-w-[200px] md:min-w-[260px]">
+                                    <p class="text-[10px] font-bold text-gray-450 uppercase tracking-widest mb-2">{{ p['familia'] }}</p>
+                                    <h4 class="font-serif text-lg md:text-xl text-emerald-950 font-bold mb-1 leading-tight">{{ p['nome_popular'] }}</h4>
+                                    <p class="text-xs md:text-sm italic text-gray-500 font-serif mb-4 mt-2">{{ p['nome_cientifico'] }}</p>
+                                    <button onclick="abrirDetalhe('{{ id_planta }}')" class="w-full bg-emerald-50 text-emerald-700 text-xs font-bold py-3 rounded-lg hover:bg-emerald-100 transition-all uppercase tracking-wide">Ver Ficha</button>
                                 </div>
                             `;
-
                             marker.bindPopup(popupHtml);
                             marker.addTo(map);
                             markers.push(marker);
@@ -344,19 +380,66 @@
                 {% endfor %}
             {% endfor %}
 
-            if (bounds.length > 0) {
-                map.fitBounds(bounds, {padding: [50, 50]});
-            } else {
-                map.invalidateSize();
-            }
+            if (bounds.length > 0) { map.fitBounds(bounds, {padding: [50, 50]}); }
+            else { map.invalidateSize(); }
         }
+
+        // VIGILANTE DE FECHAMENTO (ESC)
+        const dialogs = document.querySelectorAll('dialog');
+        dialogs.forEach(dialog => {
+            dialog.addEventListener('close', () => {
+                verificarScroll();
+            });
+        });
     });
 
-    // --- LÓGICA DO ACORDEÃO (Sidebar) ---
-
-    function ativarGeral(btn) {
-        limparTodosFiltros();
+    // --- SISTEMA NUCLEAR DE TRAVAMENTO DE SCROLL ---
+    function travarScroll() {
+        if (document.body.classList.contains('no-scroll')) return;
+        scrollPosition = window.pageYOffset;
+        document.body.style.top = `-${scrollPosition}px`;
+        document.body.classList.add('no-scroll');
     }
+
+    function destravarScroll() {
+        document.body.classList.remove('no-scroll');
+        document.body.style.top = '';
+        window.scrollTo(0, scrollPosition);
+    }
+
+    function verificarScroll() {
+        const catalogoAberto = document.getElementById('modal-catalogo').open;
+        let algumDetalheAberto = false;
+        document.querySelectorAll('dialog[id^="modal-detalhe-"]').forEach(d => {
+            if (d.open) algumDetalheAberto = true;
+        });
+        if (!catalogoAberto && !algumDetalheAberto) { destravarScroll(); }
+    }
+
+    // --- FUNÇÕES DE ABERTURA ---
+    function transferirBusca() {
+        const t = document.getElementById('hero-busca').value;
+        document.getElementById('modal-catalogo').showModal();
+        travarScroll();
+        document.getElementById('input-busca').value = t;
+        filtrarTudo();
+    }
+
+    function fecharCatalogo() {
+        document.getElementById('modal-catalogo').close();
+    }
+
+    function abrirDetalhe(id) {
+        document.getElementById('modal-detalhe-' + id).showModal();
+        travarScroll();
+    }
+
+    function fecharDetalhe(id) {
+        document.getElementById('modal-detalhe-' + id).close();
+    }
+
+    // --- FILTROS ---
+    function ativarGeral(btn) { limparTodosFiltros(); }
 
     function abrirCategoria(cat, index, btn) {
         const drop = document.getElementById('drop-parts-' + index);
@@ -385,7 +468,6 @@
             filtrosAtivos.categoria = cat;
             filtrosAtivos.partes = [];
         }
-
         document.querySelectorAll('.checkbox-parte').forEach(cb => cb.checked = false);
         atualizarBadge();
         aplicarFiltros();
@@ -402,18 +484,14 @@
         filtrosAtivos = { categoria: 'todos', partes: [] };
         textoBusca = '';
         document.getElementById('input-busca').value = '';
-
         document.getElementById('btn-geral').classList.add('bg-emerald-50', 'text-emerald-900', 'border-emerald-100');
         document.querySelectorAll('.btn-categoria').forEach(b => {
             b.classList.remove('bg-emerald-50', 'text-emerald-800');
             b.classList.add('text-gray-600');
         });
-
         document.querySelectorAll('[id^="drop-parts-"]').forEach(d => d.classList.add('hidden'));
         document.querySelectorAll('[id^="seta-"]').forEach(s => s.classList.remove('rotate-180'));
-
         document.querySelectorAll('.checkbox-parte').forEach(cb => cb.checked = false);
-
         atualizarBadge();
         aplicarFiltros();
     }
@@ -421,7 +499,6 @@
     function atualizarBadge() {
         const badge = document.getElementById('badge-filtro-ativo');
         const texto = document.getElementById('texto-filtro-ativo');
-
         if (filtrosAtivos.categoria !== 'todos') {
             badge.classList.remove('hidden');
             texto.innerText = filtrosAtivos.categoria;
@@ -430,7 +507,6 @@
         }
     }
 
-    // --- FILTRAGEM COM LÓGICA 'AND' (Restritiva) ---
     function filtrarMapaUnico(cat) {
         markers.forEach(m => {
             if (cat === 'todos' || m.categoryTags.includes(cat)) { if(!map.hasLayer(m)) map.addLayer(m); }
@@ -438,13 +514,6 @@
         });
     }
     function resetarMapa() { filtrarMapaUnico('todos'); }
-
-    function transferirBusca() {
-        const t = document.getElementById('hero-busca').value;
-        document.getElementById('modal-catalogo').showModal();
-        document.getElementById('input-busca').value = t;
-        filtrarTudo();
-    }
 
     function filtrarTudo() {
         textoBusca = normalizar(document.getElementById('input-busca').value);
@@ -454,23 +523,16 @@
     function aplicarFiltros() {
         document.querySelectorAll('.card-planta').forEach(card => {
             const matchCategoria = (filtrosAtivos.categoria === 'todos') || card.getAttribute('data-tags').includes(filtrosAtivos.categoria);
-
-            // LÓGICA 'E' (AND): A planta TEM QUE TER TODAS as partes selecionadas
             let matchPartes = true;
             if (filtrosAtivos.partes.length > 0) {
                 const partesPlanta = card.getAttribute('data-partes');
                 matchPartes = filtrosAtivos.partes.every(p => partesPlanta.includes(p));
             }
-
             const matchBusca = (textoBusca === '') || normalizar(card.getAttribute('data-search')).includes(textoBusca);
-
             if (matchCategoria && matchPartes && matchBusca) { card.style.display = 'flex'; }
             else { card.style.display = 'none'; }
         });
     }
-
-    function abrirDetalhe(id) { document.getElementById('modal-detalhe-' + id).showModal(); }
-    function fecharDetalhe(id) { document.getElementById('modal-detalhe-' + id).close(); }
 </script>
 
 {% endblock %}
