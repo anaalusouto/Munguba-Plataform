@@ -56,14 +56,24 @@
             </div>
         </div>
 
-        <nav class="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 items-center gap-8 bg-white/80 backdrop-blur-md px-8 py-2.5 rounded-full shadow-sm border border-white/50 z-10">
-            <button onclick="document.getElementById('modal-catalogo').showModal()" class="nav-link text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors cursor-pointer whitespace-nowrap">
-                Acessar Catálogo
-            </button>
-            <a href="#mapa-area" class="nav-link text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors whitespace-nowrap">
-                Acessar Mapa
-            </a>
-        </nav>
+        <nav class="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 items-center gap-6 bg-white/90 backdrop-blur-md px-6 py-2 rounded-full shadow-lg border border-white/60 z-10">
+
+    <button onclick="document.getElementById('modal-catalogo').showModal()" class="nav-link text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors cursor-pointer whitespace-nowrap">
+        Acessar Catálogo
+    </button>
+
+    <div class="w-px h-4 bg-gray-300"></div>
+    <a href="#mapa-area" class="nav-link text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors whitespace-nowrap">
+        Acessar Mapa
+    </a>
+
+    <div class="w-px h-4 bg-gray-300"></div>
+    <a href="/baixar_darwin_core" class="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-1.5 rounded-full text-xs font-bold transition-all uppercase tracking-wide shadow-sm whitespace-nowrap hover:scale-105 active:scale-95">
+        <i class="ri-database-2-line text-sm"></i>
+        Exportar Dados
+    </a>
+
+</nav>
 
     </div>
 </header>

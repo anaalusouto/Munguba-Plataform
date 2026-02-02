@@ -1,16 +1,20 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, Response
 import gspread
 from google.oauth2.service_account import Credentials
 import os
 import unicodedata
 import json
 import re
+import openpyxl
+# --- NOVO: Importa nosso script de exportação (arquivo darwin_core.py) ---
+import darwin_core
 
 app = Flask(__name__)
 
 # --- CONFIGURAÇÕES ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.join(BASE_DIR, "backend")
+DADOS_DIR = os.path.join(BASE_DIR, "dados")  # Pasta onde fica o Excel local
 
 # --- MEMÓRIA RAM ---
 CACHE_DADOS = {
@@ -109,6 +113,7 @@ def conectar_google():
                 print("❌ ERRO: Nenhuma credencial encontrada!")
                 return None
         client = gspread.authorize(creds)
+        # Ajuste o nome da planilha do Google aqui se necessário
         return client.open("TESTEBASE").sheet1.get_all_records()
     except Exception as e:
         print(f"❌ Erro na Conexão: {e}")
@@ -149,26 +154,21 @@ def carregar_dados_aovivo():
 
         tags_partes = classificar_tags(buscar_valor_inteligente(row, ["parte da planta", "parte"]), PARTES_MAP)
 
-        # --- PROCESSAMENTO BIBLIOGRAFIA (CORREÇÃO DE QUEBRA DE AUTORES) ---
+        # --- PROCESSAMENTO BIBLIOGRAFIA ---
         raw_biblio = str(buscar_valor_inteligente(row, ["bibliografia de potencial", "bibliografia"]))
         lista_bibliografia = []
 
         if raw_biblio and raw_biblio.lower() != 'nan' and raw_biblio.strip() != "":
-            # Limpa quebras de linha duplicadas
             texto_limpo = raw_biblio.replace('\r\n', '\n').replace('\r', '\n')
-
-            # MUDANÇA AQUI: Divide APENAS por Enter (\n), ignorando o ponto e vírgula (;)
             linhas = texto_limpo.split('\n')
 
             for linha in linhas:
-                # Limpa aspas e espaços
                 linha = linha.strip().replace('"', '').replace("'", "")
-                if len(linha) < 5: continue  # Ignora linhas muito curtas (lixo)
+                if len(linha) < 5: continue
 
                 titulo = ""
                 url = ""
 
-                # --- CASO 1: BARRA VERTICAL (Manual) ---
                 if '|' in linha:
                     partes = linha.split('|', 1)
                     titulo = partes[0].strip()
@@ -182,17 +182,12 @@ def carregar_dados_aovivo():
                     else:
                         titulo = linha
                         url = ""
-
-                # --- CASO 2: BUSCA AUTOMÁTICA (Regex) ---
                 else:
                     match_link = re.search(r'(https?://[^\s]+)|(www\.[^\s]+)', linha)
 
                     if match_link:
-                        # É UM LINK!
                         url_encontrada = match_link.group(0)
                         texto_sem_link = linha.replace(url_encontrada, "").strip()
-
-                        # Se tiver texto antes do link, usa como título
                         if len(texto_sem_link) > 3:
                             titulo = texto_sem_link.rstrip(' .:,;-')
                         else:
@@ -203,12 +198,10 @@ def carregar_dados_aovivo():
                         else:
                             url = url_encontrada
                     else:
-                        # É APENAS TEXTO (CITAÇÃO)
                         titulo = linha
                         url = ""
 
                 lista_bibliografia.append({'titulo': titulo, 'url': url})
-        # --------------------------------------------------------
 
         nome_pop_original = buscar_valor_inteligente(row, ["nome popular"])
         nome_exibicao = nome_pop_original if nome_pop_original else nome_c
@@ -237,6 +230,8 @@ def carregar_dados_aovivo():
     return True
 
 
+# --- ROTAS PRINCIPAIS ---
+
 @app.route("/")
 def index():
     if not CACHE_DADOS["carregado"]:
@@ -250,6 +245,56 @@ def forcar_sync():
     carregar_dados_aovivo()
     return redirect(url_for('index'))
 
+
+@app.route('/baixar_darwin_core')
+def baixar_darwin_core():
+    # 1. Garante que temos dados carregados
+    if not CACHE_DADOS["carregado"]:
+        carregar_dados_aovivo()
+
+    # 2. Pega a lista COMPLETA de plantas do site (Lista de Dicionários)
+    dados_site = CACHE_DADOS['plantas']
+
+    # 3. Caminho da planilha local
+    caminho_arquivo = os.path.join(DADOS_DIR, 'ListaOcorrenciaEspecies.xlsx')
+
+    # 4. Chama a função passando os DADOS COMPLETOS
+    csv_data, erro = darwin_core.processar_dados_munguba(caminho_arquivo, dados_site_munguba=dados_site)
+
+    if erro:
+        return f"<h1>Erro:</h1><p>{erro}</p>", 500
+
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=munguba_darwin_core.csv"}
+    )
+
+
+@app.route('/baixar_diagnostico')
+def baixar_diagnostico():
+    # 1. Garante dados atualizados
+    if not CACHE_DADOS["carregado"]:
+        carregar_dados_aovivo()
+
+    # 2. Dados do Site
+    dados_site = CACHE_DADOS['plantas']
+
+    # 3. Caminho do Excel Local
+    caminho_arquivo = os.path.join(DADOS_DIR, 'ListaOcorrenciaEspecies.xlsx')
+
+    # 4. Gera o Relatório
+    excel_io, erro = darwin_core.gerar_relatorio_comparativo(caminho_arquivo, dados_site)
+
+    if erro:
+        return f"<h1>Erro:</h1><p>{erro}</p>", 500
+
+    # 5. Download do Arquivo .xlsx
+    return Response(
+        excel_io,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment;filename=relatorio_comparativo_munguba.xlsx"}
+    )
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
