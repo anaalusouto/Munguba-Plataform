@@ -246,33 +246,48 @@ def forcar_sync():
     return redirect(url_for('index'))
 
 
+# Adicione send_file nas importações lá no topo do main.py
+from flask import Flask, render_template, request, redirect, url_for, Response, send_file
+
+# ... (resto do seu código, configurações, CACHE_DADOS, GPS_FIXO, CATEGORIAS_MAP, PARTES_MAP, FUNÇÕES AUXILIARES, CARREGAMENTO...)
+
+# --- ROTAS CORRIGIDAS ---
+
+# No main.py, procure a rota e substitua por isso:
+
 @app.route('/baixar_darwin_core')
 def baixar_darwin_core():
     # 1. Garante que temos dados carregados
     if not CACHE_DADOS["carregado"]:
         carregar_dados_aovivo()
 
-    # 2. Pega a lista COMPLETA de plantas do site (Lista de Dicionários)
+    # 2. Dados e Caminho
     dados_site = CACHE_DADOS['plantas']
-
-    # 3. Caminho da planilha local
     caminho_arquivo = os.path.join(DADOS_DIR, 'ListaOcorrenciaEspecies.xlsx')
 
-    # 4. Chama a função passando os DADOS COMPLETOS
-    csv_data, erro = darwin_core.processar_dados_munguba(caminho_arquivo, dados_site_munguba=dados_site)
-
-    if erro:
-        return f"<h1>Erro:</h1><p>{erro}</p>", 500
-
-    return Response(
-        csv_data,
-        mimetype="text/csv",
-        headers={"Content-Disposition": "attachment;filename=munguba_darwin_core.csv"}
+    # 3. Chama a função nova (que agora retorna EXCEL BYTES)
+    excel_io, erro = darwin_core.processar_dados_munguba(
+        caminho_planilha_ocorrencias=caminho_arquivo,
+        dados_site_munguba=dados_site
     )
 
+    if erro:
+        return f"<h1>Ocorreu um erro:</h1><p>{erro}</p>", 500
+
+    # 4. Envia como EXCEL (.xlsx)
+    # Mudamos de Response para send_file
+    return send_file(
+        excel_io,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        download_name='munguba_darwin_core.xlsx',
+        as_attachment=True
+    )
 
 @app.route('/baixar_diagnostico')
 def baixar_diagnostico():
+    """
+    Gera e baixa o Relatório Excel de Diagnóstico (Pareamento).
+    """
     # 1. Garante dados atualizados
     if not CACHE_DADOS["carregado"]:
         carregar_dados_aovivo()
@@ -283,17 +298,23 @@ def baixar_diagnostico():
     # 3. Caminho do Excel Local
     caminho_arquivo = os.path.join(DADOS_DIR, 'ListaOcorrenciaEspecies.xlsx')
 
-    # 4. Gera o Relatório
-    excel_io, erro = darwin_core.gerar_relatorio_comparativo(caminho_arquivo, dados_site)
+    # 4. Gera o Relatório usando o script externo
+    excel_io, erro = darwin_core.gerar_relatorio_comparativo(
+        caminho_planilha_ocorrencias=caminho_arquivo,
+        dados_site_munguba=dados_site
+    )
 
     if erro:
-        return f"<h1>Erro:</h1><p>{erro}</p>", 500
+        return f"<h1>Erro ao gerar diagnóstico:</h1><p>{erro}</p>", 500
 
     # 5. Download do Arquivo .xlsx
-    return Response(
+    # AQUI ESTAVA O PROBLEMA: Usar send_file é mais seguro para binários (Excel)
+    # O excel_io já vem com .seek(0) do outro script, então está pronto.
+    return send_file(
         excel_io,
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": "attachment;filename=relatorio_comparativo_munguba.xlsx"}
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        download_name='relatorio_comparativo_munguba.xlsx',
+        as_attachment=True
     )
 
 if __name__ == "__main__":

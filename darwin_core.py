@@ -4,132 +4,133 @@ import io
 
 def processar_dados_munguba(caminho_planilha_ocorrencias, dados_site_munguba):
     """
-    Gera o Darwin Core priorizando as espécies do SITE.
-    Usa a coluna 'species' do Excel para fazer o cruzamento (match).
+    Gera o ARQUIVO EXCEL (.xlsx) Darwin Core.
+    Prioriza coordenadas do SITE (pontos_gps), depois tenta do Excel.
     """
 
-    # --- 1. PREPARAR DADOS DO SITE (Principal) ---
+    # --- 1. PREPARAR DADOS DO SITE ---
     df_site = pd.DataFrame(dados_site_munguba)
 
-    # Chave do Site: nome_cientifico limpo
+    # 1.1 EXTRAÇÃO DE LATITUDE E LONGITUDE DO SITE
+    # O site tem uma lista [{'lat': -1.2, 'lng': -48.1}]. Vamos tirar isso de dentro da lista.
+    def extrair_lat(pontos):
+        if isinstance(pontos, list) and len(pontos) > 0:
+            return points[0].get('lat', '')
+        return ''
+
+    def extrair_lng(pontos):
+        if isinstance(pontos, list) and len(pontos) > 0:
+            return points[0].get('lng', '')
+        return ''
+
+    # Cria colunas temporárias com as coordenadas do site
+    if 'pontos_gps' in df_site.columns:
+        df_site['lat_site'] = df_site['pontos_gps'].apply(
+            lambda x: x[0].get('lat') if isinstance(x, list) and len(x) > 0 else '')
+        df_site['lng_site'] = df_site['pontos_gps'].apply(
+            lambda x: x[0].get('lng') if isinstance(x, list) and len(x) > 0 else '')
+    else:
+        df_site['lat_site'] = ''
+        df_site['lng_site'] = ''
+
+    # Cria chave de match
     if 'nome_cientifico' in df_site.columns:
         df_site['chave_match'] = df_site['nome_cientifico'].astype(str).str.lower().str.strip()
     else:
-        return None, "Erro: Dados do site não contêm 'nome_cientifico'."
+        return None, "Erro: Os dados do site não contêm o campo 'nome_cientifico'."
 
-    # --- 2. CARREGAR DADOS DO EXCEL (Enriquecimento) ---
+    # --- 2. CARREGAR EXCEL DE REFERÊNCIA ---
     try:
         df_excel = pd.read_excel(caminho_planilha_ocorrencias)
+        col_match = 'species'
+        if col_match not in df_excel.columns: col_match = 'acceptedScientificName'
 
-        # --- ALTERAÇÃO AQUI: USAR COLUNA 'SPECIES' ---
-        col_match_excel = 'species'  # Nome da coluna no Excel que vamos usar
-
-        # Verifica se a coluna existe, senão tenta achar acceptedScientificName como fallback
-        if col_match_excel not in df_excel.columns:
-            print(f"Aviso: Coluna '{col_match_excel}' não encontrada. Tentando 'acceptedScientificName'.")
-            col_match_excel = 'acceptedScientificName'
-
-        if col_match_excel in df_excel.columns:
-            # Cria a chave de busca baseada na coluna SPECIES
-            df_excel['chave_match'] = df_excel[col_match_excel].astype(str).str.lower().str.strip()
+        if col_match in df_excel.columns:
+            df_excel['chave_match'] = df_excel[col_match].astype(str).str.lower().str.strip()
+            df_excel = df_excel.drop_duplicates(subset=['chave_match'])
         else:
-            # Se não tiver nenhuma das duas, cria vazio
             df_excel = pd.DataFrame(columns=['chave_match'])
 
-    except FileNotFoundError:
-        df_excel = pd.DataFrame(columns=['chave_match'])
     except Exception as e:
-        return None, f"Erro ao ler Excel: {str(e)}"
+        return None, f"Erro ao ler planilha Excel: {str(e)}"
 
     # --- 3. CRUZAMENTO (LEFT JOIN) ---
-    # Remove duplicatas do Excel (se houver várias linhas da mesma espécie, pega a primeira)
-    if not df_excel.empty:
-        df_excel_unicos = df_excel.drop_duplicates(subset=['chave_match'])
-        df_completo = pd.merge(df_site, df_excel_unicos, on='chave_match', how='left', suffixes=('_site', '_excel'))
-    else:
-        df_completo = df_site
-        # Adiciona colunas vazias para não quebrar o código abaixo
-        for col in ['family', 'genus', 'order', 'class', 'phylum', 'gbifId', 'decimalLatitude', 'decimalLongitude']:
-            df_completo[col] = ''
+    # suffixes=('_site', '_excel') ajuda a diferenciar colunas com mesmo nome
+    df_completo = pd.merge(df_site, df_excel, on='chave_match', how='left', suffixes=('_site', '_excel'))
 
     # --- 4. MAPEAMENTO DARWIN CORE ---
     df_dwc = pd.DataFrame()
 
-    def get_val(row, col_excel, col_site=None, fallback=''):
-        val_excel = row.get(col_excel)
-        val_site = row.get(col_site)
+    def get_val(row, col_prio, col_sec=None, padrao=''):
+        val1 = row.get(col_prio)
+        if pd.notna(val1) and str(val1).strip() != '': return val1
+        if col_sec:
+            val2 = row.get(col_sec)
+            if pd.notna(val2) and str(val2).strip() != '': return val2
+        return padrao
 
-        if pd.notna(val_excel) and str(val_excel).strip() != '':
-            return val_excel
-        if col_site and pd.notna(val_site) and str(val_site).strip() != '':
-            return val_site
-        return fallback
-
-    # Scientific Name (Prioridade Site)
     df_dwc['scientificName'] = df_completo['nome_cientifico']
 
-    # Family (Prioridade Excel > Site)
-    # Nota: No merge, se tiver colunas iguais, o pandas cria 'family_excel' e 'family_site'.
-    # O get_val precisa lidar com isso, mas como usamos suffixes, vamos verificar:
-    col_familia_excel = 'family' if 'family' in df_completo.columns else 'family_excel'
-    df_dwc['family'] = df_completo.apply(lambda x: get_val(x, col_familia_excel, 'familia'), axis=1)
+    # Family
+    col_fam_exc = 'family_excel' if 'family_excel' in df_completo.columns else 'family'
+    df_dwc['family'] = df_completo.apply(lambda x: get_val(x, col_fam_exc, 'familia'), axis=1)
 
-    # Genus
-    def extrair_genero(row):
-        val_excel = row.get('genus')
-        if pd.notna(val_excel) and str(val_excel).strip() != '':
-            return val_excel
-        nome = str(row.get('nome_cientifico', '')).strip()
-        if nome:
-            return nome.split()[0]
-        return ''
+    # Coordenadas: PRIORIDADE SITE (Gabarito) > Depois Excel GBIF
+    # Atenção aos nomes das colunas vindas do Excel (decimalLatitude)
+    df_dwc['decimalLatitude'] = df_completo.apply(lambda x: get_val(x, 'lat_site', 'decimalLatitude'), axis=1)
+    df_dwc['decimalLongitude'] = df_completo.apply(lambda x: get_val(x, 'lng_site', 'decimalLongitude'), axis=1)
 
-    df_dwc['genus'] = df_completo.apply(extrair_genero, axis=1)
-
-    # Kingdom (= Genus)
-    df_dwc['kingdom'] = df_dwc['genus']
-
-    # Colunas Exclusivas do Excel
-    cols_excel_only = ['order', 'class', 'phylum', 'gbifId', 'basisOfRecord',
-                       'decimalLatitude', 'decimalLongitude', 'eventDate', 'iucnRedListCategory']
-
-    for col in cols_excel_only:
+    # Demais campos taxonômicos (vêm do Excel)
+    cols_excel = ['order', 'class', 'phylum', 'gbifID', 'basisOfRecord']
+    for col in cols_excel:
         if col in df_completo.columns:
             df_dwc[col] = df_completo[col].fillna('')
         else:
             df_dwc[col] = ''
 
-    # Reference / Bibliografia
-    if 'reference' in df_completo.columns:
-        df_dwc['reference'] = df_completo['reference'].fillna('')
-    elif 'bibliografia' in df_completo.columns:
-        df_dwc['reference'] = df_completo['bibliografia'].fillna('')
-    else:
-        df_dwc['reference'] = ''
-
-    # --- 5. CAMPOS FIXOS ---
+    df_dwc['genus'] = df_dwc['scientificName'].apply(lambda x: str(x).split()[0] if x else '')
+    df_dwc['kingdom'] = 'Plantae'
     df_dwc['countryCode'] = 'BR'
-    df_dwc['municipality'] = 'Belém'
     df_dwc['stateProvince'] = 'Pará'
+    df_dwc['municipality'] = 'Belém'
 
-    df_dwc['basisOfRecord'] = df_dwc['basisOfRecord'].replace('', 'HUMAN_OBSERVATION')
+    # Tratamento basisOfRecord
+    df_dwc['basisOfRecord'] = df_dwc['basisOfRecord'].replace('', 'HumanObservation')
 
-    # --- 6. ORDENAÇÃO E ID ---
-    df_dwc = df_dwc.sort_values(by='scientificName', ascending=True)
-
+    # IDs
     indices = range(1, len(df_dwc) + 1)
-    df_dwc['occurrenceID'] = [f"BRA:CESUPA:PPGITS:{i:05d}" for i in indices]
+    df_dwc['occurrenceID'] = [f"BRA:CESUPA:MUNGUBA:{i:04d}" for i in indices]
 
-    # --- 7. EXPORTAÇÃO ---
-    return df_dwc.to_csv(index=False, encoding='utf-8-sig', sep=','), None
+    # Ordenar
+    df_dwc = df_dwc.sort_values(by='scientificName')
 
+    # --- 5. EXPORTAR PARA EXCEL (BYTES) ---
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df_dwc.to_excel(writer, index=False, sheet_name='Darwin Core')
 
-# --- FUNÇÃO DE DIAGNÓSTICO ATUALIZADA TAMBÉM ---
+        # Ajuste de largura das colunas
+        ws = writer.sheets['Darwin Core']
+        for column in ws.columns:
+            max_length = 0
+            column_letter = column[0].column_letter
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = (max_length + 2)
+            ws.column_dimensions[column_letter].width = min(adjusted_width, 50)
+
+    output.seek(0)
+    return output, None
+
 def gerar_relatorio_comparativo(caminho_planilha_ocorrencias, dados_site_munguba):
-    import pandas as pd
-    import io
-
-    # 1. SITE
+    """
+    Gera um Excel mostrando quais plantas do site foram encontradas na planilha de referência.
+    """
+    # 1. PREPARAR SITE
     lista_site = []
     for p in dados_site_munguba:
         nome_raw = str(p.get('nome_cientifico', '')).strip()
@@ -139,42 +140,52 @@ def gerar_relatorio_comparativo(caminho_planilha_ocorrencias, dados_site_munguba
         })
     df_site = pd.DataFrame(lista_site)
 
-    # 2. EXCEL (USANDO SPECIES)
+    # 2. PREPARAR EXCEL DE REFERÊNCIA
     try:
         df_excel = pd.read_excel(caminho_planilha_ocorrencias)
-        col_match = 'species'  # Definindo explicitamente
-
+        col_match = 'species'
         if col_match not in df_excel.columns:
-            return None, f"Coluna '{col_match}' não encontrada no Excel para diagnóstico."
+            col_match = 'acceptedScientificName'
 
-        df_excel['Chave Excel'] = df_excel[col_match].astype(str).str.strip().str.lower()
-        # Dicionário reverso para mostrar qual nome bateu
-        dict_excel = pd.Series(df_excel[col_match].values, index=df_excel['Chave Excel']).to_dict()
+        if col_match in df_excel.columns:
+            df_excel['chave_match'] = df_excel[col_match].astype(str).str.strip().str.lower()
+            # Dicionário para busca rápida: chave -> nome original
+            dict_excel = pd.Series(df_excel[col_match].values, index=df_excel['chave_match']).to_dict()
+        else:
+            dict_excel = {}
 
     except Exception as e:
         return None, f"Erro ao ler Excel: {str(e)}"
 
     # 3. COMPARAR
     resultados = []
-    for index, row in df_site.iterrows():
+    for _, row in df_site.iterrows():
         chave = row['Chave Site']
         if chave in dict_excel:
             resultados.append({
                 "Nome Site": row['Nome Site'],
-                "Status": "✅ Encontrado (via species)",
-                "Nome Excel": dict_excel[chave]
+                "Status": "✅ Encontrado",
+                "Correspondência Excel": dict_excel[chave]
             })
         else:
             resultados.append({
                 "Nome Site": row['Nome Site'],
                 "Status": "⚠️ Não encontrado",
-                "Nome Excel": "-"
+                "Correspondência Excel": "-"
             })
 
-    df_final = pd.DataFrame(resultados).sort_values(by='Status', ascending=False)
+    df_final = pd.DataFrame(resultados).sort_values(by='Status', ascending=True)  # Avisos primeiro
 
+    # 4. EXPORTAR PARA EXCEL (BYTES)
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df_final.to_excel(writer, index=False, sheet_name='Diagnostico_Species')
+        df_final.to_excel(writer, index=False, sheet_name='Diagnostico')
+
+        # Ajuste cosmético de largura de coluna (opcional)
+        ws = writer.sheets['Diagnostico']
+        ws.column_dimensions['A'].width = 30
+        ws.column_dimensions['B'].width = 20
+        ws.column_dimensions['C'].width = 30
+
     output.seek(0)
     return output, None
