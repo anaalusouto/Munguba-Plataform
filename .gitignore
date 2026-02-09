@@ -1,14 +1,11 @@
-# Pastas pesadas do Python (não subir)
 venv/
 .venv/
 __pycache__/
 *.pyc
 
-# Configurações do editor
 .idea/
 .vscode/
 
-# SEGURANÇA (Não subir senhas!)
 backend/credentials.json
 __pycache__/
 .venv/
