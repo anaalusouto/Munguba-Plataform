@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, Response
+from flask import Flask, render_template, request, redirect, url_for, Response, send_file
 import gspread
 from google.oauth2.service_account import Credentials
 import os
@@ -6,24 +6,20 @@ import unicodedata
 import json
 import re
 import openpyxl
-# --- NOVO: Importa nosso script de exportação (arquivo darwin_core.py) ---
 import darwin_core
 
 app = Flask(__name__)
 
-# --- CONFIGURAÇÕES ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.join(BASE_DIR, "backend")
-DADOS_DIR = os.path.join(BASE_DIR, "dados")  # Pasta onde fica o Excel local
+DADOS_DIR = os.path.join(BASE_DIR, "dados")
 
-# --- MEMÓRIA RAM ---
 CACHE_DADOS = {
     "plantas": [],
     "stats": {},
     "carregado": False
 }
 
-# --- GABARITO DE GPS ---
 GPS_FIXO = {
     'Adenocalymma magnificum': [-1.503333, -48.446667],
     'Adiantum tomentosum': [-1.497500, -48.429167],
@@ -44,7 +40,6 @@ GPS_FIXO = {
     'Toulicia guianensis': [-1.506944, -48.462222]
 }
 
-# --- MAPAS ---
 CATEGORIAS_MAP = {
     "Medicinal e Farmacológico": ["medicinal", "farmaco", "terapeutico", "fitoterapico"],
     "Alimentação e Nutrição": ["alimento", "nutrição", "comestível", "panc", "fruto", "azeite", "mel"],
@@ -63,12 +58,9 @@ PARTES_MAP = {
     "Flor": ["flor"], "Exsudato": ["latex", "resina"], "Casca": ["casca"], "Palmito": ["palmito"]
 }
 
-
-# --- FUNÇÕES AUXILIARES ---
 def normalizar_texto(texto):
     if not isinstance(texto, str): return str(texto)
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
-
 
 def buscar_valor_inteligente(linha, chaves_possiveis):
     chaves_linha_norm = {normalizar_texto(k): k for k in linha.keys()}
@@ -78,14 +70,12 @@ def buscar_valor_inteligente(linha, chaves_possiveis):
             if chave_norm in k_norm: return linha[k_original]
     return ""
 
-
 def classificar_tags(texto, mapa):
     tags = set()
     t_lower = str(texto).lower()
     for cat, termos in mapa.items():
         if any(termo in t_lower for termo in termos): tags.add(cat)
     return list(tags)
-
 
 def encontrar_no_gabarito(nome_na_planilha):
     if not nome_na_planilha: return None
@@ -95,7 +85,6 @@ def encontrar_no_gabarito(nome_na_planilha):
         if chave_norm in busca or busca in chave_norm:
             return [{'lat': coords[0], 'lng': coords[1]}]
     return None
-
 
 def conectar_google():
     SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
@@ -113,14 +102,11 @@ def conectar_google():
                 print("❌ ERRO: Nenhuma credencial encontrada!")
                 return None
         client = gspread.authorize(creds)
-        # Ajuste o nome da planilha do Google aqui se necessário
         return client.open("TESTEBASE").sheet1.get_all_records()
     except Exception as e:
         print(f"❌ Erro na Conexão: {e}")
         return None
 
-
-# --- CARREGAMENTO ---
 def carregar_dados_aovivo():
     print("\n" + "=" * 50)
     print("📡 SINCRONIZANDO DADOS DA PLANILHA...")
@@ -154,7 +140,6 @@ def carregar_dados_aovivo():
 
         tags_partes = classificar_tags(buscar_valor_inteligente(row, ["parte da planta", "parte"]), PARTES_MAP)
 
-        # --- PROCESSAMENTO BIBLIOGRAFIA ---
         raw_biblio = str(buscar_valor_inteligente(row, ["bibliografia de potencial", "bibliografia"]))
         lista_bibliografia = []
 
@@ -229,9 +214,6 @@ def carregar_dados_aovivo():
     print(f"🏁 SUCESSO: {len(plantas_processadas)} plantas carregadas.")
     return True
 
-
-# --- ROTAS PRINCIPAIS ---
-
 @app.route("/")
 def index():
     if not CACHE_DADOS["carregado"]:
@@ -239,33 +221,19 @@ def index():
     return render_template("home.html", plantas=CACHE_DADOS['plantas'], stats=CACHE_DADOS['stats'],
                            filtros={"categorias": list(CATEGORIAS_MAP.keys()), "partes": list(PARTES_MAP.keys())})
 
-
 @app.route("/sync")
 def forcar_sync():
     carregar_dados_aovivo()
     return redirect(url_for('index'))
 
-
-# Adicione send_file nas importações lá no topo do main.py
-from flask import Flask, render_template, request, redirect, url_for, Response, send_file
-
-# ... (resto do seu código, configurações, CACHE_DADOS, GPS_FIXO, CATEGORIAS_MAP, PARTES_MAP, FUNÇÕES AUXILIARES, CARREGAMENTO...)
-
-# --- ROTAS CORRIGIDAS ---
-
-# No main.py, procure a rota e substitua por isso:
-
 @app.route('/baixar_darwin_core')
 def baixar_darwin_core():
-    # 1. Garante que temos dados carregados
     if not CACHE_DADOS["carregado"]:
         carregar_dados_aovivo()
 
-    # 2. Dados e Caminho
     dados_site = CACHE_DADOS['plantas']
     caminho_arquivo = os.path.join(DADOS_DIR, 'ListaOcorrenciaEspecies.xlsx')
 
-    # 3. Chama a função nova (que agora retorna EXCEL BYTES)
     excel_io, erro = darwin_core.processar_dados_munguba(
         caminho_planilha_ocorrencias=caminho_arquivo,
         dados_site_munguba=dados_site
@@ -274,8 +242,6 @@ def baixar_darwin_core():
     if erro:
         return f"<h1>Ocorreu um erro:</h1><p>{erro}</p>", 500
 
-    # 4. Envia como EXCEL (.xlsx)
-    # Mudamos de Response para send_file
     return send_file(
         excel_io,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -285,20 +251,12 @@ def baixar_darwin_core():
 
 @app.route('/baixar_diagnostico')
 def baixar_diagnostico():
-    """
-    Gera e baixa o Relatório Excel de Diagnóstico (Pareamento).
-    """
-    # 1. Garante dados atualizados
     if not CACHE_DADOS["carregado"]:
         carregar_dados_aovivo()
 
-    # 2. Dados do Site
     dados_site = CACHE_DADOS['plantas']
-
-    # 3. Caminho do Excel Local
     caminho_arquivo = os.path.join(DADOS_DIR, 'ListaOcorrenciaEspecies.xlsx')
 
-    # 4. Gera o Relatório usando o script externo
     excel_io, erro = darwin_core.gerar_relatorio_comparativo(
         caminho_planilha_ocorrencias=caminho_arquivo,
         dados_site_munguba=dados_site
@@ -307,9 +265,6 @@ def baixar_diagnostico():
     if erro:
         return f"<h1>Erro ao gerar diagnóstico:</h1><p>{erro}</p>", 500
 
-    # 5. Download do Arquivo .xlsx
-    # AQUI ESTAVA O PROBLEMA: Usar send_file é mais seguro para binários (Excel)
-    # O excel_io já vem com .seek(0) do outro script, então está pronto.
     return send_file(
         excel_io,
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

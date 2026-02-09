@@ -4,7 +4,6 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Scrollbar personalizada Clean */
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -20,7 +19,6 @@ body {
     background: #059669;
 }
 
-/* Animações */
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -29,7 +27,6 @@ body {
     animation: fadeInUp 0.5s ease-out forwards;
 }
 
-/* Leaflet Popup Clean */
 .leaflet-popup-content-wrapper {
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);

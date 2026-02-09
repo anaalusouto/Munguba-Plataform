@@ -9,7 +9,6 @@
         width: 100% !important;
         height: 100% !important;
     }
-    /* PERSONALIZAÇÃO DA BARRA DE ROLAGEM */
     .custom-scrollbar::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -18,7 +17,7 @@
         background: transparent;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #cbd5e1; /* Cor cinza suave */
+        background-color: #cbd5e1;
         border-radius: 20px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -420,24 +419,20 @@
             if (bounds.length > 0) { map.fitBounds(bounds, {padding: [50, 50]}); } else { map.invalidateSize(); }
         }
 
-        // --- LÓGICA DE CLICAR FORA PARA FECHAR + TRAVAR SCROLL ---
         const dialogs = document.querySelectorAll('dialog');
         dialogs.forEach(dialog => {
-            // 1. Fecha ao clicar no backdrop (fundo escuro)
             dialog.addEventListener('click', (event) => {
                 if (event.target === dialog) {
                     dialog.close();
                 }
             });
 
-            // 2. Destrava o scroll quando o dialog fecha (por clique ou ESC)
             dialog.addEventListener('close', () => {
                 verificarScroll();
             });
         });
     });
 
-    // --- FUNÇÕES DE TRAVAMENTO NUCLEAR ---
     function travarScroll() {
         if (document.body.classList.contains('no-scroll')) return;
         scrollPosition = window.pageYOffset;
@@ -452,20 +447,17 @@
     }
 
     function verificarScroll() {
-        // Verifica se ainda tem algum modal aberto
         const catalogoAberto = document.getElementById('modal-catalogo').open;
         let algumDetalheAberto = false;
         document.querySelectorAll('dialog[id^="modal-detalhe-"]').forEach(d => {
             if (d.open) algumDetalheAberto = true;
         });
 
-        // Se NENHUM estiver aberto, destrava.
         if (!catalogoAberto && !algumDetalheAberto) {
             destravarScroll();
         }
     }
 
-    // --- FUNÇÕES DE ABERTURA ---
     function transferirBusca() {
         const t = document.getElementById('hero-busca').value;
         document.getElementById('modal-catalogo').showModal();
@@ -476,7 +468,6 @@
 
     function fecharCatalogo() {
         document.getElementById('modal-catalogo').close();
-        // O listener 'close' chamará verificarScroll()
     }
 
     function abrirDetalhe(id) {
@@ -486,10 +477,8 @@
 
     function fecharDetalhe(id) {
         document.getElementById('modal-detalhe-' + id).close();
-        // O listener 'close' chamará verificarScroll()
     }
 
-    // --- FILTROS ---
     function ativarGeral(btn) { limparTodosFiltros(); }
     function abrirCategoria(cat, index, btn) {
         const drop = document.getElementById('drop-parts-' + index);
@@ -543,9 +532,7 @@
         const grid = document.getElementById('grid-plantas');
         const cards = Array.from(grid.getElementsByClassName('card-planta'));
 
-        // 1. CALCULA PONTOS E PEGA OS NOMES
         const dadosCalculados = cards.map(card => {
-            // Filtros de Categoria e Parte
             const matchCategoria = (filtrosAtivos.categoria === 'todos') || card.getAttribute('data-tags').includes(filtrosAtivos.categoria);
 
             let matchPartes = true;
@@ -554,11 +541,8 @@
                 matchPartes = filtrosAtivos.partes.every(p => partesPlanta.includes(p));
             }
 
-            // PEGA O NOME CIENTÍFICO PARA A ORDENAÇÃO A-Z
-            // Procura o parágrafo itálico que contém o nome científico
             const nomeCientificoTexto = card.querySelector('p.italic').innerText.trim();
 
-            // Lógica de Busca (Ranking)
             let score = 0;
             let matchBusca = true;
 
@@ -567,11 +551,11 @@
                 const nomeCie = normalizar(nomeCientificoTexto);
                 const dadosGerais = normalizar(card.getAttribute('data-search'));
 
-                if (nomePop.startsWith(textoBusca)) score = 100;      // Ouro: Começa com Popular
-                else if (nomeCie.startsWith(textoBusca)) score = 90;  // Prata: Começa com Científico
-                else if (nomePop.includes(textoBusca)) score = 60;    // Bronze: Tem no Popular
-                else if (nomeCie.includes(textoBusca)) score = 50;    // Bronze: Tem no Científico
-                else if (dadosGerais.includes(textoBusca)) score = 20; // Resto
+                if (nomePop.startsWith(textoBusca)) score = 100;
+                else if (nomeCie.startsWith(textoBusca)) score = 90;
+                else if (nomePop.includes(textoBusca)) score = 60;
+                else if (nomeCie.includes(textoBusca)) score = 50;
+                else if (dadosGerais.includes(textoBusca)) score = 20;
                 else score = 0;
 
                 matchBusca = score > 0;
@@ -581,20 +565,14 @@
 
             const isVisible = matchCategoria && matchPartes && matchBusca;
 
-            // Retornamos 'nomeCientificoTexto' para usar no sort
             return { card, score, isVisible, nomeCientificoTexto };
         });
 
-        // 2. ORDENAÇÃO (SCORE -> CIENTÍFICO A-Z)
         dadosCalculados.sort((a, b) => {
-            // Critério 1: Relevância da Busca (Maior score primeiro)
             if (b.score !== a.score) return b.score - a.score;
-
-            // Critério 2: Ordem Alfabética pelo NOME CIENTÍFICO
             return a.nomeCientificoTexto.localeCompare(b.nomeCientificoTexto);
         });
 
-        // 3. ATUALIZA A TELA
         dadosCalculados.forEach(item => {
             if (item.isVisible) {
                 item.card.style.display = 'flex';

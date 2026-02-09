@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* Aponta para sua fonte personalizada */
         @font-face {
             font-family: 'ValorePro';
             src: url("{{ url_for('static', filename='fonts/fonte.ttf') }}") format('truetype');
@@ -33,7 +32,6 @@
             to { opacity: 1; transform: scale(1); }
         }
 
-        /* Efeitinho verde ao passar o mouse nos links do menu */
         .nav-link:hover::after { width: 100%; }
         .nav-link::after {
             content: ''; display: block; width: 0; height: 2px;
