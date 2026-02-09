@@ -23,8 +23,8 @@ This project applies the **FAIR Principles** (Findable, Accessible, Interoperabl
 
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/anaalusouto/Plataforma-Munguba.git](https://github.com/anaalusouto/Plataforma-Munguba.git)
-    cd Plataforma-Munguba
+    git clone [https://github.com/anaalusouto/Munguba-Plataform.git](https://github.com/anaalusouto/Munguba-Plataform.git)
+    cd Munguba-Plataform
     ```
 
 2.  Create and activate a virtual environment:
