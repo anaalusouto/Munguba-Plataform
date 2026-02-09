@@ -53,11 +53,15 @@ The application will be accessible at http://localhost:5000.
 Note: This application requires a valid credentials.json file in the root directory to authenticate with the Google Sheets API.
 
 ## Authors
-Ana Luiza Souto - Lead Developer & Researcher
 
-Alcina Girotto - Research & Scientific Validation
+* **Ana Luiza Souto** - *Lead Developer & Software Engineer*
+  <br>Responsible for the full-stack implementation, architecture, and engineering of the platform.
 
-Marcos Paulo - Advisor & Project Coordinator
+* **MSc. Alcina Girotto** - *Lead Researcher & Co-Author*
+  <br>Author of the Master's Thesis for which this software was developed as a technological product. Responsible for conceptualization, data curation, and scientific validation.
+
+* **Dr. Marcos Paulo** - *Advisor & Project Coordinator*
+  <br>Research advisor for both authors and co-author of the Munguba concept.
 
 ## Acknowledgments
 
