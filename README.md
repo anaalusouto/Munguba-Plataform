@@ -71,4 +71,4 @@ The development of this project was supported by the **Amazon Foundation for Stu
 
 We gratefully acknowledge the **Museu Paraense Emílio Goeldi (MPEG)** for providing the necessary infrastructure, data, and scientific support throughout the research.
 
-We also thank the **Centro Universitário do Estado do Pará (CESUPA)** for the institutional support provided to the Computer Science undergraduate program.
+We also thank the **Centro Universitário do Estado do Pará (CESUPA)** for the institutional support provided to the **Bachelor of Science in Computer Science degree**.
