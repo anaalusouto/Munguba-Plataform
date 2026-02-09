@@ -30,8 +30,10 @@ This project applies the **FAIR Principles** (Findable, Accessible, Interoperabl
 2.  Create and activate a virtual environment:
     ```bash
     python -m venv venv
+    
     # Windows:
     venv\Scripts\activate
+    
     # Linux/macOS:
     source venv/bin/activate
     ```
