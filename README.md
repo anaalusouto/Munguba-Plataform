@@ -1,54 +1,68 @@
-# 🌿 Plataforma Munguba
+# Munguba Platform: Bioeconomy and Biodiversity System of the Combu Island APA
 
-> **Sistema de Bioeconomia e Biodiversidade da APA Ilha do Combu**
+**Munguba** is a web-based application designed to catalog, visualize, and standardize data on floristic species with bioeconomic value in the Amazon. The project integrates technology and Open Science, promoting the valorization of local flora through geospatial visualizations and data interoperability based on the Darwin Core (DwC) standard.
 
-O **Munguba** é uma aplicação web desenvolvida para catalogar, visualizar e padronizar dados sobre espécies florísticas de valor bioeconômico na Amazônia. O projeto conecta tecnologia e ciência aberta, promovendo a valorização da flora local através de visualizações geoespaciais e interoperabilidade de dados.
+## Overview
 
----
+This project applies the **FAIR Principles** (Findable, Accessible, Interoperable, Reusable) to species occurrence data. The platform allows researchers and the community to visualize species distribution on Combu Island and access standardized data compliant with international biodiversity informatics standards.
 
-## 🎯 Objetivo
+## Features
 
-O projeto visa aplicar os **Princípios FAIR** (Findable, Accessible, Interoperable, Reusable) em dados de ocorrência de espécies. A plataforma permite que pesquisadores e a comunidade visualizem a distribuição das espécies na Ilha do Combu e acessem dados padronizados no formato internacional **Darwin Core (DwC)**.
+* **Interactive Mapping:** Geospatial visualization of species distribution using Leaflet.js.
+* **Search & Filtering:** Query system by scientific name, common name, or bioeconomic utility.
+* **ETL Processing:** Automated Extract, Transform, and Load routines to cross-reference field data with taxonomic authorities (GBIF).
+* **Data Export:** Generation of validated datasets ready for scientific analysis.
 
----
+## Installation
 
-## 🚀 Funcionalidades
+### Prerequisites
+* Python 3.8 or higher
+* Git
 
-- **Mapeamento Interativo:** Visualização geoespacial das espécies utilizando **Leaflet.js**.
-- **Busca & Filtragem:** Pesquisa rápida por nome científico, popular ou uso bioeconômico.
-- **Processamento ETL:** Rotinas automatizadas (`darwin_core.py`) que cruzam dados de campo com bases taxonômicas de referência (GBIF).
-- **Exportação de Dados:** Download de datasets validados e prontos para uso científico.
-- **Alta Performance:** Sistema de cache em memória para acesso instantâneo aos dados.
+### Setup
 
----
+1.  Clone the repository:
+    ```bash
+    git clone [https://github.com/anaalusouto/Plataforma-Munguba.git](https://github.com/anaalusouto/Plataforma-Munguba.git)
+    cd Plataforma-Munguba
+    ```
 
-## 🛠️ Arquitetura e Tecnologias
+2.  Create and activate a virtual environment:
+    ```bash
+    python -m venv venv
+    # Windows:
+    venv\Scripts\activate
+    # Linux/macOS:
+    source venv/bin/activate
+    ```
 
-O sistema segue o padrão arquitetural **MVC (Model-View-Controller)** adaptado para web.
+3.  Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-| Camada | Tecnologia | Função |
-| :--- | :--- | :--- |
-| **Front-end (View)** | HTML5, Tailwind CSS, Jinja2 | Renderização responsiva e mapas interativos. |
-| **Back-end (Controller)** | Python (Flask) | Orquestração de rotas e APIs RESTful (`main.py`). |
-| **Data Engineering (Model)** | Pandas, Darwin Core Logic | ETL, limpeza de dados e validação (`darwin_core.py`). |
-| **Persistência** | Google Sheets API + Cache | Armazenamento híbrido e ágil. |
-| **Deploy** | Vercel | Configuração Serverless (`vercel.json`). |
+## Usage
 
----
+To start the local development server, execute the following command:
 
-## 📂 Estrutura do Projeto
-
-```text
-📁 Plataforma-Munguba/
-├── 📂 static/           # Arquivos estáticos (CSS, JS, Imagens)
-├── 📂 templates/        # Templates HTML (Renderização Jinja2)
-├── 📂 dados/            # Bases de referência taxonômica (Excel/CSV)
-├── 📄 main.py           # Aplicação Principal (Controller Flask)
-├── 📄 darwin_core.py    # Módulo de Lógica de Negócio e ETL
-├── 📄 requirements.txt  # Dependências do projeto
-├── 📄 vercel.json       # Configuração de Deploy (Vercel)
-└── 📄 README.md         # Documentação
+```bash
+python main.py
 ```
+The application will be accessible at http://localhost:5000.
 
-## 🤝 Contexto
-Este projeto foi desenvolvido no âmbito institucional, como parte de uma iniciativa de Iniciação Tecnológica voltada para a Bioeconomia Amazônica e Ciência Aberta.
+Note: This application requires a valid credentials.json file in the root directory to authenticate with the Google Sheets API.
+
+## Authors
+Ana Luiza Souto - Lead Developer & Researcher
+
+Alcina Girotto - Research & Scientific Validation
+
+Marcos Paulo - Advisor & Project Coordinator
+
+## Acknowledgments
+
+The development of this project was supported by the **Amazon Foundation for Studies and Research (FAPESPA)** through a Technological Initiation Scholarship.
+
+We gratefully acknowledge the **Museu Paraense Emílio Goeldi (MPEG)** for providing the necessary infrastructure, data, and scientific support throughout the research.
+
+We also thank the **Centro Universitário do Estado do Pará (CESUPA)** for the institutional support provided to the Computer Science undergraduate program.
