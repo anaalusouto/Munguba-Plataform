@@ -5,8 +5,6 @@ import os
 import unicodedata
 import json
 import re
-import openpyxl
-import darwin_core
 
 app = Flask(__name__)
 
@@ -226,51 +224,21 @@ def forcar_sync():
     carregar_dados_aovivo()
     return redirect(url_for('index'))
 
-@app.route('/baixar_darwin_core')
-def baixar_darwin_core():
-    if not CACHE_DADOS["carregado"]:
-        carregar_dados_aovivo()
 
-    dados_site = CACHE_DADOS['plantas']
-    caminho_arquivo = os.path.join(DADOS_DIR, 'ListaOcorrenciaEspecies.xlsx')
+from flask import send_file
 
-    excel_io, erro = darwin_core.processar_dados_munguba(
-        caminho_planilha_ocorrencias=caminho_arquivo,
-        dados_site_munguba=dados_site
-    )
+@app.route('/exportar-dados')
+def baixar_planilha():
+    caminho_do_arquivo = 'dados/BancoDados_munguba_darwin_core.xlsx'
 
-    if erro:
-        return f"<h1>Ocorreu um erro:</h1><p>{erro}</p>", 500
-
-    return send_file(
-        excel_io,
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        download_name='munguba_darwin_core.xlsx',
-        as_attachment=True
-    )
-
-@app.route('/baixar_diagnostico')
-def baixar_diagnostico():
-    if not CACHE_DADOS["carregado"]:
-        carregar_dados_aovivo()
-
-    dados_site = CACHE_DADOS['plantas']
-    caminho_arquivo = os.path.join(DADOS_DIR, 'ListaOcorrenciaEspecies.xlsx')
-
-    excel_io, erro = darwin_core.gerar_relatorio_comparativo(
-        caminho_planilha_ocorrencias=caminho_arquivo,
-        dados_site_munguba=dados_site
-    )
-
-    if erro:
-        return f"<h1>Erro ao gerar diagnóstico:</h1><p>{erro}</p>", 500
-
-    return send_file(
-        excel_io,
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        download_name='relatorio_comparativo_munguba.xlsx',
-        as_attachment=True
-    )
+    try:
+        return send_file(
+            caminho_do_arquivo,
+            as_attachment=True,
+            download_name='BancodeDados_MungubaDwC.xlsx'  # O nome que vai aparecer pro usuário
+        )
+    except FileNotFoundError:
+        return "Erro: O arquivo ainda não foi colocado na pasta.", 404
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
