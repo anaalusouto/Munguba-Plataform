@@ -4,7 +4,6 @@ from urllib.parse import quote_plus
 import os
 from dotenv import load_dotenv
 
-# Carrega o cofre (o arquivo .env) para o seu computador
 load_dotenv()
 
 app = Flask(__name__)
@@ -12,6 +11,9 @@ app = Flask(__name__)
 database_url = os.environ.get("DATABASE_URL")
 
 if database_url:
+    if database_url.startswith("mysql://"):
+        database_url = database_url.replace("mysql://", "mysql+pymysql://", 1)
+
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     print("☁️ Conectando ao Banco de Dados na NUVEM!")
 else:
@@ -22,6 +24,7 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
 
 # =====================================================================
 # Suas classes Taxon, Sinonimo, etc continuam aqui para baixo...
