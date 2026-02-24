@@ -1,7 +1,5 @@
 Flask
-gspread
-google-auth
-requests
-pygbif
-pandas
-openpyxl
+Flask-SQLAlchemy
+PyMySQL
+cryptography
+gunicorn
