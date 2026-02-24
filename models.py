@@ -4,18 +4,27 @@ from urllib.parse import quote_plus
 import os
 from dotenv import load_dotenv
 
-# Carrega o cofre (o arquivo .env)
+# Carrega o cofre (o arquivo .env) para o seu computador
 load_dotenv()
 
 app = Flask(__name__)
 
-# Puxa a senha do cofre de forma segura!
-senha_mysql = os.getenv("SENHA_MYSQL")
+database_url = os.environ.get("DATABASE_URL")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://root:{quote_plus(senha_mysql)}@localhost:3306/munguba_db"
+if database_url:
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    print("☁️ Conectando ao Banco de Dados na NUVEM!")
+else:
+    senha_mysql = os.environ.get("SENHA_MYSQL", "")
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://root:{quote_plus(senha_mysql)}@localhost:3306/munguba_db"
+    print("💻 Conectando ao Banco de Dados LOCAL!")
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# =====================================================================
+# Suas classes Taxon, Sinonimo, etc continuam aqui para baixo...
 
 class Taxon(db.Model):
     __tablename__ = 'TAXON'
