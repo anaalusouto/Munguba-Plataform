@@ -14,6 +14,9 @@ if database_url:
     if database_url.startswith("mysql://"):
         database_url = database_url.replace("mysql://", "mysql+pymysql://", 1)
 
+    if "?" in database_url:
+        database_url = database_url.split("?")[0]
+
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     print("☁️ Conectando ao Banco de Dados na NUVEM!")
 else:
@@ -25,9 +28,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-
-# =====================================================================
-# Suas classes Taxon, Sinonimo, etc continuam aqui para baixo...
 
 class Taxon(db.Model):
     __tablename__ = 'TAXON'
