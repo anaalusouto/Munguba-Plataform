@@ -65,7 +65,7 @@
         <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 divide-x divide-gray-200/50 items-center justify-center">
 
             <div>
-                <span class="block text-3xl md:text-4xl font-bold text-emerald-900 mb-1">251</span>
+                <span class="block text-3xl md:text-4xl font-bold text-emerald-900 mb-1">312</span>
                 <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Espécies</span>
             </div>
 
@@ -207,7 +207,11 @@
                          data-search="{{ p['nome_popular'] }} {{ p['nome_cientifico'] }} {{ p['familia'] }} {{ p['origem'] }} {{ p['importancia'] }} {{ ','.join(p['tags']) }} {{ ','.join(p['partes_tags']) }}"
                          class="card-planta bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-all flex flex-col h-full overflow-hidden group">
                         <div class="h-32 md:h-40 bg-gray-100 relative overflow-hidden group-hover:bg-emerald-50 transition-colors">
-                            <img src="{{ p.foto }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                            <img src="{{ url_for('static', filename='fotos/' ~ p['nome_cientifico'] ~ '.jpg') }}"
+                                 onerror="this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                                 loading="lazy"
+                                 alt="Foto de {{ p['nome_popular'] }}"
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         </div>
                         <div class="p-4 md:p-5 flex-1">
                             <p class="text-[9px] text-gray-400 uppercase font-bold mb-1 tracking-widest">{{ p['familia'] }}</p>
@@ -235,7 +239,10 @@
         <div class="overflow-y-auto custom-scrollbar w-full h-full bg-gray-50">
 
             <div class="h-64 md:h-80 w-full relative shrink-0">
-                <img src="{{ p.foto }}" class="w-full h-full object-cover">
+                <img src="{{ url_for('static', filename='fotos/' ~ p['nome_cientifico']|replace(' ', '_') ~ '.jpg') }}"
+                     onerror="this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                     alt="Foto de {{ p['nome_popular'] }}"
+                     class="w-full h-full object-cover">
                 <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-gray-50 to-transparent"></div>
             </div>
 

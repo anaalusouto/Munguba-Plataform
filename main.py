@@ -16,7 +16,8 @@ CATEGORIAS_MAP = {
         "artesan", "cultura"
     ],
     "Construção, Madeira e Indústria": [
-        "constru", "madeir", "industr", "indústr", "energia", "enérgia", "agroindustrial", "móveis", "estaca", "viga", "resina"
+        "constru", "madeir", "industr", "indústr", "energia", "enérgia", "agroindustrial", "móveis", "estaca", "viga",
+        "resina"
     ],
     "Cosméticos e Higiene": [
         "cosmetic", "cosmétic", "higiene", "hiegiene", "aromática", "beleza", "perfume", "sabonete", "oleo"
@@ -90,12 +91,22 @@ def index():
                                                                Taxon.id_taxon == Bioeconomico.id_taxon).all()
 
     plantas_processadas = []
+    plantas_vistas = set()  # <--- Nossa "memória" focada no NOME da planta
+
     total_geo = 0
     stats_categorias = {cat: 0 for cat in CATEGORIAS_MAP.keys()}
     stats_categorias["Outros"] = 0
 
     for taxon, bio in resultados_db:
-        # 2. Busca as ocorrências (coordenadas GPS) dessa planta específica
+        nome_cientifico = taxon.scientificNameAccepted or "Sp."
+
+        nome_chave = nome_cientifico.strip().lower()
+
+        if nome_chave in plantas_vistas:
+            continue
+
+        plantas_vistas.add(nome_chave)
+
         ocorrencias = Occurrence.query.filter_by(id_taxon=taxon.id_taxon).all()
         pontos_gps = []
         for occ in ocorrencias:
@@ -105,7 +116,6 @@ def index():
         if pontos_gps:
             total_geo += 1
 
-        # 3. Classifica as tags baseadas no texto salvo no banco
         tags = classificar_tags(bio.potencial_bioeconomico, CATEGORIAS_MAP) or ["Outros"]
         for t in tags:
             if t in stats_categorias:
@@ -118,12 +128,10 @@ def index():
         # 4. Formata os links da bibliografia
         lista_bibliografia = extrair_bibliografia(bio.referencias_bibliograficas)
 
-        # 5. Monta o dicionário que o HTML espera
         planta = {
             "nome_popular": bio.nome_popular or taxon.scientificNameAccepted,
-            "nome_cientifico": taxon.scientificNameAccepted or "Sp.",
+            "nome_cientifico": nome_cientifico,
             "familia": taxon.familia or "-",
-            "foto": "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80",  # GBIF depois!
             "tags": tags,
             "partes_tags": tags_partes,
             "origem": bio.origem_habitat or "-",
