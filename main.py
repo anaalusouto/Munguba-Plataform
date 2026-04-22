@@ -100,13 +100,17 @@ def index():
     for taxon, bio in resultados_db:
         nome_cientifico = taxon.scientificNameAccepted or "Sp."
 
+        # O SEGREDO ESTÁ AQUI: Validar pelo nome, ignorando maiúsculas e espaços extras!
         nome_chave = nome_cientifico.strip().lower()
 
+        # Se o nome da planta já estiver na memória, pula a contagem!
         if nome_chave in plantas_vistas:
             continue
 
+        # Marca a planta como "já vista" adicionando o nome na memória
         plantas_vistas.add(nome_chave)
 
+        # 2. Busca as ocorrências (coordenadas GPS)
         ocorrencias = Occurrence.query.filter_by(id_taxon=taxon.id_taxon).all()
         pontos_gps = []
         for occ in ocorrencias:
@@ -116,6 +120,7 @@ def index():
         if pontos_gps:
             total_geo += 1
 
+        # 3. Classifica as tags baseadas no texto salvo no banco
         tags = classificar_tags(bio.potencial_bioeconomico, CATEGORIAS_MAP) or ["Outros"]
         for t in tags:
             if t in stats_categorias:
@@ -128,6 +133,7 @@ def index():
         # 4. Formata os links da bibliografia
         lista_bibliografia = extrair_bibliografia(bio.referencias_bibliograficas)
 
+        # 5. Monta o dicionário que o HTML espera
         planta = {
             "nome_popular": bio.nome_popular or taxon.scientificNameAccepted,
             "nome_cientifico": nome_cientifico,
