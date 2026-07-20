@@ -2,7 +2,6 @@ from flask import render_template, send_file
 import os
 import re
 
-# Aqui está o segredo: Importamos o app e o banco do seu arquivo models.py!
 from models import app, db, Taxon, Bioeconomico, Occurrence
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
