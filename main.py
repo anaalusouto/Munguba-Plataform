@@ -158,9 +158,9 @@ def index():
 
 @app.route('/exportar-dados')
 def baixar_planilha():
-    caminho_do_arquivo = os.path.join(DADOS_DIR, 'BancoDados_munguba_darwin_core.xlsx')
+    caminho_do_arquivo = os.path.join(DADOS_DIR, 'BancoDados_munguba_Darwin_core.xlsx')
     try:
-        return send_file(caminho_do_arquivo, as_attachment=True, download_name='BancodeDados_MungubaDwC.xlsx')
+        return send_file(caminho_do_arquivo, as_attachment=True, download_name='BancodeDados_MungubaDWC.xlsx')
     except FileNotFoundError:
         return "Erro: O arquivo ainda não foi colocado na pasta.", 404
 
