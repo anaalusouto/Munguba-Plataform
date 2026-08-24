@@ -4,7 +4,7 @@ import os
 from models import app, db, Taxon, Bioeconomico, Localizacao, Referencia, Occurrence
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ARQUIVO_EXCEL = os.path.join(BASE_DIR, 'dados', 'BancoDados_munguba_darwin_core.xlsx')
+ARQUIVO_EXCEL = os.path.join(BASE_DIR, 'dados', 'BancoDados_munguba_Darwin_core.xlsx')
 
 
 def safe_get(row, col_name):
