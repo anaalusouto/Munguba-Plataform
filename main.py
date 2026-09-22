@@ -1,11 +1,24 @@
-from flask import render_template, send_file
+from flask import render_template, send_file, url_for
 import os
 import re
 
 from models import app, db, Taxon, Bioeconomico, Occurrence
+from fotos import buscar_foto, normalizar_nome, binomio
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DADOS_DIR = os.path.join(BASE_DIR, "dados")
+FOTOS_DIR = os.path.join(BASE_DIR, "static", "fotos")
+
+# Fotos locais em static/fotos, indexadas pelo nome científico (ignora maiúsculas, "_" e extensão)
+FOTOS_LOCAIS = {
+    normalizar_nome(os.path.splitext(arquivo)[0].replace("_", " ")): arquivo
+    for arquivo in os.listdir(FOTOS_DIR)
+    if arquivo.lower().endswith((".jpg", ".jpeg", ".png", ".webp")) and arquivo != "sem_foto.jpg"
+}
+FOTOS_LOCAIS_BINOMIO = {}
+for _nome, _arquivo in FOTOS_LOCAIS.items():
+    if binomio(_nome):
+        FOTOS_LOCAIS_BINOMIO.setdefault(binomio(_nome), _arquivo)
 
 CATEGORIAS_MAP = {
     "Alimentação e Nutrição": [
@@ -81,6 +94,23 @@ def extrair_bibliografia(texto_bruto):
     return lista_bibliografia
 
 
+def montar_foto(nome_cientifico):
+    """Prioridade: foto local em static/fotos -> foto da planilha do Google -> foto padrão."""
+    arquivo_local = FOTOS_LOCAIS.get(normalizar_nome(nome_cientifico))
+    if not arquivo_local and binomio(nome_cientifico):
+        arquivo_local = FOTOS_LOCAIS_BINOMIO.get(binomio(nome_cientifico))
+    if arquivo_local:
+        url = url_for('static', filename='fotos/' + arquivo_local)
+        return {"url": url, "url_media": url, "autor": "", "licenca": "", "fonte": ""}
+
+    foto = buscar_foto(nome_cientifico)
+    if foto:
+        return foto
+
+    url = url_for('static', filename='fotos/sem_foto.jpg')
+    return {"url": url, "url_media": url, "autor": "", "licenca": "", "fonte": ""}
+
+
 @app.route("/")
 def index():
     print("📡 BUSCANDO DADOS NO MYSQL...")
@@ -142,7 +172,8 @@ def index():
             "origem": bio.origem_habitat or "-",
             "importancia": bio.importancia or "Sem descrição.",
             "pontos_gps": pontos_gps,
-            "bibliografia": lista_bibliografia
+            "bibliografia": lista_bibliografia,
+            "foto": montar_foto(nome_cientifico)
         }
         plantas_processadas.append(planta)
 

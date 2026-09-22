@@ -207,8 +207,9 @@
                          data-search="{{ p['nome_popular'] }} {{ p['nome_cientifico'] }} {{ p['familia'] }} {{ p['origem'] }} {{ p['importancia'] }} {{ ','.join(p['tags']) }} {{ ','.join(p['partes_tags']) }}"
                          class="card-planta bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-all flex flex-col h-full overflow-hidden group">
                         <div class="h-32 md:h-40 bg-gray-100 relative overflow-hidden group-hover:bg-emerald-50 transition-colors">
-                            <img src="{{ url_for('static', filename='fotos/' ~ p['nome_cientifico'] ~ '.jpg') }}"
-                                 onerror="this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                            <img src="{{ p['foto']['url_media'] }}"
+                                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                                 referrerpolicy="no-referrer"
                                  loading="lazy"
                                  alt="Foto de {{ p['nome_popular'] }}"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
@@ -239,11 +240,20 @@
         <div class="overflow-y-auto custom-scrollbar w-full h-full bg-gray-50">
 
             <div class="h-64 md:h-80 w-full relative shrink-0">
-                <img src="{{ url_for('static', filename='fotos/' ~ p['nome_cientifico']|replace(' ', '_') ~ '.jpg') }}"
-                     onerror="this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                <img src="{{ p['foto']['url'] }}"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                     referrerpolicy="no-referrer"
+                     loading="lazy"
                      alt="Foto de {{ p['nome_popular'] }}"
                      class="w-full h-full object-cover">
                 <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-gray-50 to-transparent"></div>
+                {% if p['foto']['autor'] %}
+                <a href="{{ p['foto']['fonte'] or '#' }}" target="_blank" rel="noopener"
+                   class="absolute top-4 left-4 z-10 max-w-[70%] truncate bg-black/50 text-white text-[10px] px-2 py-1 rounded-full hover:bg-black/70">
+                    <i class="ri-camera-line"></i> {{ p['foto']['autor'] }}
+                    {% if 'by-nc' in p['foto']['licenca'] %}· CC BY-NC{% elif 'zero' in p['foto']['licenca'] %}· CC0{% elif 'by' in p['foto']['licenca'] %}· CC BY{% endif %}
+                </a>
+                {% endif %}
             </div>
 
             <div class="px-6 md:px-10 pb-10 relative -mt-12 space-y-4">
