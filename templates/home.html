@@ -25,18 +25,18 @@
     }
 </style>
 
-<section class="relative bg-white pt-24 md:pt-32 pb-16 md:pb-20 overflow-hidden">
+<section class="relative bg-white pt-36 md:pt-32 pb-16 md:pb-20 overflow-hidden">
     <div class="absolute top-0 left-0 w-full h-full z-0 opacity-25 pointer-events-none">
         <img src="https://img1.oastatic.com/img2/56367807/max/variant.jpg?revbust=ef2db0c8" class="w-full h-full object-cover">
     </div>
 
     <div class="container mx-auto px-4 md:px-6 relative z-10 text-center">
         <span class="inline-block py-1 px-3 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] md:text-xs font-bold tracking-widest uppercase mb-4 md:mb-6">
-            MUNGUBA • Plataforma de lista de espécies floristicas
+            {{ t('MUNGUBA • Plataforma de lista de espécies florísticas') }}
         </span>
 
         <h1 class="text-4xl sm:text-5xl md:text-7xl text-emerald-950 font-brand mb-4 leading-tight">
-            de uso Bioeconomico<br>da Ilha do Combu
+            {{ t('de uso Bioeconômico') }}<br>{{ t('da Ilha do Combu') }}
         </h1>
 
         <div class="max-w-3xl mx-auto px-2 relative group">
@@ -46,11 +46,11 @@
 
                 <div class="w-full flex items-center">
                     <div class="pl-4 md:pl-6 text-gray-400"><i class="ri-search-2-line text-xl"></i></div>
-                    <input type="text" id="hero-busca" onkeypress="if(event.key==='Enter') transferirBusca()" placeholder="Busque por termo..." class="w-full bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400 px-3 py-3 text-base md:text-lg outline-none">
+                    <input type="text" id="hero-busca" onkeypress="if(event.key==='Enter') transferirBusca()" placeholder="{{ t('Busque por termo...') }}" class="w-full bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400 px-3 py-3 text-base md:text-lg outline-none">
                 </div>
 
                 <button onclick="transferirBusca()" class="w-full md:w-auto bg-emerald-900 text-white px-8 py-3 rounded-xl md:rounded-full font-bold hover:bg-emerald-800 transition-all shadow-md active:scale-95">
-                    Pesquisar
+                    {{ t('Pesquisar') }}
                 </button>
 
             </div>
@@ -65,18 +65,18 @@
         <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 divide-x divide-gray-200/50 items-center justify-center">
 
             <div>
-                <span class="block text-3xl md:text-4xl font-bold text-emerald-900 mb-1">312</span>
-                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Espécies</span>
+                <span class="block text-3xl md:text-4xl font-bold text-emerald-900 mb-1">{{ stats.total_especies }}</span>
+                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">{{ t('Táxons') }}</span>
             </div>
 
             <div>
-                <span class="block text-3xl md:text-4xl font-bold text-blue-900 mb-1">332</span>
-                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Ocorrências</span>
+                <span class="block text-3xl md:text-4xl font-bold text-blue-900 mb-1">{{ stats.total_ocorrencias }}</span>
+                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">{{ t('Registros de ocorrência') }}</span>
             </div>
 
             <div class="col-span-2 md:col-span-1 border-t md:border-t-0 border-gray-100 pt-4 md:pt-0 mt-2 md:mt-0">
-                <span class="block text-3xl md:text-4xl font-bold text-purple-900 mb-1">7</span>
-                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">Categorias de Uso</span>
+                <span class="block text-3xl md:text-4xl font-bold text-purple-900 mb-1">{{ filtros.categorias|length }}</span>
+                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase">{{ t('Categorias de Uso') }}</span>
             </div>
 
         </div>
@@ -85,19 +85,25 @@
 
 <section id="mapa-area" class="py-10 md:py-20 bg-white">
     <div class="container mx-auto px-4 md:px-6">
+        <div class="mb-6 text-sm text-gray-600 space-y-2">
+            <p>{{ t('Dados: Appendix S1 • Licença CC BY 4.0') }} · {{ stats.total_ocorrencia_geo }} {{ t('Ocorrências georreferenciadas') }} · {{ stats.total_area_geo }} {{ t('Referências de área') }}</p>
+            <p>{{ t('Os nomes científicos, nomes populares e citações são preservados como na fonte.') }}</p>
+            <label class="flex items-center gap-2 font-semibold text-emerald-900"><input type="checkbox" id="incluir-areas" onchange="filtrarMapaUnico(categoriaMapa)">{{ t('Incluir referências de área no mapa') }}</label>
+            <p>{{ t('As referências de área representam uma localidade, não o ponto exato da espécie.') }}</p>
+        </div>
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 md:gap-8 h-auto lg:h-[700px]">
 
             <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar h-64 lg:h-full order-1">
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 sticky top-0 bg-white py-2 z-10">
-                    Destaques no Mapa
+                    {{ t('Destaques no Mapa') }}
                 </h3>
 
-                <div onclick="resetarMapa()" class="cursor-pointer bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center text-xs font-bold text-emerald-900 uppercase hover:bg-emerald-100 transition-colors shrink-0">
-                    Mostrar Tudo
-                </div>
+                <button type="button" onclick="resetarMapa()" class="cursor-pointer bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center text-xs font-bold text-emerald-900 uppercase hover:bg-emerald-100 transition-colors shrink-0">
+                    {{ t('Mostrar Tudo') }}
+                </button>
 
                 {% for cat in filtros.categorias %}
-                {% if stats.por_categoria[cat] > 0 %}
+                {% if stats.por_categoria.get(cat, 0) > 0 %}
                     {% set icon = "ri-leaf-line" %}
                     {% if 'Medicinal' in cat %}{% set icon = "ri-heart-pulse-line" %}
                     {% elif 'Alimentação' in cat %}{% set icon = "ri-restaurant-line" %}
@@ -108,7 +114,7 @@
                     {% elif 'Artesanato' in cat %}{% set icon = "ri-paint-brush-line" %}
                     {% endif %}
 
-                    <div onclick="filtrarMapaUnico('{{ cat }}')" class="cursor-pointer group bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:border-emerald-500 transition-all flex justify-between items-center shrink-0">
+                    <button type="button" onclick="filtrarMapaUnico('{{ cat }}')" class="cursor-pointer group bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:border-emerald-500 transition-all flex justify-between items-center shrink-0 text-left">
                         <div class="flex items-center gap-3">
                             <i class="{{ icon }} text-xl text-gray-400 group-hover:text-emerald-600 transition-colors"></i>
                             <div>
@@ -117,13 +123,14 @@
                             </div>
                         </div>
                         <i class="ri-arrow-right-s-line text-gray-300 group-hover:text-emerald-500"></i>
-                    </div>
+                    </button>
                 {% endif %}
                 {% endfor %}
             </div>
 
             <div class="lg:col-span-9 bg-gray-50 rounded-2xl overflow-hidden border border-gray-200 relative h-[400px] lg:h-full order-2">
                 <div id="mapid" class="w-full h-full z-0"></div>
+                <p id="mapa-status" role="status" class="absolute bottom-8 left-3 right-3 bg-white/95 rounded-lg px-3 py-2 text-xs text-gray-700 shadow pointer-events-none" hidden></p>
             </div>
         </div>
     </div>
@@ -135,14 +142,14 @@
         <div class="w-full md:w-80 bg-white border-b md:border-b-0 md:border-r border-gray-200 flex flex-col shrink-0 h-auto max-h-[35vh] md:max-h-full md:h-full">
 
             <div class="h-16 md:h-20 px-4 md:px-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10 w-full shrink-0">
-                <h2 class="text-base md:text-lg font-bold text-gray-800 tracking-tight">Filtros</h2>
+                <h2 class="text-base md:text-lg font-bold text-gray-800 tracking-tight">{{ t('Filtros') }}</h2>
 
                 <div class="flex items-center gap-3">
                     <button onclick="limparTodosFiltros()" class="text-[10px] md:text-xs text-emerald-600 font-bold hover:underline uppercase tracking-wide flex items-center gap-1 group py-2 px-2 rounded-lg hover:bg-emerald-50 transition-all">
-                        <i class="ri-delete-bin-line text-emerald-400 group-hover:text-emerald-600"></i> Limpar
+                        <i class="ri-delete-bin-line text-emerald-400 group-hover:text-emerald-600"></i> {{ t('Limpar') }}
                     </button>
 
-                    <button onclick="fecharCatalogo()" class="md:hidden text-gray-400 hover:text-red-500 p-1 bg-gray-50 rounded-full w-8 h-8 flex items-center justify-center">
+                    <button onclick="fecharCatalogo()" aria-label="{{ t('Fechar catálogo') }}" class="md:hidden text-gray-400 hover:text-red-500 p-1 bg-gray-50 rounded-full w-8 h-8 flex items-center justify-center">
                         <i class="ri-close-line text-xl"></i>
                     </button>
                 </div>
@@ -150,7 +157,7 @@
 
             <div class="flex-1 overflow-y-auto p-4 custom-scrollbar text-sm space-y-2">
                 <button onclick="ativarGeral(this)" id="btn-geral" class="w-full text-left px-5 py-3 rounded-xl bg-emerald-50 text-emerald-900 font-bold text-sm shadow-sm border border-emerald-100 transition-all">
-                    <i class="ri-apps-line mr-2"></i> Todas
+                    <i class="ri-apps-line mr-2"></i> {{ t('Todas') }}
                 </button>
 
                 <div class="pt-2 pb-2"><hr class="border-gray-100"></div>
@@ -164,7 +171,7 @@
                     </button>
 
                     <div id="drop-parts-{{ loop.index }}" class="hidden bg-gray-50/50 rounded-b-xl border-x border-b border-gray-50 mx-2 mb-2 p-3 space-y-1">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-2 pl-1 tracking-widest">Por Parte:</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-2 pl-1 tracking-widest">{{ t('Por Parte:') }}</p>
                         {% for parte in filtros.partes %}
                         <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white cursor-pointer transition-colors">
                             <input type="checkbox" value="{{ parte }}" onchange="toggleParte(this)" class="checkbox-parte w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
@@ -183,17 +190,17 @@
 
                 <div class="relative w-full max-w-xl flex-1 md:flex-none">
                     <i class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="input-busca" onkeyup="filtrarTudo()" placeholder="Pesquise por nome, família, uso..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner">
+                    <input type="text" id="input-busca" oninput="filtrarTudo()" aria-label="{{ t('Pesquisar espécies') }}" placeholder="{{ t('Pesquise por nome, família, uso...') }}" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner">
                 </div>
 
                 <div id="badge-filtro-ativo" class="hidden w-auto transition-all shrink-0">
                     <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-200 flex items-center gap-2 whitespace-nowrap shadow-sm">
-                        <span id="texto-filtro-ativo">Categoria</span>
-                        <i onclick="limparTodosFiltros()" class="ri-close-line cursor-pointer hover:text-red-500" title="Limpar Filtro"></i>
+                        <span id="texto-filtro-ativo">{{ t('Categoria') }}</span>
+                        <i onclick="limparTodosFiltros()" class="ri-close-line cursor-pointer hover:text-red-500" title="{{ t('Limpar Filtro') }}"></i>
                     </span>
                 </div>
 
-                <button onclick="fecharCatalogo()" class="hidden md:flex ml-auto text-gray-400 hover:text-red-500 p-2 transition-colors items-center justify-center rounded-full hover:bg-gray-100 active:scale-95" title="Fechar Janela">
+                <button onclick="fecharCatalogo()" aria-label="{{ t('Fechar catálogo') }}" class="hidden md:flex ml-auto text-gray-400 hover:text-red-500 p-2 transition-colors items-center justify-center rounded-full hover:bg-gray-100 active:scale-95" title="{{ t('Fechar Janela') }}">
                     <i class="ri-close-circle-line text-3xl"></i>
                 </button>
             </div>
@@ -204,14 +211,14 @@
                     <div onclick="abrirDetalhe('{{ loop.index }}')"
                          data-tags="{{ ','.join(p['tags']) }}"
                          data-partes="{{ ','.join(p['partes_tags']) }}"
-                         data-search="{{ p['nome_popular'] }} {{ p['nome_cientifico'] }} {{ p['familia'] }} {{ p['origem'] }} {{ p['importancia'] }} {{ ','.join(p['tags']) }} {{ ','.join(p['partes_tags']) }}"
+                         data-search="{{ '; '.join(p['nomes_populares']) }} {{ p['nome_cientifico'] }} {{ p['familia'] }} {{ p['origem'] }} {{ p['importancia'] }} {{ ','.join(p['tags']) }} {{ ','.join(p['partes_tags']) }} {{ ' '.join(p['ocorrencias']|map(attribute='id')) }} {{ ' '.join(p['ocorrencias']|map(attribute='nome_original')) }}"
                          class="card-planta bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-all flex flex-col h-full overflow-hidden group">
                         <div class="h-32 md:h-40 bg-gray-100 relative overflow-hidden group-hover:bg-emerald-50 transition-colors">
                             <img src="{{ p['foto']['url_media'] }}"
                                  onerror="this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
                                  referrerpolicy="no-referrer"
                                  loading="lazy"
-                                 alt="Foto de {{ p['nome_popular'] }}"
+                                 alt="{{ t('Foto de') }} {{ p['nome_popular'] }}"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         </div>
                         <div class="p-4 md:p-5 flex-1">
@@ -222,184 +229,24 @@
                     </div>
                     {% endfor %}
                 </div>
+                <p id="catalogo-vazio" role="status" class="text-center text-gray-600 py-10" hidden>{{ t('Nenhuma espécie encontrada. Tente outro termo ou limpe os filtros.') }}</p>
             </div>
         </div>
     </div>
 </dialog>
 
-{% for p in plantas %}
-<dialog id="modal-detalhe-{{ loop.index }}"
+<dialog id="modal-detalhe" aria-label="{{ t('Ficha Técnica') }}"
         class="m-auto w-full h-full md:w-[750px] md:h-auto md:max-h-[90vh] bg-transparent p-0 backdrop:bg-black/60 fixed inset-0 z-[100]">
-
-    <div class="bg-gray-50 w-full h-full md:rounded-2xl shadow-2xl relative flex flex-col overflow-hidden">
-
-        <button onclick="fecharDetalhe('{{ loop.index }}')" class="absolute top-4 right-4 z-[60] w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-md transition-all cursor-pointer hover:scale-110">
-            <i class="ri-close-line text-2xl"></i>
-        </button>
-
-        <div class="overflow-y-auto custom-scrollbar w-full h-full bg-gray-50">
-
-            <div class="h-64 md:h-80 w-full relative shrink-0">
-                <img src="{{ p['foto']['url'] }}"
-                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
-                     referrerpolicy="no-referrer"
-                     loading="lazy"
-                     alt="Foto de {{ p['nome_popular'] }}"
-                     class="w-full h-full object-cover">
-                <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-gray-50 to-transparent"></div>
-                {% if p['foto']['autor'] %}
-                <a href="{{ p['foto']['fonte'] or '#' }}" target="_blank" rel="noopener"
-                   class="absolute top-4 left-4 z-10 max-w-[70%] truncate bg-black/50 text-white text-[10px] px-2 py-1 rounded-full hover:bg-black/70">
-                    <i class="ri-camera-line"></i> {{ p['foto']['autor'] }}
-                    {% if 'by-nc' in p['foto']['licenca'] %}· CC BY-NC{% elif 'zero' in p['foto']['licenca'] %}· CC0{% elif 'by' in p['foto']['licenca'] %}· CC BY{% endif %}
-                </a>
-                {% endif %}
-            </div>
-
-            <div class="px-6 md:px-10 pb-10 relative -mt-12 space-y-4">
-
-                <div class="relative z-10 mb-6">
-                    <span class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 border border-emerald-200 shadow-sm">
-                        {{ p['familia'] }}
-                    </span>
-                    <h2 class="font-serif text-3xl md:text-4xl text-gray-900 font-bold leading-tight drop-shadow-sm">{{ p['nome_popular'] }}</h2>
-                    <p class="text-base text-gray-500 italic font-serif mt-1">{{ p['nome_cientifico'] }}</p>
-                </div>
-
-                <div class="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
-                        <i class="ri-book-2-line text-purple-500"></i> Ficha Técnica
-                    </h3>
-
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-
-                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
-                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Família</p>
-                            <p class="text-gray-800 font-medium">{{ p['familia'] }}</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
-                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Nome Popular</p>
-                            <p class="text-gray-800 font-medium">{{ p['nome_popular'] }}</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
-                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Nome Cientifico</p>
-                            <p class="text-emerald-700 italic font-medium">{{ p['nome_cientifico'] }}</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
-                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Origem</p>
-                            <p class="text-gray-800 font-medium">{{ p['origem'] }}</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50 col-span-2">
-                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Categorias de Uso</p>
-                            <div class="flex flex-wrap gap-2">
-                                {% for tag in p['tags'] %}
-                                    <span class="inline-flex items-center gap-1 bg-white border border-gray-200 text-gray-600 text-[11px] font-bold px-2 py-1 rounded-md shadow-sm">
-                                        <i class="ri-price-tag-3-line text-emerald-500 text-[10px]"></i>
-                                        {{ tag }}
-                                    </span>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="bg-[#f8fafc] p-5 md:p-6 rounded-2xl border border-gray-200 shadow-sm">
-                    <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-3 text-sm uppercase tracking-wide">
-                        <i class="ri-bar-chart-box-line text-blue-500"></i> Uso Bioeconômico
-                    </h3>
-                    <p class="text-gray-600 text-sm leading-relaxed text-justify whitespace-pre-line">{{ p['importancia'] }}</p>
-                </div>
-
-                <div class="bg-[#f0fdf4] p-5 md:p-6 rounded-2xl border border-[#dcfce7] shadow-sm">
-                    <h3 class="text-[#15803d] font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
-                        <i class="ri-leaf-line"></i> Partes Utilizadas
-                    </h3>
-                    <div class="flex flex-wrap gap-2">
-                        {% for parte in p['partes_tags'] %}
-                        <span class="bg-white border border-[#dcfce7] px-3 py-1.5 rounded-lg text-xs font-bold text-[#166534] flex items-center gap-2 shadow-sm">
-                            <i class="{% if 'Planta' in parte %}ri-seedling-fill{% elif 'Fruto' in parte %}ri-apple-fill{% else %}ri-leaf-fill{% endif %} text-emerald-500"></i>
-                            {{ parte }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                {% if p['coordenadas'] %}
-                <div class="bg-[#f0f9ff] p-5 md:p-6 rounded-2xl border border-[#bae6fd] shadow-sm">
-                    <h3 class="text-[#0369a1] font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
-                        <i class="ri-map-pin-line"></i> Localização
-                    </h3>
-                    <div class="bg-white rounded-xl p-4 flex flex-col md:flex-row flex-wrap gap-4 items-start md:items-center text-sm">
-                        <div class="flex gap-4">
-                            <div><p class="text-[9px] text-gray-400 font-bold uppercase">Lat</p><p class="text-gray-900 font-mono font-bold">{{ p['coordenadas'].split(',')[0] }}</p></div>
-                            <div><p class="text-[9px] text-gray-400 font-bold uppercase">Long</p><p class="text-gray-900 font-mono font-bold">{{ p['coordenadas'].split(',')[1] }}</p></div>
-                        </div>
-                        <a href="https://www.google.com/maps?q={{ p['coordenadas'] }}" target="_blank" class="md:ml-auto w-full md:w-auto bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2">
-                            <i class="ri-external-link-line"></i> Abrir Mapa
-                        </a>
-                    </div>
-                </div>
-                {% endif %}
-
-                <div class="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
-                        <i class="ri-article-line text-orange-500"></i> Referências
-                    </h3>
-                    <div class="space-y-3">
-                        {% if p['bibliografia'] %}
-                            {% for ref in p['bibliografia'] %}
-                                {% if ref.url and 'http' in ref.url %}
-                                    <a href="{{ ref.url }}" target="_blank" class="flex items-start gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 active:scale-[0.98] transition-all group">
-                                        <div class="mt-0.5 bg-white text-blue-500 rounded-full p-1 shrink-0 shadow-sm">
-                                            <i class="ri-links-line text-xs"></i>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-xs font-bold text-blue-900 group-hover:underline leading-snug break-words">
-                                                {{ ref.titulo }}
-                                            </p>
-                                            <p class="text-[10px] text-blue-400 break-all mt-1 font-mono opacity-80 group-hover:text-blue-600">
-                                                {{ ref.url }}
-                                            </p>
-                                        </div>
-                                        <i class="ri-external-link-line text-blue-300 shrink-0"></i>
-                                    </a>
-                                {% else %}
-                                    <div class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/80">
-                                        <div class="mt-0.5 text-gray-400 shrink-0">
-                                            <i class="ri-quote-text"></i>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-xs text-gray-600 italic leading-relaxed break-words text-justify">
-                                                {{ ref.titulo }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            <div class="flex flex-col items-center justify-center gap-2 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">
-                                <i class="ri-book-open-line text-gray-300 text-2xl"></i>
-                                <p class="text-xs text-gray-500">Sem referências cadastradas.</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="h-10"></div>
-            </div>
-        </div>
-    </div>
+    <div id="detalhe-conteudo" class="h-full"></div>
 </dialog>
-{% endfor %}
 
 <script>
     var map;
     var markers = [];
+    var erroBaseMapa = false;
+    const plantasMapa = {{ plantas_mapa|tojson }};
+    let categoriaMapa = 'todos';
+    let requisicaoDetalhe = 0;
     let filtrosAtivos = { categoria: 'todos', partes: [] };
     let textoBusca = '';
     let scrollPosition = 0;
@@ -409,36 +256,71 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('mapid')) {
-            map = L.map('mapid').setView([-1.45, -48.48], 10);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '© GBIF & CARTO', maxZoom: 20
-            }).addTo(map);
+        if (document.getElementById('mapid') && typeof L !== 'undefined') {
+            map = L.map('mapid', {zoomControl: false}).setView([-1.45, -48.48], 10);
+            L.control.zoom({zoomInTitle: {{ t('Aproximar')|tojson }}, zoomOutTitle: {{ t('Afastar')|tojson }}}).addTo(map);
+            map.on('popupopen', () => {
+                const fechar = document.querySelector('#mapid .leaflet-popup-close-button');
+                if (fechar) fechar.setAttribute('aria-label', {{ t('Fechar popup')|tojson }});
+            });
+            const baseMapa = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            });
+            baseMapa.on('tileerror', () => {
+                erroBaseMapa = true;
+                atualizarStatusMapa();
+            });
+            baseMapa.on('load', () => {
+                erroBaseMapa = document.querySelector('#mapid .leaflet-tile-container img:not(.leaflet-tile-loaded)') !== null;
+                atualizarStatusMapa();
+            });
+            baseMapa.addTo(map);
 
-            var bounds = [];
-            {% for p in plantas %}
-                {% set id_planta = loop.index %}
-                {% for ponto in p['pontos_gps'] %}
+            plantasMapa.forEach((planta, index) => {
+                planta.pontos_gps.forEach(ponto => {
                     try {
-                        var lat = {{ ponto.lat }}; var lng = {{ ponto.lng }};
-                        if (lat && lng) {
-                            var coords = [lat, lng]; bounds.push(coords);
-                            var tags = "{{ ','.join(p['tags']) }}";
+                        var lat = ponto.lat; var lng = ponto.lng;
+                        if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+                            var coords = [lat, lng];
+                            var tags = planta.tags;
                             var corPino = '#9CA3AF';
-                            if (tags.includes('Medicinal')) corPino = '#10B981';
-                            else if (tags.includes('Alimentação')) corPino = '#3B82F6';
-                            else if (tags.includes('Madeira')) corPino = '#F59E0B';
-                            else if (tags.includes('Cosméticos')) corPino = '#EC4899';
+                            if (tags.some(t => t.includes('Medicinal'))) corPino = '#10B981';
+                            else if (tags.some(t => /Alimentação|Food/.test(t))) corPino = '#3B82F6';
+                            else if (tags.some(t => /Indústria|Industry/.test(t))) corPino = '#F59E0B';
+                            else if (tags.some(t => /Cosméticos|Cosmetics/.test(t))) corPino = '#EC4899';
 
                             var marker = L.circleMarker(coords, { radius: 6, fillColor: corPino, color: 'white', weight: 1.5, fillOpacity: 0.9 });
                             marker.categoryTags = tags;
-                            var popupHtml = `<div class="p-2 text-center min-w-[200px] md:min-w-[260px]"><p class="text-[10px] font-bold text-gray-450 uppercase tracking-widest mb-2">{{ p['familia'] }}</p><h4 class="font-serif text-lg md:text-xl text-emerald-950 font-bold mb-1 leading-tight">{{ p['nome_popular'] }}</h4><p class="text-xs md:text-sm italic text-gray-500 font-serif mb-4 mt-2">{{ p['nome_cientifico'] }}</p><button onclick="abrirDetalhe('{{ id_planta }}')" class="w-full bg-emerald-50 text-emerald-700 text-xs font-bold py-3 rounded-lg hover:bg-emerald-100 transition-all uppercase tracking-wide">Ver Ficha</button></div>`;
-                            marker.bindPopup(popupHtml); marker.addTo(map); markers.push(marker);
+                            marker.georeferenceLevel = ponto.nivel;
+                            if (ponto.nivel !== 'occurrence') marker.setStyle({fillColor: '#64748b', dashArray: '3 3'});
+                            const popup = document.createElement('div');
+                            popup.className = 'p-2 text-center';
+                            [planta.familia, planta.nome_popular, planta.nome_cientifico].forEach((texto, i) => {
+                                const linha = document.createElement(i === 1 ? 'h4' : 'p');
+                                linha.className = i === 1 ? 'font-serif text-lg font-bold text-emerald-950' : 'text-xs text-gray-500 mb-2';
+                                linha.textContent = texto;
+                                popup.appendChild(linha);
+                            });
+                            const botao = document.createElement('button');
+                            botao.className = 'w-full bg-emerald-50 text-emerald-700 text-xs font-bold py-3 rounded-lg';
+                            botao.textContent = {{ t('Ver Ficha')|tojson }};
+                            botao.addEventListener('click', () => abrirDetalhe(index + 1));
+                            popup.appendChild(botao);
+                            const geo = document.createElement('p');
+                            geo.className = 'text-xs text-gray-600 mt-2';
+                            geo.textContent = ponto.id + ' · ' + (ponto.nivel === 'occurrence' ? {{ t('Ocorrência')|tojson }} : {{ t('Área de referência')|tojson }}) + ' · ' + {{ t('Incerteza (m)')|tojson }} + ': ' + ponto.incerteza;
+                            popup.appendChild(geo);
+                            marker.bindPopup(popup); markers.push(marker);
                         }
                     } catch(e) { console.error("Erro pin:", e); }
-                {% endfor %}
-            {% endfor %}
-            if (bounds.length > 0) { map.fitBounds(bounds, {padding: [50, 50]}); } else { map.invalidateSize(); }
+                });
+            });
+            filtrarMapaUnico('todos');
+        } else {
+            const status = document.getElementById('mapa-status');
+            status.textContent = {{ t('Não foi possível carregar o mapa. Recarregue a página para tentar novamente.')|tojson }};
+            status.hidden = false;
         }
 
         const dialogs = document.querySelectorAll('dialog');
@@ -469,36 +351,56 @@
     }
 
     function verificarScroll() {
-        const catalogoAberto = document.getElementById('modal-catalogo').open;
-        let algumDetalheAberto = false;
-        document.querySelectorAll('dialog[id^="modal-detalhe-"]').forEach(d => {
-            if (d.open) algumDetalheAberto = true;
-        });
-
-        if (!catalogoAberto && !algumDetalheAberto) {
+        if (!document.querySelector('dialog[open]')) {
             destravarScroll();
         }
     }
 
     function transferirBusca() {
         const t = document.getElementById('hero-busca').value;
-        document.getElementById('modal-catalogo').showModal();
-        travarScroll();
+        abrirCatalogo();
         document.getElementById('input-busca').value = t;
         filtrarTudo();
+    }
+
+    function abrirCatalogo() {
+        document.getElementById('modal-catalogo').showModal();
+        travarScroll();
     }
 
     function fecharCatalogo() {
         document.getElementById('modal-catalogo').close();
     }
 
-    function abrirDetalhe(id) {
-        document.getElementById('modal-detalhe-' + id).showModal();
+    async function abrirDetalhe(id) {
+        const dialog = document.getElementById('modal-detalhe');
+        const conteudo = document.getElementById('detalhe-conteudo');
+        const requisicao = ++requisicaoDetalhe;
+        const carregando = document.createElement('div');
+        carregando.className = 'bg-white rounded-xl p-8 text-center';
+        const mensagem = document.createElement('p');
+        mensagem.setAttribute('role', 'status');
+        mensagem.textContent = {{ t('Carregando ficha...')|tojson }};
+        const fechar = document.createElement('button');
+        fechar.className = 'mt-4 text-emerald-900 font-bold';
+        fechar.textContent = {{ t('Fechar ficha')|tojson }};
+        fechar.addEventListener('click', fecharDetalhe);
+        carregando.append(mensagem, fechar);
+        conteudo.replaceChildren(carregando);
+        if (!dialog.open) dialog.showModal();
         travarScroll();
+        try {
+            const resposta = await fetch({{ url_for('detalhe_taxon', indice=0, lang=idioma)|tojson }}.replace('/0?', '/' + encodeURIComponent(id) + '?'));
+            if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
+            const html = await resposta.text();
+            if (requisicao === requisicaoDetalhe && dialog.open) conteudo.innerHTML = html;
+        } catch (erro) {
+            if (requisicao === requisicaoDetalhe && dialog.open) mensagem.textContent = {{ t('Não foi possível carregar a ficha. Tente novamente.')|tojson }};
+        }
     }
 
     function fecharDetalhe(id) {
-        document.getElementById('modal-detalhe-' + id).close();
+        document.getElementById('modal-detalhe').close();
     }
 
     function ativarGeral(btn) { limparTodosFiltros(); }
@@ -544,9 +446,27 @@
         if (filtrosAtivos.categoria !== 'todos') { badge.classList.remove('hidden'); texto.innerText = filtrosAtivos.categoria; } else { badge.classList.add('hidden'); }
     }
     function filtrarMapaUnico(cat) {
+        if (!map) return;
+        categoriaMapa = cat;
+        map.closePopup();
+        const pontosVisiveis = [];
+        const incluirAreas = document.getElementById('incluir-areas').checked;
         markers.forEach(m => {
-            if (cat === 'todos' || m.categoryTags.includes(cat)) { if(!map.hasLayer(m)) map.addLayer(m); } else { map.removeLayer(m); }
+            if ((cat === 'todos' || m.categoryTags.includes(cat)) && (m.georeferenceLevel === 'occurrence' || incluirAreas)) {
+                if(!map.hasLayer(m)) map.addLayer(m);
+                pontosVisiveis.push(m.getLatLng());
+            } else { map.removeLayer(m); }
         });
+        if (pontosVisiveis.length) map.fitBounds(pontosVisiveis, {padding: [30, 30], maxZoom: 15});
+        atualizarStatusMapa();
+    }
+    function atualizarStatusMapa() {
+        const status = document.getElementById('mapa-status');
+        const semPontos = !markers.some(m => map.hasLayer(m));
+        status.textContent = erroBaseMapa
+            ? {{ t('Não foi possível carregar parte do mapa. Confira sua conexão e recarregue a página.')|tojson }}
+            : semPontos ? {{ t('Nenhuma ocorrência com coordenadas válidas para esta seleção.')|tojson }} : '';
+        status.hidden = !status.textContent;
     }
     function resetarMapa() { filtrarMapaUnico('todos'); }
     function filtrarTudo() { textoBusca = normalizar(document.getElementById('input-busca').value); aplicarFiltros(); }
@@ -603,6 +523,7 @@
                 item.card.style.display = 'none';
             }
         });
+        document.getElementById('catalogo-vazio').hidden = dadosCalculados.some(item => item.isVisible);
     }
 
 </script>

@@ -4,3 +4,4 @@ PyMySQL
 cryptography
 gunicorn
 python-dotenv
+openpyxl>=3.1,<4

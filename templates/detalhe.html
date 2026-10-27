@@ -1,0 +1,184 @@
+    <div class="bg-gray-50 w-full h-full md:rounded-2xl shadow-2xl relative flex flex-col overflow-hidden">
+
+        <button onclick="fecharDetalhe('{{ indice }}')" aria-label="{{ t('Fechar ficha') }}" class="absolute top-4 right-4 z-[60] w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-md transition-all cursor-pointer hover:scale-110">
+            <i class="ri-close-line text-2xl"></i>
+        </button>
+
+        <div class="overflow-y-auto custom-scrollbar w-full h-full bg-gray-50">
+
+            <div class="h-64 md:h-80 w-full relative shrink-0">
+                <img src="{{ p['foto']['url'] }}"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                     referrerpolicy="no-referrer"
+                     loading="lazy"
+                     alt="{{ t('Foto de') }} {{ p['nome_popular'] }}"
+                     class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-gray-50 to-transparent"></div>
+                {% if p['foto']['autor'] %}
+                <a href="{{ p['foto']['fonte'] or '#' }}" target="_blank" rel="noopener"
+                   class="absolute top-4 left-4 z-10 max-w-[70%] truncate bg-black/50 text-white text-[10px] px-2 py-1 rounded-full hover:bg-black/70">
+                    <i class="ri-camera-line"></i> {{ p['foto']['autor'] }}
+                    {% if 'by-nc' in p['foto']['licenca'] %}· CC BY-NC{% elif 'zero' in p['foto']['licenca'] %}· CC0{% elif 'by' in p['foto']['licenca'] %}· CC BY{% endif %}
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="px-6 md:px-10 pb-10 relative -mt-12 space-y-4">
+
+                <div class="relative z-10 mb-6">
+                    <span class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 border border-emerald-200 shadow-sm">
+                        {{ p['familia'] }}
+                    </span>
+                    <h2 class="font-serif text-3xl md:text-4xl text-gray-900 font-bold leading-tight drop-shadow-sm">{{ p['nome_popular'] }}</h2>
+                    <p class="text-base text-gray-500 italic font-serif mt-1">{{ p['nome_cientifico'] }}</p>
+                </div>
+
+                <div class="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
+                        <i class="ri-book-2-line text-purple-500"></i> {{ t('Ficha Técnica') }}
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">{{ t('Família') }}</p>
+                            <p class="text-gray-800 font-medium">{{ p['familia'] }}</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">{{ t('Nome Popular') }}</p>
+                            <p class="text-gray-800 font-medium">{{ '; '.join(p['nomes_populares']) or p['nome_cientifico'] }}</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">{{ t('Nome Científico') }}</p>
+                            <p class="text-emerald-700 italic font-medium">{{ p['nome_cientifico'] }}</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">{{ t('Habitat') }}</p>
+                            <p class="text-gray-800 font-medium">{{ p['origem'] }}</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50 col-span-2">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">{{ t('Forma de vida') }}</p>
+                            <p class="text-gray-800 font-medium">{{ '; '.join(p['formas_vida']) or t('Não informado') }}</p>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-50 col-span-2">
+                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">{{ t('Categorias de Uso') }}</p>
+                            <div class="flex flex-wrap gap-2">
+                                {% for tag in p['tags'] %}
+                                    <span class="inline-flex items-center gap-1 bg-white border border-gray-200 text-gray-600 text-[11px] font-bold px-2 py-1 rounded-md shadow-sm">
+                                        <i class="ri-price-tag-3-line text-emerald-500 text-[10px]"></i>
+                                        {{ tag }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="bg-[#f8fafc] p-5 md:p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-3 text-sm uppercase tracking-wide">
+                        <i class="ri-bar-chart-box-line text-blue-500"></i> {{ t('Uso Bioeconômico') }}
+                    </h3>
+                    <p class="text-gray-600 text-sm leading-relaxed text-justify whitespace-pre-line">{{ p['importancia'] }}</p>
+                </div>
+
+                <div class="bg-[#f0fdf4] p-5 md:p-6 rounded-2xl border border-[#dcfce7] shadow-sm">
+                    <h3 class="text-[#15803d] font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
+                        <i class="ri-leaf-line"></i> {{ t('Partes Utilizadas') }}
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for parte in p['partes_tags'] %}
+                        <span class="bg-white border border-[#dcfce7] px-3 py-1.5 rounded-lg text-xs font-bold text-[#166534] flex items-center gap-2 shadow-sm">
+                            <i class="{% if 'Planta' in parte %}ri-seedling-fill{% elif 'Fruto' in parte %}ri-apple-fill{% else %}ri-leaf-fill{% endif %} text-emerald-500"></i>
+                            {{ parte }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if p['pontos_gps'] %}
+                <div class="bg-[#f0f9ff] p-5 md:p-6 rounded-2xl border border-[#bae6fd] shadow-sm">
+                    <h3 class="text-[#0369a1] font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
+                        <i class="ri-map-pin-line"></i> {{ t('Localização') }}
+                    </h3>
+                    <div class="bg-white rounded-xl p-4 flex flex-col md:flex-row flex-wrap gap-4 items-start md:items-center text-sm">
+                        <div class="flex gap-4">
+                            <p>{{ t('Registros deste táxon') }}: {{ p['ocorrencias']|length }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <section class="bg-white p-5 rounded-2xl border border-gray-100 space-y-3">
+                    <h3 class="font-bold text-gray-800">{{ t('Registros deste táxon') }} ({{ p['ocorrencias']|length }})</h3>
+                    {% for occ in p['ocorrencias'] %}
+                    <details class="border border-gray-200 rounded-lg p-3 text-xs break-words">
+                        <summary class="cursor-pointer font-semibold text-emerald-900">{{ occ.id }} · {{ t('Ocorrência') if occ.nivel == 'occurrence' else t('Área de referência') }} · {{ occ.fonte }}</summary>
+                        <dl class="space-y-2 mt-3 text-gray-700">
+                            <div><dt class="font-bold">{{ t('Nome na fonte') }}</dt><dd class="italic">{{ occ.nome_original }}</dd></div>
+                            <div><dt class="font-bold">{{ t('Data') }}</dt><dd>{{ occ.data or t('Não informado') }}</dd></div>
+                            <div><dt class="font-bold">{{ t('Localização') }}</dt><dd>{{ occ.localidade }}</dd></div>
+                            {% if occ.ponto %}
+                            <div><dt class="font-bold">{{ t('Georreferência') }}</dt><dd>{{ occ.ponto.lat }}, {{ occ.ponto.lng }} · {{ t('Incerteza (m)') }}: {{ occ.ponto.incerteza or t('Não informado') }}</dd></div>
+                            {% endif %}
+                            <div><dt class="font-bold">{{ t('Detalhes da georreferência') }}</dt><dd>{{ occ.observacao_geo or t('Não informado') }}</dd></div>
+                            <div><dt class="font-bold">{{ t('Verificação da georreferência') }}</dt><dd>{{ t('Requer verificação') if occ.verificacao == 'requires verification' else occ.verificacao or t('Não informado') }}</dd></div>
+                            <div><dt class="font-bold">{{ t('Referências') }}</dt><dd>{{ occ.referencia }}</dd></div>
+                        </dl>
+                    </details>
+                    {% endfor %}
+                </section>
+
+                <div class="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
+                        <i class="ri-article-line text-orange-500"></i> {{ t('Referências') }}
+                    </h3>
+                    <div class="space-y-3">
+                        {% if p['bibliografia'] %}
+                            {% for ref in p['bibliografia'] %}
+                                {% if ref.url and 'http' in ref.url %}
+                                    <a href="{{ ref.url }}" target="_blank" class="flex items-start gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 active:scale-[0.98] transition-all group">
+                                        <div class="mt-0.5 bg-white text-blue-500 rounded-full p-1 shrink-0 shadow-sm">
+                                            <i class="ri-links-line text-xs"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-bold text-blue-900 group-hover:underline leading-snug break-words">
+                                                {{ ref.titulo }}
+                                            </p>
+                                            <p class="text-[10px] text-blue-400 break-all mt-1 font-mono opacity-80 group-hover:text-blue-600">
+                                                {{ ref.url }}
+                                            </p>
+                                        </div>
+                                        <i class="ri-external-link-line text-blue-300 shrink-0"></i>
+                                    </a>
+                                {% else %}
+                                    <div class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/80">
+                                        <div class="mt-0.5 text-gray-400 shrink-0">
+                                            <i class="ri-quote-text"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs text-gray-600 italic leading-relaxed break-words text-justify">
+                                                {{ ref.titulo }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="flex flex-col items-center justify-center gap-2 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">
+                                <i class="ri-book-open-line text-gray-300 text-2xl"></i>
+                                <p class="text-xs text-gray-500">{{ t('Sem referências cadastradas.') }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="h-10"></div>
+            </div>
+        </div>
+    </div>
