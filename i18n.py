@@ -2,6 +2,7 @@
 from flask import request, url_for
 
 EN = {
+    'Mostrar mais espécies': 'Show more taxa', 'Exibindo': 'Showing', 'de': 'of',
     'Plataforma Munguba': 'Munguba Platform',
     'Acessar Catálogo': 'Browse Catalogue', 'Acessar Mapa': 'Explore Map',
     'Exportar Dados': 'Download Data', 'Catálogo': 'Catalogue', 'Mapa': 'Map', 'Exportar': 'Download',

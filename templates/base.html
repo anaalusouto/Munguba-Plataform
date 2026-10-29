@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ t('Plataforma Munguba') }}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logotitulo.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='tailwind.css') }}">
+    <link href="{{ url_for('static', filename='vendor/remixicon/remixicon.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
@@ -67,7 +67,7 @@
 
     <div class="w-px h-4 bg-gray-300"></div>
     <a href="{{ url_for('baixar_planilha', lang=idioma) }}" class="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-1.5 rounded-full text-xs font-bold transition-all uppercase tracking-wide shadow-sm whitespace-nowrap hover:scale-105 active:scale-95">
-        <i class="ri-database-2-line text-sm"></i>
+        <i aria-hidden="true" class="ri-database-2-line text-sm"></i>
         {{ t('Exportar Dados') }}
     </a>
 

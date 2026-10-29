@@ -1,7 +1,7 @@
     <div class="bg-gray-50 w-full h-full md:rounded-2xl shadow-2xl relative flex flex-col overflow-hidden">
 
         <button onclick="fecharDetalhe('{{ indice }}')" aria-label="{{ t('Fechar ficha') }}" class="absolute top-4 right-4 z-[60] w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-md transition-all cursor-pointer hover:scale-110">
-            <i class="ri-close-line text-2xl"></i>
+            <i aria-hidden="true" class="ri-close-line text-2xl"></i>
         </button>
 
         <div class="overflow-y-auto custom-scrollbar w-full h-full bg-gray-50">
@@ -18,7 +18,7 @@
                 {% if p['foto']['autor'] %}
                 <a href="{{ p['foto']['fonte'] or '#' }}" target="_blank" rel="noopener"
                    class="absolute top-4 left-4 z-10 max-w-[70%] truncate bg-black/50 text-white text-[10px] px-2 py-1 rounded-full hover:bg-black/70">
-                    <i class="ri-camera-line"></i> {{ p['foto']['autor'] }}
+                    <i aria-hidden="true" class="ri-camera-line"></i> {{ p['foto']['autor'] }}
                     {% if 'by-nc' in p['foto']['licenca'] %}· CC BY-NC{% elif 'zero' in p['foto']['licenca'] %}· CC0{% elif 'by' in p['foto']['licenca'] %}· CC BY{% endif %}
                 </a>
                 {% endif %}
@@ -36,7 +36,7 @@
 
                 <div class="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
                     <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
-                        <i class="ri-book-2-line text-purple-500"></i> {{ t('Ficha Técnica') }}
+                        <i aria-hidden="true" class="ri-book-2-line text-purple-500"></i> {{ t('Ficha Técnica') }}
                     </h3>
 
                     <div class="grid grid-cols-2 gap-4 text-sm">
@@ -71,7 +71,7 @@
                             <div class="flex flex-wrap gap-2">
                                 {% for tag in p['tags'] %}
                                     <span class="inline-flex items-center gap-1 bg-white border border-gray-200 text-gray-600 text-[11px] font-bold px-2 py-1 rounded-md shadow-sm">
-                                        <i class="ri-price-tag-3-line text-emerald-500 text-[10px]"></i>
+                                        <i aria-hidden="true" class="ri-price-tag-3-line text-emerald-500 text-[10px]"></i>
                                         {{ tag }}
                                     </span>
                                 {% endfor %}
@@ -83,19 +83,19 @@
 
                 <div class="bg-[#f8fafc] p-5 md:p-6 rounded-2xl border border-gray-200 shadow-sm">
                     <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-3 text-sm uppercase tracking-wide">
-                        <i class="ri-bar-chart-box-line text-blue-500"></i> {{ t('Uso Bioeconômico') }}
+                        <i aria-hidden="true" class="ri-bar-chart-box-line text-blue-500"></i> {{ t('Uso Bioeconômico') }}
                     </h3>
                     <p class="text-gray-600 text-sm leading-relaxed text-justify whitespace-pre-line">{{ p['importancia'] }}</p>
                 </div>
 
                 <div class="bg-[#f0fdf4] p-5 md:p-6 rounded-2xl border border-[#dcfce7] shadow-sm">
                     <h3 class="text-[#15803d] font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
-                        <i class="ri-leaf-line"></i> {{ t('Partes Utilizadas') }}
+                        <i aria-hidden="true" class="ri-leaf-line"></i> {{ t('Partes Utilizadas') }}
                     </h3>
                     <div class="flex flex-wrap gap-2">
                         {% for parte in p['partes_tags'] %}
                         <span class="bg-white border border-[#dcfce7] px-3 py-1.5 rounded-lg text-xs font-bold text-[#166534] flex items-center gap-2 shadow-sm">
-                            <i class="{% if 'Planta' in parte %}ri-seedling-fill{% elif 'Fruto' in parte %}ri-apple-fill{% else %}ri-leaf-fill{% endif %} text-emerald-500"></i>
+                            <i aria-hidden="true" class="{% if 'Planta' in parte %}ri-seedling-fill{% elif 'Fruto' in parte %}ri-apple-fill{% else %}ri-leaf-fill{% endif %} text-emerald-500"></i>
                             {{ parte }}
                         </span>
                         {% endfor %}
@@ -105,7 +105,7 @@
                 {% if p['pontos_gps'] %}
                 <div class="bg-[#f0f9ff] p-5 md:p-6 rounded-2xl border border-[#bae6fd] shadow-sm">
                     <h3 class="text-[#0369a1] font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
-                        <i class="ri-map-pin-line"></i> {{ t('Localização') }}
+                        <i aria-hidden="true" class="ri-map-pin-line"></i> {{ t('Localização') }}
                     </h3>
                     <div class="bg-white rounded-xl p-4 flex flex-col md:flex-row flex-wrap gap-4 items-start md:items-center text-sm">
                         <div class="flex gap-4">
@@ -137,7 +137,7 @@
 
                 <div class="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
                     <h3 class="text-gray-800 font-bold flex items-center gap-2 mb-4 text-sm uppercase tracking-wide">
-                        <i class="ri-article-line text-orange-500"></i> {{ t('Referências') }}
+                        <i aria-hidden="true" class="ri-article-line text-orange-500"></i> {{ t('Referências') }}
                     </h3>
                     <div class="space-y-3">
                         {% if p['bibliografia'] %}
@@ -145,7 +145,7 @@
                                 {% if ref.url and 'http' in ref.url %}
                                     <a href="{{ ref.url }}" target="_blank" class="flex items-start gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 active:scale-[0.98] transition-all group">
                                         <div class="mt-0.5 bg-white text-blue-500 rounded-full p-1 shrink-0 shadow-sm">
-                                            <i class="ri-links-line text-xs"></i>
+                                            <i aria-hidden="true" class="ri-links-line text-xs"></i>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="text-xs font-bold text-blue-900 group-hover:underline leading-snug break-words">
@@ -155,12 +155,12 @@
                                                 {{ ref.url }}
                                             </p>
                                         </div>
-                                        <i class="ri-external-link-line text-blue-300 shrink-0"></i>
+                                        <i aria-hidden="true" class="ri-external-link-line text-blue-300 shrink-0"></i>
                                     </a>
                                 {% else %}
                                     <div class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/80">
                                         <div class="mt-0.5 text-gray-400 shrink-0">
-                                            <i class="ri-quote-text"></i>
+                                            <i aria-hidden="true" class="ri-quote-text"></i>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="text-xs text-gray-600 italic leading-relaxed break-words text-justify">
@@ -172,7 +172,7 @@
                             {% endfor %}
                         {% else %}
                             <div class="flex flex-col items-center justify-center gap-2 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center">
-                                <i class="ri-book-open-line text-gray-300 text-2xl"></i>
+                                <i aria-hidden="true" class="ri-book-open-line text-gray-300 text-2xl"></i>
                                 <p class="text-xs text-gray-500">{{ t('Sem referências cadastradas.') }}</p>
                             </div>
                         {% endif %}

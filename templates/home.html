@@ -45,7 +45,7 @@
             <div class="relative bg-white border border-gray-200 rounded-2xl md:rounded-full shadow-xl flex flex-col md:flex-row items-center p-2 hover:border-emerald-300 transition-colors gap-2 md:gap-0">
 
                 <div class="w-full flex items-center">
-                    <div class="pl-4 md:pl-6 text-gray-400"><i class="ri-search-2-line text-xl"></i></div>
+                    <div class="pl-4 md:pl-6 text-gray-400"><i aria-hidden="true" class="ri-search-2-line text-xl"></i></div>
                     <input type="text" id="hero-busca" onkeypress="if(event.key==='Enter') transferirBusca()" placeholder="{{ t('Busque por termo...') }}" class="w-full bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400 px-3 py-3 text-base md:text-lg outline-none">
                 </div>
 
@@ -110,13 +110,13 @@
 
                     <button type="button" onclick="filtrarMapaUnico('{{ cat }}')" class="cursor-pointer group bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:border-emerald-500 transition-all flex justify-between items-center shrink-0 text-left">
                         <div class="flex items-center gap-3">
-                            <i class="{{ icon }} text-xl text-gray-400 group-hover:text-emerald-600 transition-colors"></i>
+                            <i aria-hidden="true" class="{{ icon }} text-xl text-gray-400 group-hover:text-emerald-600 transition-colors"></i>
                             <div>
                                 <span class="block text-lg md:text-xl font-bold text-gray-800">{{ stats.por_categoria[cat] }}</span>
                                 <span class="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase group-hover:text-gray-600">{{ cat }}</span>
                             </div>
                         </div>
-                        <i class="ri-arrow-right-s-line text-gray-300 group-hover:text-emerald-500"></i>
+                        <i aria-hidden="true" class="ri-arrow-right-s-line text-gray-300 group-hover:text-emerald-500"></i>
                     </button>
                 {% endif %}
                 {% endfor %}
@@ -140,18 +140,18 @@
 
                 <div class="flex items-center gap-3">
                     <button onclick="limparTodosFiltros()" class="text-[10px] md:text-xs text-emerald-600 font-bold hover:underline uppercase tracking-wide flex items-center gap-1 group py-2 px-2 rounded-lg hover:bg-emerald-50 transition-all">
-                        <i class="ri-delete-bin-line text-emerald-400 group-hover:text-emerald-600"></i> {{ t('Limpar') }}
+                        <i aria-hidden="true" class="ri-delete-bin-line text-emerald-400 group-hover:text-emerald-600"></i> {{ t('Limpar') }}
                     </button>
 
                     <button onclick="fecharCatalogo()" aria-label="{{ t('Fechar catálogo') }}" class="md:hidden text-gray-400 hover:text-red-500 p-1 bg-gray-50 rounded-full w-8 h-8 flex items-center justify-center">
-                        <i class="ri-close-line text-xl"></i>
+                        <i aria-hidden="true" class="ri-close-line text-xl"></i>
                     </button>
                 </div>
             </div>
 
             <div class="flex-1 overflow-y-auto p-4 custom-scrollbar text-sm space-y-2">
                 <button onclick="ativarGeral(this)" id="btn-geral" class="w-full text-left px-5 py-3 rounded-xl bg-emerald-50 text-emerald-900 font-bold text-sm shadow-sm border border-emerald-100 transition-all">
-                    <i class="ri-apps-line mr-2"></i> {{ t('Todas') }}
+                    <i aria-hidden="true" class="ri-apps-line mr-2"></i> {{ t('Todas') }}
                 </button>
 
                 <div class="pt-2 pb-2"><hr class="border-gray-100"></div>
@@ -161,7 +161,7 @@
                     <button onclick="abrirCategoria('{{ cat }}', '{{ loop.index }}', this)"
                             class="btn-categoria w-full text-left px-4 md:px-5 py-2 md:py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-emerald-800 font-medium transition-all flex justify-between items-center group text-xs md:text-sm">
                         <span>{{ cat }}</span>
-                        <i class="ri-arrow-down-s-line text-gray-300 group-hover:text-emerald-500 transition-transform duration-300" id="seta-{{ loop.index }}"></i>
+                        <i aria-hidden="true" class="ri-arrow-down-s-line text-gray-300 group-hover:text-emerald-500 transition-transform duration-300" id="seta-{{ loop.index }}"></i>
                     </button>
 
                     <div id="drop-parts-{{ loop.index }}" class="hidden bg-gray-50/50 rounded-b-xl border-x border-b border-gray-50 mx-2 mb-2 p-3 space-y-1">
@@ -183,8 +183,8 @@
             <div class="h-16 md:h-20 bg-white border-b border-gray-200 px-4 md:px-8 flex items-center gap-4 shadow-sm shrink-0 sticky top-0 z-20">
 
                 <div class="relative w-full max-w-xl flex-1 md:flex-none">
-                    <i class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="input-busca" oninput="filtrarTudo()" aria-label="{{ t('Pesquisar espécies') }}" placeholder="{{ t('Pesquise por nome, família, uso...') }}" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner">
+                    <i aria-hidden="true" class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="input-busca" oninput="agendarBusca()" aria-label="{{ t('Pesquisar espécies') }}" placeholder="{{ t('Pesquise por nome, família, uso...') }}" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner">
                 </div>
 
                 <div id="badge-filtro-ativo" class="hidden w-auto transition-all shrink-0">
@@ -195,34 +195,15 @@
                 </div>
 
                 <button onclick="fecharCatalogo()" aria-label="{{ t('Fechar catálogo') }}" class="hidden md:flex ml-auto text-gray-400 hover:text-red-500 p-2 transition-colors items-center justify-center rounded-full hover:bg-gray-100 active:scale-95" title="{{ t('Fechar Janela') }}">
-                    <i class="ri-close-circle-line text-3xl"></i>
+                    <i aria-hidden="true" class="ri-close-circle-line text-3xl"></i>
                 </button>
             </div>
 
             <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar relative">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 pb-20" id="grid-plantas">
-                    {% for p in plantas %}
-                    <div onclick="abrirDetalhe('{{ loop.index }}')"
-                         data-tags="{{ ','.join(p['tags']) }}"
-                         data-partes="{{ ','.join(p['partes_tags']) }}"
-                         data-search="{{ '; '.join(p['nomes_populares']) }} {{ p['nome_cientifico'] }} {{ p['familia'] }} {{ p['origem'] }} {{ p['importancia'] }} {{ ','.join(p['tags']) }} {{ ','.join(p['partes_tags']) }} {{ ' '.join(p['ocorrencias']|map(attribute='id')) }} {{ ' '.join(p['ocorrencias']|map(attribute='nome_original')) }}"
-                         class="card-planta bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-all flex flex-col h-full overflow-hidden group">
-                        <div class="h-32 md:h-40 bg-gray-100 relative overflow-hidden group-hover:bg-emerald-50 transition-colors">
-                            <img src="{{ p['foto']['url_media'] }}"
-                                 data-alternativa="{{ p['foto']['url'] }}"
-                                 onerror="if(this.dataset.alternativa && this.src!==this.dataset.alternativa){this.src=this.dataset.alternativa;this.dataset.alternativa='';}else{this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}';}"
-                                 referrerpolicy="no-referrer"
-                                 loading="lazy"
-                                 alt="{{ t('Foto de') }} {{ p['nome_popular'] }}"
-                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        </div>
-                        <div class="p-4 md:p-5 flex-1">
-                            <p class="text-[9px] text-gray-400 uppercase font-bold mb-1 tracking-widest">{{ p['familia'] }}</p>
-                            <h4 class="font-serif text-lg md:text-xl text-gray-900 font-bold mb-1 leading-tight">{{ p['nome_popular'] }}</h4>
-                            <p class="text-xs text-emerald-700 italic font-serif">{{ p['nome_cientifico'] }}</p>
-                        </div>
-                    </div>
-                    {% endfor %}
+                <p id="catalogo-contagem" role="status" class="text-sm text-gray-600 mb-4"></p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" id="grid-plantas"></div>
+                <div class="text-center py-6 pb-20">
+                    <button id="catalogo-mais" type="button" onclick="mostrarMais()" class="bg-emerald-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-800" hidden>{{ t('Mostrar mais espécies') }}</button>
                 </div>
                 <p id="catalogo-vazio" role="status" class="text-center text-gray-600 py-10" hidden>{{ t('Nenhuma espécie encontrada. Tente outro termo ou limpe os filtros.') }}</p>
             </div>
@@ -240,8 +221,16 @@
     var markers = [];
     var erroBaseMapa = false;
     const plantasMapa = {{ plantas_mapa|tojson }};
+    const plantasCatalogo = {{ catalogo|tojson }};
+    const tamanhoLote = 24;
+    let indiceCatalogo;
+    let resultadosCatalogo = [];
+    let exibidosCatalogo = 0;
+    let temporizadorBusca;
     let categoriaMapa = 'todos';
     let requisicaoDetalhe = 0;
+    const cacheDetalhes = new Map();
+    let controleDetalhe;
     let filtrosAtivos = { categoria: 'todos', partes: [] };
     let textoBusca = '';
     let scrollPosition = 0;
@@ -252,7 +241,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('mapid') && typeof L !== 'undefined') {
-            map = L.map('mapid', {zoomControl: false}).setView([-1.45, -48.48], 10);
+            map = L.map('mapid', {zoomControl: false, preferCanvas: true}).setView([-1.45, -48.48], 10);
             L.control.zoom({zoomInTitle: {{ t('Aproximar')|tojson }}, zoomOutTitle: {{ t('Afastar')|tojson }}}).addTo(map);
             map.on('popupopen', () => {
                 const fechar = document.querySelector('#mapid .leaflet-popup-close-button');
@@ -274,6 +263,7 @@
 
             plantasMapa.forEach((planta, index) => {
                 planta.pontos_gps.forEach(ponto => {
+                    if (ponto.nivel !== 'occurrence') return;
                     try {
                         var lat = ponto.lat; var lng = ponto.lng;
                         if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
@@ -361,6 +351,7 @@
     function abrirCatalogo() {
         document.getElementById('modal-catalogo').showModal();
         travarScroll();
+        if (!indiceCatalogo) aplicarFiltros();
     }
 
     function fecharCatalogo() {
@@ -371,6 +362,8 @@
         const dialog = document.getElementById('modal-detalhe');
         const conteudo = document.getElementById('detalhe-conteudo');
         const requisicao = ++requisicaoDetalhe;
+        if (controleDetalhe) controleDetalhe.abort();
+        controleDetalhe = new AbortController();
         const carregando = document.createElement('div');
         carregando.className = 'bg-white rounded-xl p-8 text-center';
         const mensagem = document.createElement('p');
@@ -385,9 +378,14 @@
         if (!dialog.open) dialog.showModal();
         travarScroll();
         try {
-            const resposta = await fetch({{ url_for('detalhe_taxon', indice=0, lang=idioma)|tojson }}.replace('/0?', '/' + encodeURIComponent(id) + '?'));
-            if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
-            const html = await resposta.text();
+            let html = cacheDetalhes.get(id);
+            if (!html) {
+                const resposta = await fetch({{ url_for('detalhe_taxon', indice=0, lang=idioma)|tojson }}.replace('/0?', '/' + encodeURIComponent(id) + '?'), {signal: controleDetalhe.signal});
+                if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
+                html = await resposta.text();
+                if (cacheDetalhes.size >= 20) cacheDetalhes.delete(cacheDetalhes.keys().next().value);
+                cacheDetalhes.set(id, html);
+            }
             if (requisicao === requisicaoDetalhe && dialog.open) conteudo.innerHTML = html;
         } catch (erro) {
             if (requisicao === requisicaoDetalhe && dialog.open) mensagem.textContent = {{ t('Não foi possível carregar a ficha. Tente novamente.')|tojson }};
@@ -395,6 +393,7 @@
     }
 
     function fecharDetalhe(id) {
+        if (controleDetalhe) controleDetalhe.abort();
         document.getElementById('modal-detalhe').close();
     }
 
@@ -426,6 +425,7 @@
         aplicarFiltros();
     }
     function limparTodosFiltros() {
+        clearTimeout(temporizadorBusca);
         filtrosAtivos = { categoria: 'todos', partes: [] }; textoBusca = '';
         document.getElementById('input-busca').value = '';
         document.getElementById('btn-geral').classList.add('bg-emerald-50', 'text-emerald-900', 'border-emerald-100');
@@ -463,61 +463,95 @@
         status.hidden = !status.textContent;
     }
     function resetarMapa() { filtrarMapaUnico('todos'); }
-    function filtrarTudo() { textoBusca = normalizar(document.getElementById('input-busca').value); aplicarFiltros(); }
+    function agendarBusca() {
+        clearTimeout(temporizadorBusca);
+        temporizadorBusca = setTimeout(filtrarTudo, 120);
+    }
+    function filtrarTudo() {
+        clearTimeout(temporizadorBusca);
+        textoBusca = normalizar(document.getElementById('input-busca').value);
+        aplicarFiltros();
+    }
     function aplicarFiltros() {
-        const grid = document.getElementById('grid-plantas');
-        const cards = Array.from(grid.getElementsByClassName('card-planta'));
-
-        const dadosCalculados = cards.map(card => {
-            const matchCategoria = (filtrosAtivos.categoria === 'todos') || card.getAttribute('data-tags').includes(filtrosAtivos.categoria);
-
-            let matchPartes = true;
-            if (filtrosAtivos.partes.length > 0) {
-                const partesPlanta = card.getAttribute('data-partes');
-                matchPartes = filtrosAtivos.partes.every(p => partesPlanta.includes(p));
+        if (!indiceCatalogo) {
+            indiceCatalogo = plantasCatalogo.map(p => ({
+                ...p, nomePopBusca: normalizar(p.nome_popular),
+                nomeCieBusca: normalizar(p.nome_cientifico), buscaNormalizada: normalizar(p.busca)
+            }));
+        }
+        resultadosCatalogo = [];
+        indiceCatalogo.forEach(p => {
+            if (filtrosAtivos.categoria !== 'todos' && !p.tags.includes(filtrosAtivos.categoria)) return;
+            if (!filtrosAtivos.partes.every(parte => p.partes.includes(parte))) return;
+            let score = 1;
+            if (textoBusca) {
+                if (p.nomePopBusca.startsWith(textoBusca)) score = 100;
+                else if (p.nomeCieBusca.startsWith(textoBusca)) score = 90;
+                else if (p.nomePopBusca.includes(textoBusca)) score = 60;
+                else if (p.nomeCieBusca.includes(textoBusca)) score = 50;
+                else if (p.buscaNormalizada.includes(textoBusca)) score = 20;
+                else return;
             }
-
-            const nomeCientificoTexto = card.querySelector('p.italic').innerText.trim();
-
-            let score = 0;
-            let matchBusca = true;
-
-            if (textoBusca !== '') {
-                const nomePop = normalizar(card.querySelector('h4').innerText);
-                const nomeCie = normalizar(nomeCientificoTexto);
-                const dadosGerais = normalizar(card.getAttribute('data-search'));
-
-                if (nomePop.startsWith(textoBusca)) score = 100;
-                else if (nomeCie.startsWith(textoBusca)) score = 90;
-                else if (nomePop.includes(textoBusca)) score = 60;
-                else if (nomeCie.includes(textoBusca)) score = 50;
-                else if (dadosGerais.includes(textoBusca)) score = 20;
-                else score = 0;
-
-                matchBusca = score > 0;
+            resultadosCatalogo.push({planta: p, score});
+        });
+        // O cat?logo j? vem em ordem alfab?tica; a ordena??o est?vel preserva os empates.
+        if (textoBusca) resultadosCatalogo.sort((a, b) => b.score - a.score);
+        document.getElementById('grid-plantas').replaceChildren();
+        document.getElementById('grid-plantas').parentElement.scrollTop = 0;
+        exibidosCatalogo = 0;
+        mostrarMais();
+        document.getElementById('catalogo-vazio').hidden = resultadosCatalogo.length > 0;
+    }
+    function criarCard(p) {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.dataset.taxonId = p.id;
+        card.className = 'card-planta text-left bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-shadow flex flex-col h-full overflow-hidden group';
+        card.addEventListener('click', () => abrirDetalhe(p.id));
+        const moldura = document.createElement('div');
+        moldura.className = 'h-32 md:h-40 w-full bg-gray-100 overflow-hidden';
+        const foto = document.createElement('img');
+        foto.loading = 'lazy';
+        foto.decoding = 'async';
+        foto.width = 480;
+        foto.height = 320;
+        foto.referrerPolicy = 'no-referrer';
+        foto.alt = {{ t('Foto de')|tojson }} + ' ' + p.nome_popular;
+        foto.className = 'w-full h-full object-cover';
+        let tentouAlternativa = false;
+        foto.onerror = () => {
+            if (!tentouAlternativa && p.alternativa !== p.imagem) {
+                tentouAlternativa = true;
+                foto.src = p.alternativa;
             } else {
-                score = 1;
+                foto.onerror = null;
+                foto.src = {{ url_for('static', filename='fotos/sem_foto.jpg')|tojson }};
             }
-
-            const isVisible = matchCategoria && matchPartes && matchBusca;
-
-            return { card, score, isVisible, nomeCientificoTexto };
+        };
+        foto.src = p.imagem;
+        moldura.appendChild(foto);
+        const corpo = document.createElement('div');
+        corpo.className = 'p-4 md:p-5 flex-1';
+        [[p.familia, 'p', 'text-[9px] text-gray-400 uppercase font-bold mb-1 tracking-widest'],
+         [p.nome_popular, 'h4', 'font-serif text-lg md:text-xl text-gray-900 font-bold mb-1 leading-tight'],
+         [p.nome_cientifico, 'p', 'text-xs text-emerald-700 italic font-serif']].forEach(([texto, tag, classe]) => {
+            const elemento = document.createElement(tag);
+            elemento.textContent = texto;
+            elemento.className = classe;
+            corpo.appendChild(elemento);
         });
-
-        dadosCalculados.sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            return a.nomeCientificoTexto.localeCompare(b.nomeCientificoTexto);
-        });
-
-        dadosCalculados.forEach(item => {
-            if (item.isVisible) {
-                item.card.style.display = 'flex';
-                grid.appendChild(item.card);
-            } else {
-                item.card.style.display = 'none';
-            }
-        });
-        document.getElementById('catalogo-vazio').hidden = dadosCalculados.some(item => item.isVisible);
+        card.append(moldura, corpo);
+        return card;
+    }
+    function mostrarMais() {
+        const lote = resultadosCatalogo.slice(exibidosCatalogo, exibidosCatalogo + tamanhoLote);
+        const fragmento = document.createDocumentFragment();
+        lote.forEach(({planta}) => fragmento.appendChild(criarCard(planta)));
+        document.getElementById('grid-plantas').appendChild(fragmento);
+        exibidosCatalogo += lote.length;
+        document.getElementById('catalogo-mais').hidden = exibidosCatalogo >= resultadosCatalogo.length;
+        document.getElementById('catalogo-contagem').textContent =
+            {{ t('Exibindo')|tojson }} + ' ' + exibidosCatalogo + ' ' + {{ t('de')|tojson }} + ' ' + resultadosCatalogo.length;
     }
 
 </script>

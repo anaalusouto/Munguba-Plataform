@@ -1,0 +1,389 @@
+{
+  "cobertura": {
+    "webp_local": 448,
+    "sem_foto": 75
+  },
+  "home_bytes": 668901,
+  "home_antes_bytes": 1566744,
+  "reducao_home_percentual": 57.3,
+  "miniatura_media_bytes": 26789,
+  "fotos_complementares_com_creditos": 234,
+  "sem_foto": [
+    {
+      "nome": "Alibertia sp.",
+      "familia": "Rubiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Ardisia sp.",
+      "familia": "Primulaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Arrabidaea sp.",
+      "familia": "Bignoniaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Bactris sp.",
+      "familia": "Arecaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Borreria G.Mey.",
+      "familia": "Rubiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Calathea sp. 1",
+      "familia": "Marantaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Calathea sp. 2",
+      "familia": "Marantaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Caraipa richardiana Cambess.",
+      "familia": "Clusiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Chaetogastra",
+      "familia": "Melastomataceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Chamaecrista sp.",
+      "familia": "Fabaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Cissus L.",
+      "familia": "Vitaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Clidemia D.Don",
+      "familia": "Melastomataceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Cololejeunea camillii (Lehm.) A. Evans",
+      "familia": "Lejeuneaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Cololejeunea winkleri (Morales & Bernecker) Bernecker & Pócs",
+      "familia": "Lejeuneaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Cordia tetrandra Aubl.",
+      "familia": "Boraginaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Costus L.",
+      "familia": "Costaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Couepia sp.",
+      "familia": "Chrysobalanaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Couratari sp.",
+      "familia": "Lecythidaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Crossomitrium epiphyllum (Mitt.) Müll. Hal.",
+      "familia": "Pilotrichaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Crossomitrium patrisiae (Brid.) Müll. Hal.",
+      "familia": "Pilotrichaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Cyathea J.E.Sm.",
+      "familia": "Cyatheaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Cyperus L.",
+      "familia": "Cyperaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Derris sp. 1",
+      "familia": "Fabaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Derris sp. 2",
+      "familia": "Fabaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Dioclea sp.",
+      "familia": "Fabaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Elvasia sp.",
+      "familia": "Ochnaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Euterpe sp. (açaí espada)",
+      "familia": "Arecaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Ficus sp.1",
+      "familia": "Moraceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Geonoma sp.",
+      "familia": "Arecaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Gurania sp.",
+      "familia": "Cucurbitaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Heisteria sp.",
+      "familia": "Erythropalaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Heliconia L.",
+      "familia": "Heliconiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Heteropsis Kunth",
+      "familia": "Araceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Heteropterys Kunth",
+      "familia": "Malpighiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Heteropterys sp.",
+      "familia": "Malpighiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Hippocratea sp.",
+      "familia": "Hippocrateaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Hymenocallis sp.",
+      "familia": "Amaryllidaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Inga sp. 1",
+      "familia": "Fabaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Inga sp. 2",
+      "familia": "Fabaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Ipomoea L.",
+      "familia": "Convolvulaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Isopterygium subbrevisetum (Hampe) Broth.",
+      "familia": "Hypnaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Isopterygium tenerum (Sw.) Mitt.",
+      "familia": "Hypnaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Lejeunea combuensis O.S. Moura, Ilk.-Borg. & M.E. Reiner",
+      "familia": "Lejeuneaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Machaerium sp.",
+      "familia": "Fabaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Malpighia sp.",
+      "familia": "Malpighiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Maytenus sp.",
+      "familia": "Celastraceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Melothria L.",
+      "familia": "Cucurbitaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Memora sp. 1",
+      "familia": "Bignoniaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Montrichardia sp.",
+      "familia": "Araceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Ocotea sp.",
+      "familia": "Lauraceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Octoblepharum albidum Hedw.",
+      "familia": "Calymperaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Ormosia sp.",
+      "familia": "Fabaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Ouratea Aubl.",
+      "familia": "Ochnaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Pachira Aubl.",
+      "familia": "Malvaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Paullinia L.",
+      "familia": "Sapindaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Philodendron sp. 2",
+      "familia": "Araceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Piper L.",
+      "familia": "Piperaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Piper sp. 1",
+      "familia": "Piperaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Piper sp. 2",
+      "familia": "Piperaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Piper sp. 3",
+      "familia": "Piperaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Pouteria sp.",
+      "familia": "Sapotaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Prionostemma asperum (Lam.) Miers",
+      "familia": "Celastraceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Protium Burm.f.",
+      "familia": "Burseraceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Pteridium sp.",
+      "familia": "Dennstaedtiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Salacia sp.",
+      "familia": "Celastraceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Solanum sp.",
+      "familia": "Solanaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Solanum stramoniifolium Jacq.",
+      "familia": "Solanaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Sophonandra sp.",
+      "familia": "Solanaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Sterculia sp.",
+      "familia": "Malvaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Symphonia L.f.",
+      "familia": "Clusiaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Terminalia sp.",
+      "familia": "Combretaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Tillandsia sp.",
+      "familia": "Bromeliaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Trichanthera Kunth",
+      "familia": "Acanthaceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Urospatha Schott",
+      "familia": "Araceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    },
+    {
+      "nome": "Urospatha sp.",
+      "familia": "Araceae",
+      "motivo": "Nenhuma imagem licenciada com correspondência exata"
+    }
+  ],
+  "ainda_remotas": []
+}

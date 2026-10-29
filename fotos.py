@@ -1,6 +1,8 @@
 import csv
 import io
+import json
 import logging
+from functools import lru_cache
 import os
 from pathlib import Path
 import re
@@ -11,6 +13,8 @@ import urllib.request
 from openpyxl import load_workbook
 
 FOTOS_ARQUIVO = Path(__file__).resolve().parent / 'dados' / 'Fotos faltantes - Catálogo Munguba.xlsx'
+FOTOS_COMPLEMENTARES = FOTOS_ARQUIVO.parent / 'fotos_complementares.json'
+FOTOS_MINIATURAS = FOTOS_ARQUIVO.parent / 'fotos_miniaturas.json'
 
 # Planilha pública com as fotos (exportada como CSV pelo próprio Google Sheets)
 FOTOS_PLANILHA_ID = os.environ.get("FOTOS_PLANILHA_ID", "1nvX6uISakRKveiDBx6kjxi1OcRsw9BcXY4uzqHEoIR8")
@@ -23,6 +27,33 @@ EPITETOS_INDEFINIDOS = {"sp", "sp.", "spp", "spp.", "cf", "cf.", "aff", "aff."}
 
 _cache = {"fotos": None, "binomios": None, "carregado_em": 0}
 logger = logging.getLogger(__name__)
+_manifestos = {}
+
+
+@lru_cache(maxsize=4)
+def _ler_manifesto(caminho, modificado_em):
+    return json.loads(Path(caminho).read_text(encoding='utf-8'))
+
+
+def _manifesto(caminho):
+    agora = time.monotonic()
+    recente = _manifestos.get(caminho)
+    if recente and agora - recente[0] < 1:
+        return recente[1]
+    try:
+        modificado_em = caminho.stat().st_mtime_ns
+    except FileNotFoundError:
+        dados = {}
+    else:
+        dados = _ler_manifesto(str(caminho), modificado_em)
+    _manifestos[caminho] = (agora, dados)
+    return dados
+
+
+def otimizar_foto(foto):
+    """Usa versões pré-geradas; nunca baixa ou processa imagens na requisição."""
+    local = _manifesto(FOTOS_MINIATURAS).get(foto['url'])
+    return {**foto, **local} if local else foto
 
 
 def normalizar_nome(nome):
@@ -32,7 +63,8 @@ def normalizar_nome(nome):
 def binomio(nome):
     """Gênero + epíteto, sem autoria. Retorna None se o nome não tiver um epíteto válido."""
     partes = normalizar_nome(nome).split(" ")
-    if len(partes) < 2 or partes[1] in EPITETOS_INDEFINIDOS or not partes[1].isalpha():
+    if (len(partes) < 2 or partes[1] in EPITETOS_INDEFINIDOS
+            or not re.fullmatch(r"[^\W\d_]+(?:-[^\W\d_]+)*", partes[1])):
         return None
     return f"{partes[0]} {partes[1]}"
 
@@ -119,8 +151,10 @@ def _garantir_cache():
 def buscar_foto(nome_cientifico):
     """Procura a foto pelo nome científico exato; se não achar, tenta pelo binômio (ignora a autoria)."""
     _garantir_cache()
-    foto = _cache["fotos"].get(normalizar_nome(nome_cientifico))
+    foto = _manifesto(FOTOS_COMPLEMENTARES).get(normalizar_nome(nome_cientifico))
+    if not foto:
+        foto = _cache["fotos"].get(normalizar_nome(nome_cientifico))
     if not foto:
         chave_binomio = binomio(nome_cientifico)
         foto = _cache["binomios"].get(chave_binomio) if chave_binomio else None
-    return foto
+    return otimizar_foto(foto) if foto else None

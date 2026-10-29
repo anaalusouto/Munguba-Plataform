@@ -1,6 +1,7 @@
 """Regressões do consumo da planilha de fotos, sem depender da rede."""
 import csv
 import io
+import json
 import unittest
 from unittest.mock import patch
 from pathlib import Path
@@ -67,7 +68,7 @@ class FotosTest(unittest.TestCase):
         with patch.object(fotos, '_cache', cache), \
                 patch.object(fotos.urllib.request, 'urlopen', side_effect=AssertionError('Rede desnecessária')):
             foto = fotos.buscar_foto('Aspasia variegata')
-        self.assertIn('/376017265/', foto['url'])
+        self.assertIn('/376017265/', foto.get('url_original', foto['url']))
         self.assertEqual(foto['autor'], 'audreyenguyane')
         self.assertTrue(foto['licenca'])
         self.assertEqual(len(cache['fotos']), 237)
@@ -91,6 +92,29 @@ class FotosTest(unittest.TestCase):
             with patch.object(fotos, 'FOTOS_ARQUIVO', caminho):
                 imagens, _ = fotos._carregar_arquivo()
         self.assertEqual(imagens['inga alba']['url'], 'https://example.org/alba.jpg')
+
+    def test_manifestos_publicados_apontam_para_arquivos_existentes(self):
+        raiz = Path(main.BASE_DIR)
+        for manifesto in (fotos.FOTOS_COMPLEMENTARES, fotos.FOTOS_MINIATURAS):
+            dados = json.loads(manifesto.read_text(encoding='utf-8'))
+            self.assertTrue(dados)
+            for chave, foto in dados.items():
+                for campo in ('url', 'url_media'):
+                    caminho = foto[campo]
+                    self.assertTrue(caminho.startswith('/static/fotos/catalogo/'), chave)
+                    self.assertTrue((raiz / caminho.lstrip('/')).is_file(), chave)
+                if manifesto == fotos.FOTOS_COMPLEMENTARES:
+                    self.assertTrue(all(foto.get(k) for k in ('autor', 'licenca', 'fonte', 'taxon_gbif')), chave)
+
+    def test_cache_http_das_miniaturas(self):
+        dados = json.loads(fotos.FOTOS_MINIATURAS.read_text(encoding='utf-8'))
+        caminho = next(iter(dados.values()))['url_media']
+        with main.app.test_client() as client:
+            resposta = client.get(caminho)
+            self.assertEqual(resposta.status_code, 200)
+            self.assertEqual(resposta.mimetype, 'image/webp')
+            self.assertIn('max-age=604800', resposta.headers['Cache-Control'])
+            resposta.close()
 
 
 if __name__ == '__main__':
