@@ -2,6 +2,12 @@
 from flask import request, url_for
 
 EN = {
+    'Compartilhar': 'Share',
+    'Compartilhar a plataforma': 'Share the platform',
+    'Fechar compartilhamento': 'Close sharing',
+    'Aponte a câmera do celular para acessar a Munguba.': 'Scan with your phone camera to open Munguba.',
+    'QR Code da plataforma Munguba': 'Munguba platform QR code',
+    'Baixar QR Code': 'Download QR code',
     'Pontos com localização incerta': 'Points with uncertain locations',
     'Plantas com localização incerta': 'Plants with uncertain locations',
     'Coordenada aproximada compartilhada por estas plantas.': 'Approximate coordinate shared by these plants.',

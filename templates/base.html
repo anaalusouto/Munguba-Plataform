@@ -37,6 +37,17 @@
             content: ''; display: block; width: 0; height: 2px;
             background: #059669; transition: width .3s;
         }
+        .acoes-compartilhar { position: absolute; right: 1.5rem; top: 6rem; z-index: 50; display: flex; align-items: center; gap: 8px; }
+        .botao-compartilhar { display: flex; align-items: center; gap: 6px; background: white; color: #064e3b; border-radius: 999px; padding: 8px 12px; font-size: 12px; font-weight: 600; box-shadow: 0 1px 3px #0002; }
+        #modal-compartilhar { width: min(90vw, 410px); max-height: 90vh; margin: auto; border: 0; padding: 24px; border-radius: 20px; background: white; color: #064e3b; text-align: center; overflow-y: auto; }
+        #modal-compartilhar::backdrop { background: #0008; }
+        #modal-compartilhar h2 { font-size: 22px; font-weight: 700; }
+        #modal-compartilhar p { font-size: 14px; color: #475569; margin-top: 12px; }
+        #modal-compartilhar img { display: block; width: 100%; height: auto; margin: 16px auto; }
+        #modal-compartilhar .fechar-compartilhar { display: block; margin-left: auto; padding: 4px 8px; font-size: 22px; line-height: 1; }
+        #modal-compartilhar a { display: inline-block; border-radius: 12px; padding: 10px 16px; background: #064e3b; color: white; font-size: 14px; font-weight: 600; }
+        @media (min-width: 768px) { .acoes-compartilhar { top: 5rem; } }
+        @media (min-width: 1200px) { .acoes-compartilhar { top: 2rem; } }
     </style>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">
@@ -82,15 +93,40 @@
     </div>
 </header>
 
-<nav aria-label="Language / Idioma" class="absolute right-6 top-24 md:top-8 z-50 flex gap-1 bg-white rounded-full px-2 py-1 shadow-sm text-xs font-bold">
+<div class="acoes-compartilhar">
+    <button type="button" class="botao-compartilhar" onclick="abrirCompartilhar()" aria-haspopup="dialog" aria-controls="modal-compartilhar">
+        <i class="ri-share-line" aria-hidden="true"></i> {{ t('Compartilhar') }}
+    </button>
+<nav aria-label="Language / Idioma" class="flex gap-1 bg-white rounded-full px-2 py-1 shadow-sm text-xs font-bold">
     <a href="{{ url_idioma('pt') }}" lang="pt-BR" hreflang="pt-BR" aria-label="Português" {% if idioma == 'pt' %}aria-current="page"{% endif %} class="px-2 py-1 rounded-full {{ 'bg-emerald-900 text-white' if idioma == 'pt' else 'text-emerald-900' }}">PT</a>
     <a href="{{ url_idioma('en') }}" lang="en" hreflang="en" aria-label="English" {% if idioma == 'en' %}aria-current="page"{% endif %} class="px-2 py-1 rounded-full {{ 'bg-emerald-900 text-white' if idioma == 'en' else 'text-emerald-900' }}">EN</a>
 </nav>
+</div>
 
     <main>
         {% block content %}
         {% endblock %}
     </main>
+
+<dialog id="modal-compartilhar" aria-labelledby="titulo-compartilhar">
+    <button type="button" class="fechar-compartilhar" onclick="fecharCompartilhar()" aria-label="{{ t('Fechar compartilhamento') }}">&times;</button>
+    <h2 id="titulo-compartilhar">{{ t('Compartilhar a plataforma') }}</h2>
+    <p>{{ t('Aponte a câmera do celular para acessar a Munguba.') }}</p>
+    <img data-src="{{ url_for('qrcode_plataforma') }}" alt="{{ t('QR Code da plataforma Munguba') }}" width="1024" height="1024" decoding="async">
+    <a href="{{ url_for('qrcode_plataforma') }}" download="qrcode-munguba.png">{{ t('Baixar QR Code') }}</a>
+</dialog>
+<script>
+    function abrirCompartilhar() {
+        const modal = document.getElementById('modal-compartilhar');
+        const imagem = modal.querySelector('img');
+        if (!imagem.hasAttribute('src')) imagem.src = imagem.dataset.src;
+        if (!modal.open) modal.showModal();
+        travarScroll();
+    }
+    function fecharCompartilhar() {
+        document.getElementById('modal-compartilhar').close();
+    }
+</script>
 
 </body>
 </html>

@@ -144,5 +144,12 @@ def baixar_planilha():
         return render_template('erro.html'), 404
 
 
+@app.route('/compartilhar/qr-code.png')
+def qrcode_plataforma():
+    return send_file(os.path.join(BASE_DIR, 'dados', 'qrcodemunguba.png'),
+                     mimetype='image/png', download_name='qrcode-munguba.png',
+                     conditional=True, max_age=3600)
+
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=False)
