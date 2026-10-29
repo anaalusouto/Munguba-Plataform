@@ -8,7 +8,8 @@
 
             <div class="h-64 md:h-80 w-full relative shrink-0">
                 <img src="{{ p['foto']['url'] }}"
-                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                     data-alternativa="{{ p['foto']['url_media'] }}"
+                     onerror="if(this.dataset.alternativa && this.src!==this.dataset.alternativa){this.src=this.dataset.alternativa;this.dataset.alternativa='';}else{this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}';}"
                      referrerpolicy="no-referrer"
                      loading="lazy"
                      alt="{{ t('Foto de') }} {{ p['nome_popular'] }}"

@@ -1,0 +1,162 @@
+{
+  "cobertura": {
+    "planilha": 212,
+    "locais": 12,
+    "sem_foto": 299
+  },
+  "fotos_sem_correspondencia_no_catalogo": [
+    {
+      "nome_planilha": "bactris guineensis (l.) h.e.moore",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/630029721/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/630029721/medium.jpg",
+      "autor": "katie-alicyn",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/6185591398"
+    },
+    {
+      "nome_planilha": "dalbergia ovalis (l.) plr moraes & lp queiroz",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/606633893/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/606633893/medium.jpg",
+      "autor": "Guillaume Léotard",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/6129941631"
+    },
+    {
+      "nome_planilha": "dianthera comata l.",
+      "url": "https://object.jacq.org/europeana/WU/2008547.jpg",
+      "url_media": "https://object.jacq.org/europeana/WU/2008547.jpg",
+      "autor": "Schönenberger,J. et al. La Gamba Pollen Atlas PA 4",
+      "licenca": "http://creativecommons.org/licenses/by/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/5004372569"
+    },
+    {
+      "nome_planilha": "echinochloa colonum",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/604437949/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/604437949/medium.jpg",
+      "autor": "pete_leroux",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/5938082618"
+    },
+    {
+      "nome_planilha": "elvasia dc",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/471571303/original.jpeg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/471571303/medium.jpeg",
+      "autor": "Alice Bello",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/5076938027"
+    },
+    {
+      "nome_planilha": "fimbristylis quinquangularis (vahl) kunth ou fimbristylis miliacea (l.) vahl",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/479207426/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/479207426/medium.jpg",
+      "autor": "Khant Ye Yint ( Lord Khanevyr ov Mandralyx)",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/5104601693"
+    },
+    {
+      "nome_planilha": "malvastrum americanum (l.) torr.",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/605668133/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/605668133/medium.jpg",
+      "autor": "Jon McIntyre",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/5938155478"
+    },
+    {
+      "nome_planilha": "maytenus molina",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/605344733/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/605344733/medium.jpg",
+      "autor": "Chris",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/5938123390"
+    },
+    {
+      "nome_planilha": "miconia crenata",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/604717836/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/604717836/medium.jpg",
+      "autor": "James Myers",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/5938346964"
+    },
+    {
+      "nome_planilha": "ocotea leptobotra (ruiz & pav.) mez",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/631203106/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/631203106/medium.jpg",
+      "autor": "Alfred Neubert",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/6188406502"
+    },
+    {
+      "nome_planilha": "piper asperifolium rich.",
+      "url": "https://assets.rjb.csic.es/fileget?coll=Plantas+Vasculares&type=O&filename=sp65178274082912936361.att.jpg&downloadname=MA-01-00810927",
+      "url_media": "https://assets.rjb.csic.es/fileget?coll=Plantas+Vasculares&type=O&filename=sp65178274082912936361.att.jpg&downloadname=MA-01-00810927",
+      "autor": "",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/1936221433"
+    },
+    {
+      "nome_planilha": "prionostemma aspera (lam.) miers",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/622707221/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/622707221/medium.jpg",
+      "autor": "Guillaume Léotard",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/6184748724"
+    },
+    {
+      "nome_planilha": "pleris propinqua",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/458824772/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/458824772/medium.jpg",
+      "autor": "Jean-Paul Boerekamps",
+      "licenca": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "fonte": "https://www.gbif.org/occurrence/5007179594"
+    },
+    {
+      "nome_planilha": "ruellia spruci",
+      "url": "https://d2jcv3kl45hlgi.cloudfront.net/17f4a20f82f3a04e5293da8ca76b62b3.jpg",
+      "url_media": "https://d2jcv3kl45hlgi.cloudfront.net/17f4a20f82f3a04e5293da8ca76b62b3.jpg",
+      "autor": "Royal Botanic Gardens, Kew",
+      "licenca": "http://creativecommons.org/licenses/by/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/1265484301"
+    },
+    {
+      "nome_planilha": "solanum crinilum",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/615846641/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/615846641/medium.jpg",
+      "autor": "Pierrot F.",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/6159416566"
+    },
+    {
+      "nome_planilha": "couratari aubl",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/626250718/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/626250718/medium.jpg",
+      "autor": "Jacqueline Weber",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/6184891528"
+    },
+    {
+      "nome_planilha": "eugenia sinemariensis aubl.",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/624946181/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/624946181/medium.jpg",
+      "autor": "Pierrot F.",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/6178806850"
+    },
+    {
+      "nome_planilha": "monodora myristica (gaertn.) dunal",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/474138500/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/474138500/medium.jpg",
+      "autor": "Arshley Brian",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/5935435858"
+    },
+    {
+      "nome_planilha": "piper hispidumpiper asperifolium rich.",
+      "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/606661239/original.jpg",
+      "url_media": "https://inaturalist-open-data.s3.amazonaws.com/photos/606661239/medium.jpg",
+      "autor": "Michelle Lee Delgado",
+      "licenca": "http://creativecommons.org/licenses/by-nc/4.0/",
+      "fonte": "https://www.gbif.org/occurrence/6130546204"
+    }
+  ],
+  "linha_sem_link_de_foto": "Eugenia omissa McVaugh"
+}

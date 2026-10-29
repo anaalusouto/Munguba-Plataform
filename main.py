@@ -40,16 +40,19 @@ def extrair_bibliografia(texto_bruto):
     return referencias
 
 
-def montar_foto(nome_cientifico):
-    arquivo = FOTOS_LOCAIS.get(normalizar_nome(nome_cientifico))
-    if not arquivo and binomio(nome_cientifico):
-        arquivo = FOTOS_LOCAIS_BINOMIO.get(binomio(nome_cientifico))
-    if arquivo:
-        url = url_for('static', filename='fotos/' + arquivo)
-        return {'url': url, 'url_media': url, 'autor': '', 'licenca': '', 'fonte': ''}
-    foto = buscar_foto(nome_cientifico)
-    if foto:
-        return foto
+def montar_foto(nome_cientifico, nomes_originais=()):
+    nomes = list(dict.fromkeys([nome_cientifico, *nomes_originais]))
+    for nome in nomes:
+        foto = buscar_foto(nome)
+        if foto:
+            return foto
+    for nome in nomes:
+        arquivo = FOTOS_LOCAIS.get(normalizar_nome(nome))
+        if not arquivo and binomio(nome):
+            arquivo = FOTOS_LOCAIS_BINOMIO.get(binomio(nome))
+        if arquivo:
+            url = url_for('static', filename='fotos/' + arquivo)
+            return {'url': url, 'url_media': url, 'autor': '', 'licenca': '', 'fonte': ''}
     url = url_for('static', filename='fotos/sem_foto.jpg')
     return {'url': url, 'url_media': url, 'autor': '', 'licenca': '', 'fonte': ''}
 
@@ -59,7 +62,8 @@ def preparar_planta(planta, idioma):
     planta['origem'] = '\n'.join(planta['habitats']) or traduzir('Não informado', idioma)
     planta['importancia'] = '; '.join(planta['tags']) or traduzir('Uso não documentado', idioma)
     planta['bibliografia'] = extrair_bibliografia('\n'.join(planta['referencias']))
-    planta['foto'] = montar_foto(planta['nome_cientifico'])
+    planta['foto'] = montar_foto(planta['nome_cientifico'],
+                               [o['nome_original'] for o in planta['ocorrencias']])
     return planta
 
 

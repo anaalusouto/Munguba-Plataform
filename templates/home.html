@@ -35,7 +35,7 @@
             {{ t('MUNGUBA • Plataforma de lista de espécies florísticas') }}
         </span>
 
-        <h1 class="text-4xl sm:text-5xl md:text-7xl text-emerald-950 font-brand mb-4 leading-tight">
+        <h1 class="text-4xl sm:text-5xl md:text-7xl text-emerald-950 font-serif font-normal mb-4 leading-tight">
             {{ t('de uso Bioeconômico') }}<br>{{ t('da Ilha do Combu') }}
         </h1>
 
@@ -85,12 +85,6 @@
 
 <section id="mapa-area" class="py-10 md:py-20 bg-white">
     <div class="container mx-auto px-4 md:px-6">
-        <div class="mb-6 text-sm text-gray-600 space-y-2">
-            <p>{{ t('Dados: Appendix S1 • Licença CC BY 4.0') }} · {{ stats.total_ocorrencia_geo }} {{ t('Ocorrências georreferenciadas') }} · {{ stats.total_area_geo }} {{ t('Referências de área') }}</p>
-            <p>{{ t('Os nomes científicos, nomes populares e citações são preservados como na fonte.') }}</p>
-            <label class="flex items-center gap-2 font-semibold text-emerald-900"><input type="checkbox" id="incluir-areas" onchange="filtrarMapaUnico(categoriaMapa)">{{ t('Incluir referências de área no mapa') }}</label>
-            <p>{{ t('As referências de área representam uma localidade, não o ponto exato da espécie.') }}</p>
-        </div>
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 md:gap-8 h-auto lg:h-[700px]">
 
             <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar h-64 lg:h-full order-1">
@@ -215,7 +209,8 @@
                          class="card-planta bg-white rounded-xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-all flex flex-col h-full overflow-hidden group">
                         <div class="h-32 md:h-40 bg-gray-100 relative overflow-hidden group-hover:bg-emerald-50 transition-colors">
                             <img src="{{ p['foto']['url_media'] }}"
-                                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}'"
+                                 data-alternativa="{{ p['foto']['url'] }}"
+                                 onerror="if(this.dataset.alternativa && this.src!==this.dataset.alternativa){this.src=this.dataset.alternativa;this.dataset.alternativa='';}else{this.onerror=null;this.src='{{ url_for('static', filename='fotos/sem_foto.jpg') }}';}"
                                  referrerpolicy="no-referrer"
                                  loading="lazy"
                                  alt="{{ t('Foto de') }} {{ p['nome_popular'] }}"
@@ -450,9 +445,8 @@
         categoriaMapa = cat;
         map.closePopup();
         const pontosVisiveis = [];
-        const incluirAreas = document.getElementById('incluir-areas').checked;
         markers.forEach(m => {
-            if ((cat === 'todos' || m.categoryTags.includes(cat)) && (m.georeferenceLevel === 'occurrence' || incluirAreas)) {
+            if ((cat === 'todos' || m.categoryTags.includes(cat)) && m.georeferenceLevel === 'occurrence') {
                 if(!map.hasLayer(m)) map.addLayer(m);
                 pontosVisiveis.push(m.getLatLng());
             } else { map.removeLayer(m); }

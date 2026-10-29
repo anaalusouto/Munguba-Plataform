@@ -54,11 +54,13 @@ python main.py
 ```
 The application will be accessible at http://localhost:5000.
 
-The public application reads `dados/Appendix_S1_Occurrence_records_PT.xlsx` and `dados/Appendix_S1_Occurrence_records_EN.xlsx` directly. Both files must be included in deployments. A MySQL database and Google service-account credentials are not required to browse or download the occurrence data. The optional public photo sheet is cached separately, with local and placeholder images as fallback.
+The public application reads `dados/Appendix_S1_Occurrence_records_PT.xlsx` and `dados/Appendix_S1_Occurrence_records_EN.xlsx` directly. Both files must be included in deployments. A MySQL database and Google service-account credentials are not required to browse or download the occurrence data. Photo metadata is read from the bundled workbook, with local and placeholder images as fallback.
 
 The `Occurrences` tab provides the records. `dynamicProperties` supplies the curated use and plant-part vocabularies, and `Vocabularies` defines the Portuguese/English terms. Scientific names, vernacular names and source citations remain as recorded by the authors. Reading does not rewrite either workbook. Restart the application after replacing both files with a new matching version.
 
-Of the 1,183 records, 260 have `georeferenceLevel=occurrence` and 923 have `georeferenceLevel=area`. The map initially shows occurrence-level coordinates. The optional area layer uses a different marker style and includes the source's uncertainty; these reference coordinates do not indicate the exact location of a taxon.
+Of the 1,183 records, 260 have `georeferenceLevel=occurrence` and 923 have `georeferenceLevel=area`. The map shows occurrence-level coordinates. Area reference records remain available in the taxon details; these reference coordinates do not indicate the exact location of a taxon.
+
+Photos come from `dados/Fotos faltantes - Catálogo Munguba.xlsx`, read without modifying the workbook. Include this file in deployments. It is cached for one hour; restart the application to apply a replacement immediately. Images remain hosted at their original URLs, so displaying them still requires access to those hosts. Only when the workbook is absent does the application use the public Google photo sheet, tab `1140076266`, configurable with `FOTOS_PLANILHA_ID` and `FOTOS_PLANILHA_GID`. Matching tries accepted and original recorded names, including binomials without authorship. Valid medium-resolution images are used when high-resolution links are missing or raw Deep Zoom files; FSI raster image endpoints are supported. Sheet photos keep their author, license and source; local images and the placeholder are fallbacks. Failed reads are retried after one minute.
 
 The legacy `models.py` and `importar_excel.py` remain available for the previous MySQL workflow. They are not used by the public application; the old importer's `drop_all()` operation must not be used to load Appendix S1.
 
