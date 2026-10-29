@@ -1,6 +1,7 @@
 """Leitura dos Appendix S1, sem alterar as planilhas ou o banco legado."""
 import json
 import math
+import re
 from collections import Counter
 from functools import lru_cache
 from pathlib import Path
@@ -127,3 +128,47 @@ def carregar_appendix(idioma):
         'por_categoria': dict(categorias),
     }
     return plantas, stats, filtros
+
+
+def referencias_area(idioma):
+    """Agrupa as referências da fonte, sem inventar posições para as plantas."""
+    plantas, _, _ = carregar_appendix(idioma)
+    caminho = caminho_appendix(idioma)
+    registros, _ = _ler_appendix(str(caminho), caminho.stat().st_mtime_ns)
+    ids = {o['id']: indice for indice, p in enumerate(plantas, 1) for o in p['ocorrencias']}
+    grupos = {}
+    for r in registros:
+        if r['propriedades'].get('georeferenceLevel') != 'area':
+            continue
+        lat, lng = r['decimalLatitude'], r['decimalLongitude']
+        if not coordenadas_validas(lat, lng):
+            continue
+        geometria = texto(r.get('footprintWKT'))
+        chave = (float(lat), float(lng), geometria)
+        grupo = grupos.setdefault(chave, {
+            'lat': float(lat), 'lng': float(lng), 'poligono': [], 'incerteza': None,
+            'registros': 0, 'taxons': {}, 'fontes': [],
+        })
+        # A fonte fornece um POLYGON simples em EPSG:4326 (longitude latitude).
+        match = re.fullmatch(r'POLYGON\s*\(\(\s*([^()]+)\s*\)\)', geometria, re.I)
+        if match and not grupo['poligono'] and texto(r.get('footprintSRS')) == 'EPSG:4326':
+            try:
+                pares = [list(map(float, par.split())) for par in match.group(1).split(',')]
+                if (len(pares) >= 4 and pares[0] == pares[-1]
+                        and all(len(par) == 2 and coordenadas_validas(par[1], par[0]) for par in pares)):
+                    grupo['poligono'] = [[y, x] for x, y in pares]
+            except ValueError:
+                pass
+        try:
+            incerteza = float(r.get('coordinateUncertaintyInMeters'))
+            if math.isfinite(incerteza) and incerteza >= 0:
+                grupo['incerteza'] = max(grupo['incerteza'] or 0, incerteza)
+        except (TypeError, ValueError):
+            pass
+        indice = ids[texto(r['occurrenceID'])]
+        grupo['taxons'][indice] = grupo['taxons'].get(indice, 0) + 1
+        grupo['registros'] += 1
+        fonte = texto(r.get('georeferenceSources'))
+        if fonte and fonte not in grupo['fontes']:
+            grupo['fontes'].append(fonte)
+    return [{**g, 'taxons': [{'id': i, 'registros': n} for i, n in g['taxons'].items()]} for g in grupos.values()]

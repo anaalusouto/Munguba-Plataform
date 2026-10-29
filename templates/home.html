@@ -23,6 +23,12 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
         background-color: #94a3b8;
     }
+    .referencia-popup { width: 270px; max-width: 100%; }
+    .referencia-popup h3 { font-weight: 700; margin-bottom: 8px; }
+    .referencia-popup input { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .referencia-popup .lista-plantas { max-height: 190px; overflow-y: auto; margin-top: 8px; }
+    .referencia-popup button { display: block; text-align: left; width: 100%; padding: 8px; border-bottom: 1px solid #e2e8f0; color: #064e3b; }
+    .referencia-popup small { display: block; color: #64748b; }
 </style>
 
 <section class="relative bg-white pt-36 md:pt-32 pb-16 md:pb-20 overflow-hidden">
@@ -85,6 +91,14 @@
 
 <section id="mapa-area" class="py-10 md:py-20 bg-white">
     <div class="container mx-auto px-4 md:px-6">
+        <div class="flex flex-wrap items-center gap-3 text-sm mb-4">
+            <span>{{ t('Pontos: ocorrências registradas') }}</span>
+            <label class="flex items-center gap-2 font-semibold text-emerald-900">
+                <input id="mostrar-referencias" type="checkbox" checked onchange="alternarReferencias()">
+                {{ t('Áreas: localizações incertas') }}
+            </label>
+            <span id="referencias-status" role="status"></span>
+        </div>
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 md:gap-8 h-auto lg:h-[700px]">
 
             <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar h-64 lg:h-full order-1">
@@ -220,6 +234,9 @@
     var map;
     var markers = [];
     var erroBaseMapa = false;
+    const areasReferencia = [];
+    let referenciasCarregadas = false;
+    let carregandoReferencias = false;
     const plantasMapa = {{ plantas_mapa|tojson }};
     const plantasCatalogo = {{ catalogo|tojson }};
     const tamanhoLote = 24;
@@ -242,6 +259,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('mapid') && typeof L !== 'undefined') {
             map = L.map('mapid', {zoomControl: false, preferCanvas: true}).setView([-1.45, -48.48], 10);
+            map.createPane('referencias');
+            map.getPane('referencias').style.zIndex = '350';
             L.control.zoom({zoomInTitle: {{ t('Aproximar')|tojson }}, zoomOutTitle: {{ t('Afastar')|tojson }}}).addTo(map);
             map.on('popupopen', () => {
                 const fechar = document.querySelector('#mapid .leaflet-popup-close-button');
@@ -302,6 +321,7 @@
                 });
             });
             filtrarMapaUnico('todos');
+            carregarReferencias();
         } else {
             const status = document.getElementById('mapa-status');
             status.textContent = {{ t('Não foi possível carregar o mapa. Recarregue a página para tentar novamente.')|tojson }};
@@ -440,6 +460,116 @@
         const texto = document.getElementById('texto-filtro-ativo');
         if (filtrosAtivos.categoria !== 'todos') { badge.classList.remove('hidden'); texto.innerText = filtrosAtivos.categoria; } else { badge.classList.add('hidden'); }
     }
+    function plantasDaArea(area) {
+        return area.taxons.filter(t => categoriaMapa === 'todos' || plantasMapa[t.id - 1].tags.includes(categoriaMapa));
+    }
+    function criarPopupArea(area) {
+        const popup = document.createElement('div');
+        popup.className = 'referencia-popup';
+        const titulo = document.createElement('h3');
+        titulo.textContent = {{ t('Localização de referência')|tojson }};
+        const aviso = document.createElement('p');
+        aviso.textContent = {{ t('Área aproximada; não indica o ponto exato de cada planta.')|tojson }};
+        const incerteza = document.createElement('p');
+        incerteza.textContent = {{ t('Incerteza informada (m)')|tojson }} + ': ' +
+            (area.incerteza === null ? {{ t('Não informado')|tojson }} : new Intl.NumberFormat({{ idioma|tojson }}).format(area.incerteza));
+        const busca = document.createElement('input');
+        busca.type = 'search';
+        busca.placeholder = {{ t('Buscar planta nesta área...')|tojson }};
+        busca.setAttribute('aria-label', busca.placeholder);
+        const contagem = document.createElement('p');
+        contagem.setAttribute('role', 'status');
+        const lista = document.createElement('div');
+        lista.className = 'lista-plantas';
+        const mais = document.createElement('button');
+        mais.textContent = {{ t('Mostrar mais espécies')|tojson }};
+        let resultados = [], exibidos = 0;
+        function adicionarLote() {
+            const lote = resultados.slice(exibidos, exibidos + 20);
+            lote.forEach(t => {
+                const planta = plantasMapa[t.id - 1];
+                const botao = document.createElement('button');
+                botao.type = 'button';
+                botao.textContent = planta.nome_popular;
+                const nome = document.createElement('small');
+                nome.textContent = planta.nome_cientifico;
+                botao.appendChild(nome);
+                botao.addEventListener('click', () => abrirDetalhe(t.id));
+                lista.appendChild(botao);
+            });
+            exibidos += lote.length;
+            mais.hidden = exibidos >= resultados.length;
+        }
+        function pesquisar() {
+            const termo = normalizar(busca.value);
+            resultados = plantasDaArea(area).filter(t => {
+                const p = plantasMapa[t.id - 1];
+                return normalizar(p.nome_cientifico + ' ' + p.nome_popular + ' ' + p.familia).includes(termo);
+            });
+            contagem.textContent = resultados.length + ' ' + {{ t('plantas com referência nesta área')|tojson }};
+            lista.replaceChildren();
+            exibidos = 0;
+            adicionarLote();
+        }
+        busca.addEventListener('input', pesquisar);
+        mais.addEventListener('click', adicionarLote);
+        const fonte = document.createElement('details');
+        const rotuloFonte = document.createElement('summary');
+        rotuloFonte.textContent = {{ t('Fonte da localização')|tojson }};
+        const textoFonte = document.createElement('small');
+        textoFonte.textContent = area.fontes.join('\n');
+        fonte.append(rotuloFonte, textoFonte);
+        popup.append(titulo, aviso, incerteza, busca, contagem, lista, mais, fonte);
+        pesquisar();
+        return popup;
+    }
+    async function carregarReferencias() {
+        if (!map || referenciasCarregadas || carregandoReferencias) return;
+        carregandoReferencias = true;
+        const status = document.getElementById('referencias-status');
+        status.textContent = {{ t('Carregando áreas de referência...')|tojson }};
+        try {
+            const resposta = await fetch({{ url_for('referencias_mapa', lang=idioma)|tojson }});
+            if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
+            const dados = await resposta.json();
+            dados.areas.forEach(area => {
+                const camadas = [];
+                const estilo = {pane: 'referencias', color: '#b45309', weight: 2, dashArray: '6 5', fillColor: '#f59e0b', fillOpacity: 0.08};
+                if (area.incerteza > 0) camadas.push(L.circle([area.lat, area.lng], {...estilo, radius: area.incerteza}));
+                if (area.poligono.length) camadas.push(L.polygon(area.poligono, {...estilo, dashArray: null, fillOpacity: 0.12}));
+                if (!camadas.length) return;
+                area.camada = L.featureGroup(camadas).bindPopup(() => criarPopupArea(area), {maxWidth: 320, maxHeight: 450});
+                areasReferencia.push(area);
+            });
+            referenciasCarregadas = true;
+            filtrarMapaUnico(categoriaMapa);
+        } catch (erro) {
+            status.textContent = {{ t('Não foi possível carregar as áreas de referência. Desative e ative a opção para tentar novamente.')|tojson }};
+        } finally {
+            carregandoReferencias = false;
+        }
+    }
+    function alternarReferencias() {
+        filtrarMapaUnico(categoriaMapa);
+        if (document.getElementById('mostrar-referencias').checked) carregarReferencias();
+    }
+    function atualizarAreasReferencia() {
+        if (!referenciasCarregadas) return [];
+        const mostrar = document.getElementById('mostrar-referencias').checked;
+        const visiveis = [];
+        const plantas = new Set();
+        areasReferencia.forEach(area => {
+            const taxons = plantasDaArea(area);
+            if (mostrar && taxons.length) {
+                if (!map.hasLayer(area.camada)) area.camada.addTo(map);
+                taxons.forEach(t => plantas.add(t.id));
+                visiveis.push(area);
+            } else if (map.hasLayer(area.camada)) map.removeLayer(area.camada);
+        });
+        document.getElementById('referencias-status').textContent = mostrar
+            ? plantas.size + ' ' + {{ t('plantas com localização de referência')|tojson }} : '';
+        return visiveis;
+    }
     function filtrarMapaUnico(cat) {
         if (!map) return;
         categoriaMapa = cat;
@@ -451,12 +581,15 @@
                 pontosVisiveis.push(m.getLatLng());
             } else { map.removeLayer(m); }
         });
-        if (pontosVisiveis.length) map.fitBounds(pontosVisiveis, {padding: [30, 30], maxZoom: 15});
+        atualizarAreasReferencia().forEach(area => {
+            pontosVisiveis.push(area.camada.getBounds().getNorthEast(), area.camada.getBounds().getSouthWest());
+        });
+        if (pontosVisiveis.length) map.fitBounds(pontosVisiveis, {padding: [30, 30], maxZoom: 15, animate: false});
         atualizarStatusMapa();
     }
     function atualizarStatusMapa() {
         const status = document.getElementById('mapa-status');
-        const semPontos = !markers.some(m => map.hasLayer(m));
+        const semPontos = !markers.some(m => map.hasLayer(m)) && !areasReferencia.some(a => map.hasLayer(a.camada));
         status.textContent = erroBaseMapa
             ? {{ t('Não foi possível carregar parte do mapa. Confira sua conexão e recarregue a página.')|tojson }}
             : semPontos ? {{ t('Nenhuma ocorrência com coordenadas válidas para esta seleção.')|tojson }} : '';

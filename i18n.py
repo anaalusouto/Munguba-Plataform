@@ -2,6 +2,18 @@
 from flask import request, url_for
 
 EN = {
+    'Pontos: ocorrências registradas': 'Points: recorded occurrences',
+    'Áreas: localizações incertas': 'Areas: uncertain locations',
+    'Localização de referência': 'Reference location',
+    'Área aproximada; não indica o ponto exato de cada planta.': 'Approximate area; it does not indicate the exact location of each plant.',
+    'Incerteza informada (m)': 'Reported uncertainty (m)',
+    'Buscar planta nesta área...': 'Find a plant in this area...',
+    'plantas com referência nesta área': 'plants referenced in this area',
+    'plantas com localização de referência': 'plants with a reference location',
+    'Fonte da localização': 'Location source',
+    'Carregando áreas de referência...': 'Loading reference areas...',
+    'Não foi possível carregar as áreas de referência.': 'Reference areas could not be loaded.',
+    'Não foi possível carregar as áreas de referência. Desative e ative a opção para tentar novamente.': 'Reference areas could not be loaded. Turn the option off and on to try again.',
     'Mostrar mais espécies': 'Show more taxa', 'Exibindo': 'Showing', 'de': 'of',
     'Plataforma Munguba': 'Munguba Platform',
     'Acessar Catálogo': 'Browse Catalogue', 'Acessar Mapa': 'Explore Map',

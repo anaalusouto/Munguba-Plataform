@@ -1,7 +1,7 @@
 {
-  "homeMs": 1331,
-  "abrirCatalogoMs": 120,
-  "buscaComDebounceMs": 152,
+  "homeMs": 178,
+  "abrirCatalogoMs": 125,
+  "buscaComDebounceMs": 143,
   "cartoesIniciais": 24,
   "especiesPesquisaveis": 523,
   "errosJavascript": [],

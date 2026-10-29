@@ -9,7 +9,7 @@ load_dotenv()
 
 from fotos import buscar_foto, normalizar_nome, binomio, otimizar_foto
 from i18n import contexto_idioma, idioma_atual, traduzir
-from ocorrencias import carregar_appendix, caminho_appendix, coordenadas_validas
+from ocorrencias import carregar_appendix, caminho_appendix, coordenadas_validas, referencias_area
 
 app = Flask(__name__)
 app.json.ensure_ascii = False
@@ -124,6 +124,15 @@ def detalhe_taxon(indice):
         abort(404)
     planta = preparar_planta(plantas[indice - 1], idioma)
     return render_template('detalhe.html', p=planta, indice=indice)
+
+
+@app.route('/referencias-mapa')
+def referencias_mapa():
+    try:
+        return {'areas': referencias_area(idioma_atual())}
+    except (OSError, ValueError, KeyError, BadZipFile):
+        app.logger.exception('Falha na leitura das referências de área')
+        return {'erro': traduzir('Não foi possível carregar as áreas de referência.', idioma_atual())}, 503
 
 
 @app.route('/exportar-dados')

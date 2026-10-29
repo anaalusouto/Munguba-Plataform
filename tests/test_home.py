@@ -91,6 +91,33 @@ class HomeTest(unittest.TestCase):
             self.assertEqual(resposta.data, caminho_appendix(idioma).read_bytes())
             resposta.close()
 
+    def test_referencias_preservam_area_incerteza_e_vinculos(self):
+        for idioma in ('pt', 'en'):
+            resposta = self.client.get('/referencias-mapa?lang=' + idioma)
+            self.assertEqual(resposta.status_code, 200)
+            areas = resposta.get_json()['areas']
+            self.assertEqual(len(areas), 1)
+            area = areas[0]
+            self.assertEqual(area['registros'], 923)
+            self.assertEqual(len(area['taxons']), 424)
+            self.assertEqual(sum(t['registros'] for t in area['taxons']), 923)
+            self.assertEqual(area['incerteza'], 3416)
+            self.assertEqual(len(area['poligono']), 30)
+            self.assertEqual(area['poligono'][0], [-1.49413, -48.49191])
+            self.assertEqual(area['poligono'][0], area['poligono'][-1])
+            plantas, _, _ = carregar_appendix(idioma)
+            esperados = {i for i, p in enumerate(plantas, 1)
+                         if any(o['nivel'] == 'area' and o['ponto'] for o in p['ocorrencias'])}
+            self.assertEqual({t['id'] for t in area['taxons']}, esperados)
+            self.assertTrue(area['fontes'])
+
+    def test_erro_das_referencias_tem_retorno_localizado(self):
+        with patch.object(main, 'referencias_area', side_effect=FileNotFoundError):
+            with self.assertLogs(main.app.logger, level='ERROR'):
+                resposta = self.client.get('/referencias-mapa?lang=en')
+        self.assertEqual(resposta.status_code, 503)
+        self.assertEqual(resposta.get_json()['erro'], 'Reference areas could not be loaded.')
+
     def test_ficha_com_ocorrencias_nos_dois_idiomas(self):
         for idioma, rotulo in [('pt', 'Registros deste táxon'), ('en', 'Records for this taxon')]:
             plantas, _, _ = carregar_appendix(idioma)
