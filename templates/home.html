@@ -95,7 +95,8 @@
             <span>{{ t('Pontos: ocorrências registradas') }}</span>
             <label class="flex items-center gap-2 font-semibold text-emerald-900">
                 <input id="mostrar-referencias" type="checkbox" checked onchange="alternarReferencias()">
-                {{ t('Áreas: localizações incertas') }}
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#fca5a5;border:1px solid #f87171" aria-hidden="true"></span>
+                {{ t('Pontos com localização incerta') }}
             </label>
             <span id="referencias-status" role="status"></span>
         </div>
@@ -259,8 +260,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('mapid') && typeof L !== 'undefined') {
             map = L.map('mapid', {zoomControl: false, preferCanvas: true}).setView([-1.45, -48.48], 10);
-            map.createPane('referencias');
-            map.getPane('referencias').style.zIndex = '350';
             L.control.zoom({zoomInTitle: {{ t('Aproximar')|tojson }}, zoomOutTitle: {{ t('Afastar')|tojson }}}).addTo(map);
             map.on('popupopen', () => {
                 const fechar = document.querySelector('#mapid .leaflet-popup-close-button');
@@ -467,15 +466,15 @@
         const popup = document.createElement('div');
         popup.className = 'referencia-popup';
         const titulo = document.createElement('h3');
-        titulo.textContent = {{ t('Localização de referência')|tojson }};
+        titulo.textContent = {{ t('Plantas com localização incerta')|tojson }};
         const aviso = document.createElement('p');
-        aviso.textContent = {{ t('Área aproximada; não indica o ponto exato de cada planta.')|tojson }};
+        aviso.textContent = {{ t('Coordenada aproximada compartilhada por estas plantas.')|tojson }};
         const incerteza = document.createElement('p');
         incerteza.textContent = {{ t('Incerteza informada (m)')|tojson }} + ': ' +
             (area.incerteza === null ? {{ t('Não informado')|tojson }} : new Intl.NumberFormat({{ idioma|tojson }}).format(area.incerteza));
         const busca = document.createElement('input');
         busca.type = 'search';
-        busca.placeholder = {{ t('Buscar planta nesta área...')|tojson }};
+        busca.placeholder = {{ t('Buscar planta neste ponto...')|tojson }};
         busca.setAttribute('aria-label', busca.placeholder);
         const contagem = document.createElement('p');
         contagem.setAttribute('role', 'status');
@@ -506,7 +505,7 @@
                 const p = plantasMapa[t.id - 1];
                 return normalizar(p.nome_cientifico + ' ' + p.nome_popular + ' ' + p.familia).includes(termo);
             });
-            contagem.textContent = resultados.length + ' ' + {{ t('plantas com referência nesta área')|tojson }};
+            contagem.textContent = resultados.length + ' ' + {{ t('plantas com referência neste ponto')|tojson }};
             lista.replaceChildren();
             exibidos = 0;
             adicionarLote();
@@ -527,24 +526,22 @@
         if (!map || referenciasCarregadas || carregandoReferencias) return;
         carregandoReferencias = true;
         const status = document.getElementById('referencias-status');
-        status.textContent = {{ t('Carregando áreas de referência...')|tojson }};
+        status.textContent = {{ t('Carregando pontos de referência...')|tojson }};
         try {
             const resposta = await fetch({{ url_for('referencias_mapa', lang=idioma)|tojson }});
             if (!resposta.ok) throw new Error('HTTP ' + resposta.status);
             const dados = await resposta.json();
             dados.areas.forEach(area => {
-                const camadas = [];
-                const estilo = {pane: 'referencias', color: '#b45309', weight: 2, dashArray: '6 5', fillColor: '#f59e0b', fillOpacity: 0.08};
-                if (area.incerteza > 0) camadas.push(L.circle([area.lat, area.lng], {...estilo, radius: area.incerteza}));
-                if (area.poligono.length) camadas.push(L.polygon(area.poligono, {...estilo, dashArray: null, fillOpacity: 0.12}));
-                if (!camadas.length) return;
-                area.camada = L.featureGroup(camadas).bindPopup(() => criarPopupArea(area), {maxWidth: 320, maxHeight: 450});
+                area.camada = L.circleMarker([area.lat, area.lng], {
+                    radius: 7, color: '#f87171', weight: 1.5,
+                    fillColor: '#fca5a5', fillOpacity: 0.95,
+                }).bindPopup(() => criarPopupArea(area), {maxWidth: 320, maxHeight: 450});
                 areasReferencia.push(area);
             });
             referenciasCarregadas = true;
             filtrarMapaUnico(categoriaMapa);
         } catch (erro) {
-            status.textContent = {{ t('Não foi possível carregar as áreas de referência. Desative e ative a opção para tentar novamente.')|tojson }};
+            status.textContent = {{ t('Não foi possível carregar os pontos de referência. Desative e ative a opção para tentar novamente.')|tojson }};
         } finally {
             carregandoReferencias = false;
         }
@@ -582,7 +579,7 @@
             } else { map.removeLayer(m); }
         });
         atualizarAreasReferencia().forEach(area => {
-            pontosVisiveis.push(area.camada.getBounds().getNorthEast(), area.camada.getBounds().getSouthWest());
+            pontosVisiveis.push(area.camada.getLatLng());
         });
         if (pontosVisiveis.length) map.fitBounds(pontosVisiveis, {padding: [30, 30], maxZoom: 15, animate: false});
         atualizarStatusMapa();

@@ -15,21 +15,35 @@ const { chromium } = require(process.argv[2] || 'playwright-core');
     assert.equal(await page.evaluate(() => areasReferencia.length), 1);
     assert.equal(await page.evaluate(() => map.hasLayer(areasReferencia[0].camada)), true);
     assert.match(await page.locator('#referencias-status').innerText(), /424/);
-    assert.equal(await page.evaluate(() => areasReferencia[0].camada.getLayers()[0].getRadius()), 3416);
+    assert.equal(await page.evaluate(() => areasReferencia[0].camada instanceof L.CircleMarker), true);
+    assert.equal(await page.evaluate(() => areasReferencia[0].camada instanceof L.Circle), false);
+    assert.equal(await page.evaluate(() => areasReferencia[0].camada.getRadius()), 7);
+    assert.equal(await page.evaluate(() => areasReferencia[0].camada.options.fillColor), '#fca5a5');
+    assert.deepEqual(await page.evaluate(() => {
+      const p = areasReferencia[0].camada.getLatLng();
+      return [p.lat, p.lng];
+    }), [-1.50002, -48.46192]);
     await page.locator('#mapid').scrollIntoViewIfNeeded();
     const ponto = await page.evaluate(() => {
-      const p = map.latLngToContainerPoint(markers[130].getLatLng());
+      const referencia = map.latLngToContainerPoint(areasReferencia[0].camada.getLatLng());
+      const marcador = markers.find(m => map.latLngToContainerPoint(m.getLatLng()).distanceTo(referencia) > 20);
+      const p = map.latLngToContainerPoint(marcador.getLatLng());
       return {x: p.x, y: p.y};
     });
     await page.locator('#mapid').click({position: ponto});
     assert.match(await page.locator('.leaflet-popup-content').innerText(), /Ocorrência/);
-    await page.evaluate(() => { areasReferencia[0].camada.openPopup([areasReferencia[0].lat, areasReferencia[0].lng]); });
+    await page.evaluate(() => { map.closePopup(); map.stop(); resetarMapa(); });
+    const referencia = await page.evaluate(() => {
+      const p = map.latLngToContainerPoint(areasReferencia[0].camada.getLatLng());
+      return {x: p.x, y: p.y};
+    });
+    await page.locator('#mapid').click({position: referencia});
     await page.locator('.referencia-popup').waitFor();
     assert.match(await page.locator('.referencia-popup').innerText(), /3\.416/);
     assert.equal(await page.locator('.lista-plantas > button').count(), 20);
     await page.locator('.referencia-popup > button').click();
     assert.equal(await page.locator('.lista-plantas > button').count(), 40);
-    const buscar = page.getByRole('searchbox', {name: 'Buscar planta nesta área...'});
+    const buscar = page.getByRole('searchbox', {name: 'Buscar planta neste ponto...'});
     await buscar.fill('Abarema cochliacarpos');
     assert.equal(await page.locator('.lista-plantas > button').count(), 1);
     await page.locator('.lista-plantas > button').click();
@@ -63,7 +77,7 @@ const { chromium } = require(process.argv[2] || 'playwright-core');
     assert.match(await page.locator('#referencias-status').innerText(), /424 plants/);
     assert.deepEqual(erros, []);
     const resultado = {ocorrencias: 260, registrosReferencia: 923, plantasReferencia: 424,
-      raioIncertezaMetros: 3416, pesquisa: 'ok', filtro: 'ok', ficha: 'ok',
+      incertezaInformadaMetros: 3416, representacao: 'ponto vermelho claro sem area', pesquisa: 'ok', filtro: 'ok', ficha: 'ok',
       ocultarMostrar: 'ok', recuperarFalha: 'ok', ingles: 'ok', errosJavascript: erros};
     fs.writeFileSync('artifacts/mapa-referencias-verificacao.json', JSON.stringify(resultado, null, 2));
     console.log(JSON.stringify(resultado));

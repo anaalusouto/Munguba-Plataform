@@ -2,6 +2,13 @@
 from flask import request, url_for
 
 EN = {
+    'Pontos com localização incerta': 'Points with uncertain locations',
+    'Plantas com localização incerta': 'Plants with uncertain locations',
+    'Coordenada aproximada compartilhada por estas plantas.': 'Approximate coordinate shared by these plants.',
+    'Buscar planta neste ponto...': 'Find a plant at this point...',
+    'plantas com referência neste ponto': 'plants referenced at this point',
+    'Carregando pontos de referência...': 'Loading reference points...',
+    'Não foi possível carregar os pontos de referência. Desative e ative a opção para tentar novamente.': 'Reference points could not be loaded. Turn the option off and on to try again.',
     'Pontos: ocorrências registradas': 'Points: recorded occurrences',
     'Áreas: localizações incertas': 'Areas: uncertain locations',
     'Localização de referência': 'Reference location',
