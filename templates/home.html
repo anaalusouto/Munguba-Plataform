@@ -92,15 +92,6 @@
 
 <section id="mapa-area" class="py-10 md:py-20 bg-white">
     <div class="container mx-auto px-4 md:px-6">
-        <div class="flex flex-wrap items-center gap-3 text-sm mb-4">
-            <span>{{ t('Pontos: ocorrências registradas') }}</span>
-            <label class="flex items-center gap-2 font-semibold text-emerald-900">
-                <input id="mostrar-referencias" type="checkbox" checked onchange="alternarReferencias()">
-                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#fca5a5;border:1px solid #f87171" aria-hidden="true"></span>
-                {{ t('Pontos com localização incerta') }}
-            </label>
-            <span id="referencias-status" role="status"></span>
-        </div>
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 md:gap-8 h-auto lg:h-[700px]">
 
             <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar h-64 lg:h-full order-1">
@@ -553,20 +544,13 @@
             carregandoReferencias = false;
         }
     }
-    function alternarReferencias() {
-        filtrarMapaUnico(categoriaMapa);
-        if (document.getElementById('mostrar-referencias').checked) carregarReferencias();
-    }
     function atualizarAreasReferencia() {
         if (!referenciasCarregadas) return [];
-        const mostrar = document.getElementById('mostrar-referencias').checked;
         const visiveis = [];
-        const plantas = new Set();
         areasReferencia.forEach(area => {
             const taxons = plantasDaArea(area);
-            if (mostrar && taxons.length) {
+            if (taxons.length) {
                 if (!map.hasLayer(area.camada)) area.camada.addTo(map);
-                taxons.forEach(t => plantas.add(t.id));
                 visiveis.push(area);
             } else if (map.hasLayer(area.camada)) map.removeLayer(area.camada);
         });
