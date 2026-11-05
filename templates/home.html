@@ -103,11 +103,12 @@
         <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 md:gap-8 h-auto lg:h-[700px]">
 
             <div class="lg:col-span-3 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar h-64 lg:h-full order-1">
+                <div id="mapa-selecao" class="hidden bg-white border border-emerald-200 p-4 rounded-xl shrink-0" aria-live="polite"></div>
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 sticky top-0 bg-white py-2 z-10">
                     {{ t('Destaques no Mapa') }}
                 </h3>
 
-                <button type="button" onclick="resetarMapa()" class="cursor-pointer bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center text-xs font-bold text-emerald-900 uppercase hover:bg-emerald-100 transition-colors shrink-0">
+                <button type="button" onclick="resetarMapa()" data-categoria-mapa="todos" aria-pressed="true" class="cursor-pointer bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center text-xs font-bold text-emerald-900 uppercase hover:bg-emerald-100 transition-colors shrink-0">
                     {{ t('Mostrar Tudo') }}
                 </button>
 
@@ -123,8 +124,9 @@
                     {% elif 'Artesanato' in cat %}{% set icon = "ri-paint-brush-line" %}
                     {% endif %}
 
-                    <button type="button" onclick="filtrarMapaUnico('{{ cat }}')" class="cursor-pointer group bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:border-emerald-500 transition-all flex justify-between items-center shrink-0 text-left">
+                    <button type="button" onclick="filtrarMapaUnico('{{ cat }}')" data-categoria-mapa="{{ cat }}" aria-pressed="false" class="cursor-pointer group bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:border-emerald-500 transition-all flex justify-between items-center shrink-0 text-left">
                         <div class="flex items-center gap-3">
+                            <span class="cor-categoria w-3 h-3 rounded-full shrink-0" aria-hidden="true"></span>
                             <i aria-hidden="true" class="{{ icon }} text-xl text-gray-400 group-hover:text-emerald-600 transition-colors"></i>
                             <div>
                                 <span class="block text-lg md:text-xl font-bold text-gray-800">{{ stats.por_categoria[cat] }}</span>
@@ -239,6 +241,17 @@
     let referenciasCarregadas = false;
     let carregandoReferencias = false;
     const plantasMapa = {{ plantas_mapa|tojson }};
+    const categoriasMapa = {{ filtros.categorias|tojson }};
+    const paletaMapa = ['#047857', '#2563eb', '#b45309', '#be185d', '#7c3aed', '#0e7490', '#c2410c', '#4d7c0f', '#a21caf', '#4338ca', '#9f1239', '#3f6212'];
+    const coresCategorias = new Map(categoriasMapa.map((cat, i) => [cat, paletaMapa[i % paletaMapa.length]]));
+    function corDaPlanta(tags, categoria) {
+        return coresCategorias.get(categoria !== 'todos' ? categoria : categoriasMapa.find(cat => tags.includes(cat))) || '#475569';
+    }
+    function mostrarSelecaoMapa(conteudo) {
+        const painel = document.getElementById('mapa-selecao');
+        painel.replaceChildren(conteudo);
+        painel.classList.remove('hidden');
+    }
     const plantasCatalogo = {{ catalogo|tojson }};
     const tamanhoLote = 24;
     let indiceCatalogo;
@@ -258,6 +271,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[data-categoria-mapa]').forEach(botao => {
+            const amostra = botao.querySelector('.cor-categoria');
+            if (amostra) amostra.style.backgroundColor = coresCategorias.get(botao.dataset.categoriaMapa);
+        });
         if (document.getElementById('mapid') && typeof L !== 'undefined') {
             map = L.map('mapid', {zoomControl: false, preferCanvas: true}).setView([-1.45, -48.48], 10);
             L.control.zoom({zoomInTitle: {{ t('Aproximar')|tojson }}, zoomOutTitle: {{ t('Afastar')|tojson }}}).addTo(map);
@@ -287,12 +304,7 @@
                         if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
                             var coords = [lat, lng];
                             var tags = planta.tags;
-                            var corPino = '#9CA3AF';
-                            if (tags.some(t => t.includes('Medicinal'))) corPino = '#10B981';
-                            else if (tags.some(t => /Alimentação|Food/.test(t))) corPino = '#3B82F6';
-                            else if (tags.some(t => /Indústria|Industry/.test(t))) corPino = '#F59E0B';
-                            else if (tags.some(t => /Cosméticos|Cosmetics/.test(t))) corPino = '#EC4899';
-
+                            var corPino = corDaPlanta(tags, 'todos');
                             var marker = L.circleMarker(coords, { radius: 6, fillColor: corPino, color: 'white', weight: 1.5, fillOpacity: 0.9 });
                             marker.categoryTags = tags;
                             marker.georeferenceLevel = ponto.nivel;
@@ -314,6 +326,11 @@
                             geo.className = 'text-xs text-gray-600 mt-2';
                             geo.textContent = ponto.id + ' · ' + (ponto.nivel === 'occurrence' ? {{ t('Ocorrência')|tojson }} : {{ t('Área de referência')|tojson }}) + ' · ' + {{ t('Incerteza (m)')|tojson }} + ': ' + ponto.incerteza;
                             popup.appendChild(geo);
+                            marker.on('click', () => mostrarSelecaoMapa(popup.cloneNode(true)));
+                            marker.on('click', () => {
+                                const botaoLateral = document.querySelector('#mapa-selecao button');
+                                if (botaoLateral) botaoLateral.addEventListener('click', () => abrirDetalhe(index + 1));
+                            });
                             marker.bindPopup(popup); markers.push(marker);
                         }
                     } catch(e) { console.error("Erro pin:", e); }
@@ -536,6 +553,7 @@
                     radius: 7, color: '#f87171', weight: 1.5,
                     fillColor: '#fca5a5', fillOpacity: 0.95,
                 }).bindPopup(() => criarPopupArea(area), {maxWidth: 320, maxHeight: 450});
+                area.camada.on('click', () => mostrarSelecaoMapa(criarPopupArea(area)));
                 areasReferencia.push(area);
             });
             referenciasCarregadas = true;
@@ -570,10 +588,18 @@
     function filtrarMapaUnico(cat) {
         if (!map) return;
         categoriaMapa = cat;
+        document.querySelectorAll('[data-categoria-mapa]').forEach(botao => {
+            const ativo = botao.dataset.categoriaMapa === cat;
+            botao.setAttribute('aria-pressed', String(ativo));
+            botao.style.borderColor = ativo ? (coresCategorias.get(cat) || '#047857') : '';
+            botao.style.boxShadow = ativo ? '0 0 0 2px ' + (coresCategorias.get(cat) || '#047857') : '';
+        });
+        document.getElementById('mapa-selecao').classList.add('hidden');
         map.closePopup();
         const pontosVisiveis = [];
         markers.forEach(m => {
             if ((cat === 'todos' || m.categoryTags.includes(cat)) && m.georeferenceLevel === 'occurrence') {
+                m.setStyle({fillColor: corDaPlanta(m.categoryTags, cat)});
                 if(!map.hasLayer(m)) map.addLayer(m);
                 pontosVisiveis.push(m.getLatLng());
             } else { map.removeLayer(m); }
